@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHG 顯微術互動教室 🦉</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root, :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #14161c; --panel: #1d2028; --panel2: #262b36; --border: #232734;
+    --ink: #e6e6ec; --muted: #9aa0ae; --dim: #6a7080; --grid: #2e3340;
+    --accent: #6ec6ff; --red: #ff7b72; --blue: #6ec6ff; --gold: #f2c35b;
+    --green: #7ee787; --purple: #d2a8ff; --ok: #7ee787; --bad: #ff7b72;
+    --shadow: 0 2px 10px rgba(0,0,0,0.28);
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f2f3f6; --panel: #ffffff; --panel2: #eceef3; --border: #e3e6ec;
+    --ink: #1c1f27; --muted: #5b6272; --dim: #8b91a0; --grid: #dfe2e9;
+    --accent: #1e6fc0; --red: #c9403a; --blue: #1e6fc0; --gold: #b07a10;
+    --green: #1f8f55; --purple: #7648cf; --ok: #1f8f55; --bad: #c9403a;
+    --shadow: 0 1px 3px rgba(20,24,40,0.06);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Noto Serif TC", "Source Han Serif TC", "Songti TC", serif;
+    line-height: 1.75;
+  }
+  header.top {
+    position: sticky; top: 0; z-index: 10; background: var(--bg);
+    border-bottom: 1px solid var(--grid); padding: 8px 16px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  header.top a.home { color: var(--muted); text-decoration: none; font-size: 0.85rem; }
+  nav.toc { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+  nav.toc a {
+    color: var(--muted); text-decoration: none; font-size: 0.8rem;
+    padding: 3px 8px; border-radius: 6px; border: 1px solid transparent;
+  }
+  nav.toc a:hover, nav.toc a.on { border-color: var(--grid); color: var(--accent); }
+  .chips { display: flex; gap: 6px; }
+  button.chip, button.btn {
+    background: var(--panel); color: var(--muted); border: 1px solid var(--grid);
+    border-radius: 8px; padding: 5px 9px; font-size: 0.8rem; cursor: pointer;
+    font-family: inherit; line-height: 1.2;
+  }
+  button.chip:hover, button.btn:hover { border-color: var(--accent); color: var(--ink); }
+  button.btn.on { border-color: var(--accent); color: var(--accent); }
+  main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 80px; }
+  .hero { text-align: center; padding: 24px 0 8px; }
+  .hero h1 { font-size: 1.7rem; margin: 0 0 8px; }
+  .hero p { color: var(--muted); max-width: 760px; margin: 0 auto; font-size: 0.95rem; }
+  section.ch {
+    background: var(--panel); border: 1px solid var(--border); box-shadow: var(--shadow);
+    border-radius: 14px; padding: 22px 22px 18px; margin: 28px 0;
+  }
+  section.ch h2 { margin: 0 0 4px; font-size: 1.3rem; }
+  section.ch h2 .no { color: var(--gold); margin-right: 8px; }
+  section.ch .lead { color: var(--muted); margin: 0 0 14px; font-size: 0.92rem; }
+  .text { font-size: 0.93rem; }
+  .text p { margin: 0 0 10px; }
+  .text b { color: var(--accent); font-weight: 600; }
+  .text code, .eq { font-family: "Cambria Math", "STIX Two Math", serif; color: var(--gold); }
+  .eqline { text-align: center; font-family: "Cambria Math", "STIX Two Math", serif; color: var(--gold); font-size: 1.05rem; margin: 6px 0 12px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  .grid3 { display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 860px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+  .stage {
+    position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 10px;
+    background: var(--panel2); overflow: hidden; touch-action: none;
+  }
+  .stage canvas { display: block; width: 100%; height: 100%; }
+  .stage .tag {
+    position: absolute; left: 10px; top: 8px; font-size: 0.75rem; color: var(--muted);
+    pointer-events: none; line-height: 1.5;
+  }
+  .stage .tag2 { position: absolute; right: 10px; bottom: 8px; font-size: 0.72rem; color: var(--dim); pointer-events: none; }
+  canvas.plot { width: 100%; height: auto; display: block; background: var(--panel2); border-radius: 10px; }
+  .ctl { margin: 8px 0; }
+  .ctl label { display: flex; justify-content: space-between; font-size: 0.86rem; }
+  .ctl output { color: var(--accent); font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .readout {
+    font-size: 0.84rem; color: var(--muted); border-top: 1px solid var(--grid);
+    padding-top: 8px; margin-top: 8px; font-variant-numeric: tabular-nums; line-height: 1.8;
+  }
+  .readout b { color: var(--ink); }
+  .note { font-size: 0.78rem; color: var(--dim); margin-top: 6px; line-height: 1.6; }
+  .callout {
+    border-left: 3px solid var(--gold); background: var(--panel2); border-radius: 0 8px 8px 0;
+    padding: 8px 12px; font-size: 0.88rem; margin: 10px 0;
+  }
+  .bar { height: 12px; border-radius: 6px; background: var(--grid); overflow: hidden; margin: 3px 0 8px; }
+  .bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .12s; }
+  .quiz .q { border-top: 1px solid var(--grid); padding: 12px 0; }
+  .quiz .q p { margin: 0 0 6px; font-size: 0.93rem; }
+  .quiz .opts { display: flex; flex-direction: column; gap: 6px; }
+  .quiz .opts button { text-align: left; }
+  .quiz .opts button.right { border-color: var(--ok); color: var(--ok); }
+  .quiz .opts button.wrong { border-color: var(--bad); color: var(--bad); }
+  .quiz .why { font-size: 0.84rem; color: var(--muted); margin-top: 6px; display: none; }
+  table.sum { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  table.sum td, table.sum th { border-bottom: 1px solid var(--grid); padding: 6px 8px; text-align: left; vertical-align: top; }
+  table.sum th { color: var(--gold); white-space: nowrap; }
+  a { color: var(--accent); }
+  .fallback { padding: 30px; font-size: 0.85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<script>
+(() => {
+  let th = 'light'; try { th = localStorage.getItem('owl-theme') || th; } catch (e) {}
+  const q = new URLSearchParams(location.search).get('theme');
+  if (q === 'dark' || q === 'light') th = q;
+  document.documentElement.dataset.theme = th;
+})();
+</script>
+<header class="top">
+  <a class="home" href="index.html">🦉 Owl Toys</a>
+  <nav class="toc" id="toc">
+    <a href="#c1" data-i18n="toc.1"></a><a href="#c2" data-i18n="toc.2"></a><a href="#c3" data-i18n="toc.3"></a>
+    <a href="#c4" data-i18n="toc.4"></a><a href="#c5" data-i18n="toc.5"></a><a href="#c6" data-i18n="toc.6"></a>
+    <a href="#c7" data-i18n="toc.7"></a>
+  </nav>
+  <span class="chips">
+    <button class="chip" id="lang" data-i18n-title="btn.lang.title"></button>
+    <button class="chip" id="theme" data-i18n-title="btn.theme.title"></button>
+  </span>
+</header>
+
+<main>
+<div class="hero">
+  <h1 data-i18n="h1"></h1>
+  <p data-i18n="hero"></p>
+</div>
+
+<!-- ═══════════ 1 非線性極化 ═══════════ -->
+<section class="ch" id="c1">
+  <h2><span class="no">1</span><span data-i18n="c1.h"></span></h2>
+  <p class="lead" data-i18n="c1.lead"></p>
+  <div class="grid2">
+    <div class="text" data-i18n="c1.text"></div>
+    <div>
+      <canvas class="plot" id="c1wave" width="520" height="300"></canvas>
+      <div class="ctl"><label><span data-i18n="c1.E0"></span><output id="c1E0o"></output></label>
+        <input type="range" id="c1E0" min="0.1" max="1" step="0.01" value="0.7"></div>
+      <div class="ctl"><label><span data-i18n="c1.chi"></span><output id="c1chio"></output></label>
+        <input type="range" id="c1chi" min="0" max="0.6" step="0.01" value="0.3"></div>
+      <div class="readout" id="c1read"></div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:14px">
+    <div class="text" data-i18n="c1.text2"></div>
+    <div>
+      <div class="ctl"><label><span data-i18n="c1.tau"></span><output id="c1tauo"></output></label>
+        <input type="range" id="c1tau" min="1.7" max="7" step="0.01" value="2"></div>
+      <div class="readout" id="c1read2"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 2 對稱性與相干疊加（3D） ═══════════ -->
+<section class="ch" id="c2">
+  <h2><span class="no">2</span><span data-i18n="c2.h"></span></h2>
+  <p class="lead" data-i18n="c2.lead"></p>
+  <div class="grid3">
+    <div class="stage" id="s2"><div class="tag" data-i18n="c2.tag"></div><div class="tag2" data-i18n="drag3d"></div></div>
+    <div>
+      <div class="row">
+        <button class="btn" data-mode="aligned" data-i18n="c2.m.aligned"></button>
+        <button class="btn" data-mode="pairs" data-i18n="c2.m.pairs"></button>
+        <button class="btn" data-mode="random" data-i18n="c2.m.random"></button>
+      </div>
+      <div class="ctl"><label><span data-i18n="c2.order"></span><output id="c2So"></output></label>
+        <input type="range" id="c2S" min="0" max="1" step="0.01" value="1"></div>
+      <div class="ctl"><label><span data-i18n="c2.flip"></span><output id="c2fo"></output></label>
+        <input type="range" id="c2f" min="0" max="0.5" step="0.01" value="0"></div>
+      <div class="ctl"><label><span data-i18n="c2.N"></span><output id="c2No"></output></label>
+        <input type="range" id="c2N" min="10" max="400" step="1" value="120"></div>
+      <div class="readout" id="c2read"></div>
+      <canvas class="plot" id="c2plot" width="420" height="200" style="margin-top:8px"></canvas>
+    </div>
+  </div>
+  <div class="text" style="margin-top:12px" data-i18n="c2.text"></div>
+</section>
+
+<!-- ═══════════ 3 強度平方與光學切片 ═══════════ -->
+<section class="ch" id="c3">
+  <h2><span class="no">3</span><span data-i18n="c3.h"></span></h2>
+  <p class="lead" data-i18n="c3.lead"></p>
+  <div class="grid2">
+    <div>
+      <canvas class="plot" id="c3map" width="520" height="300"></canvas>
+      <canvas class="plot" id="c3plot" width="520" height="220" style="margin-top:10px"></canvas>
+    </div>
+    <div>
+      <div class="ctl"><label><span data-i18n="c3.NA"></span><output id="c3NAo"></output></label>
+        <input type="range" id="c3NA" min="0.3" max="1.2" step="0.01" value="0.8"></div>
+      <div class="readout" id="c3read"></div>
+      <div class="text" style="margin-top:10px" data-i18n="c3.text"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 4 相位匹配：前向與背向（3D） ═══════════ -->
+<section class="ch" id="c4">
+  <h2><span class="no">4</span><span data-i18n="c4.h"></span></h2>
+  <p class="lead" data-i18n="c4.lead"></p>
+  <div class="grid3">
+    <div class="stage" id="s4"><div class="tag" data-i18n="c4.tag"></div><div class="tag2" data-i18n="drag3d"></div></div>
+    <div>
+      <div class="ctl"><label><span data-i18n="c4.L"></span><output id="c4Lo"></output></label>
+        <input type="range" id="c4L" min="-1.7" max="0.7" step="0.01" value="-1"></div>
+      <div class="ctl"><label><span data-i18n="c4.w"></span><output id="c4wo"></output></label>
+        <input type="range" id="c4w" min="0.05" max="1" step="0.01" value="0.3"></div>
+      <div class="row"><button class="btn" id="c4log" data-i18n="c4.log"></button></div>
+      <div class="readout" id="c4read"></div>
+      <canvas class="plot" id="c4plot" width="420" height="200" style="margin-top:8px"></canvas>
+    </div>
+  </div>
+  <div class="text" style="margin-top:12px" data-i18n="c4.text"></div>
+</section>
+
+<!-- ═══════════ 5 偏振：張量看得見（3D） ═══════════ -->
+<section class="ch" id="c5">
+  <h2><span class="no">5</span><span data-i18n="c5.h"></span></h2>
+  <p class="lead" data-i18n="c5.lead"></p>
+  <div class="grid3">
+    <div class="stage" id="s5"><div class="tag" data-i18n="c5.tag"></div><div class="tag2" data-i18n="drag3d"></div></div>
+    <div>
+      <div class="row">
+        <button class="btn" id="c5play" data-i18n="c5.play"></button>
+        <button class="btn" id="c5col" data-i18n="c5.col"></button>
+        <button class="btn" id="c5myo" data-i18n="c5.myo"></button>
+      </div>
+      <div class="ctl"><label><span data-i18n="c5.theta"></span><output id="c5tho"></output></label>
+        <input type="range" id="c5th" min="0" max="360" step="1" value="0"></div>
+      <div class="ctl"><label><span data-i18n="c5.rho"></span><output id="c5rho_o"></output></label>
+        <input type="range" id="c5rho" min="0.3" max="3.5" step="0.01" value="1.4"></div>
+      <div class="ctl"><label><span data-i18n="c5.phi"></span><output id="c5phio"></output></label>
+        <input type="range" id="c5phi" min="0" max="180" step="1" value="30"></div>
+      <div class="ctl"><label><span data-i18n="c5.delta"></span><output id="c5delo"></output></label>
+        <input type="range" id="c5del" min="0" max="90" step="1" value="0"></div>
+      <canvas class="plot" id="c5polar" width="420" height="260"></canvas>
+      <div class="readout" id="c5read"></div>
+    </div>
+  </div>
+  <div class="text" style="margin-top:12px" data-i18n="c5.text"></div>
+</section>
+
+<!-- ═══════════ 6 樣品形式（3D） ═══════════ -->
+<section class="ch" id="c6">
+  <h2><span class="no">6</span><span data-i18n="c6.h"></span></h2>
+  <p class="lead" data-i18n="c6.lead"></p>
+  <div class="row" id="c6presets">
+    <button class="btn" data-p="tendonL" data-i18n="c6.p.tendonL"></button>
+    <button class="btn" data-p="tendonX" data-i18n="c6.p.tendonX"></button>
+    <button class="btn" data-p="dermis" data-i18n="c6.p.dermis"></button>
+    <button class="btn" data-p="cornea" data-i18n="c6.p.cornea"></button>
+    <button class="btn" data-p="muscle" data-i18n="c6.p.muscle"></button>
+    <button class="btn" data-p="tilted" data-i18n="c6.p.tilted"></button>
+  </div>
+  <div class="grid2">
+    <div class="stage" id="s6"><div class="tag" data-i18n="c6.tag"></div><div class="tag2" data-i18n="drag3d"></div></div>
+    <div>
+      <canvas class="plot" id="c6img" width="420" height="315"></canvas>
+      <div class="note" data-i18n="c6.imgnote"></div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:12px">
+    <div>
+      <div class="ctl"><label><span data-i18n="c6.theta"></span><output id="c6tho"></output></label>
+        <input type="range" id="c6th" min="0" max="180" step="1" value="0"></div>
+      <div class="row"><button class="btn" id="c6spin" data-i18n="c6.spin"></button><button class="btn" id="c6circ" data-i18n="c6.circ"></button></div>
+      <div class="ctl"><label><span data-i18n="c6.flip"></span><output id="c6fo"></output></label>
+        <input type="range" id="c6f" min="0" max="0.5" step="0.01" value="0"></div>
+      <div class="ctl"><label><span data-i18n="c6.thick"></span><output id="c6to"></output></label>
+        <input type="range" id="c6t" min="0" max="3" step="0.01" value="0"></div>
+      <div class="readout" id="c6read"></div>
+    </div>
+    <div>
+      <canvas class="plot" id="c6polar" width="420" height="240"></canvas>
+      <div class="text" style="margin-top:8px" id="c6desc"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 7 總結與小測驗 ═══════════ -->
+<section class="ch" id="c7">
+  <h2><span class="no">7</span><span data-i18n="c7.h"></span></h2>
+  <div data-i18n="c7.table"></div>
+  <div class="callout" data-i18n="c7.next"></div>
+  <div class="quiz" id="quiz"></div>
+  <p class="note" id="quizScore"></p>
+</section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const D2R = Math.PI / 180;
+
+// ═══════════════════════════ 文字字典 / Strings ═══════════════════════════
+const I18N = {
+zh: {
+  'title': 'SHG 顯微術互動教室 🦉',
+  'h1': 'SHG 顯微術互動教室',
+  'hero': `二倍頻（Second Harmonic Generation, SHG）顯微術不用染色，就能看見膠原、肌凝蛋白、微管這些「排得整齊」的結構。
+    這頁從物理一路走到樣品：每一章都有一個可以拖、可以轉的模型，<b>3D 場景用滑鼠／手指拖曳旋轉、滾輪或雙指縮放</b>。`,
+  'btn.lang.title': 'Switch to English', 'btn.theme.title': '切換深色／淺色',
+  'theme.light': '☀ 淺色', 'theme.dark': '🌙 深色',
+  'drag3d': '拖曳旋轉・滾輪縮放',
+  'toc.1': '1 非線性', 'toc.2': '2 對稱性', 'toc.3': '3 光學切片', 'toc.4': '4 前向／背向',
+  'toc.5': '5 偏振', 'toc.6': '6 樣品形式', 'toc.7': '7 總結測驗',
+
+  'c1.h': '電子雲被拉得「不夠線性」',
+  'c1.lead': '光的電場推動材料裡的電子；推得夠用力時，回應不再和電場成正比，倍頻就從那條彎曲裡長出來。',
+  'c1.text': `<p>材料受光照時產生的極化（電偶極密度）可以寫成電場的冪級數：</p>
+    <div class="eqline">P = ε₀[ χ⁽¹⁾E + χ⁽²⁾E² + χ⁽³⁾E³ + … ]</div>
+    <p>χ⁽¹⁾ 是一般的折射與吸收；<b>χ⁽²⁾（二階非線性極化率）</b>那一項把 E = E₀cos ωt 平方：</p>
+    <div class="eqline">cos²ωt = ½ + ½ cos 2ωt</div>
+    <p>於是極化裡多出一個 <b>2ω</b> 的振盪，它就像一支天線，輻射出波長剛好一半的光：800 nm 進、400 nm 出。</p>
+    <p>能量圖的講法是「兩個 ω 光子經過虛能階，合成一個 2ω 光子」。虛能階不是真的能階，分子沒有被激發，
+    也就沒有螢光那種壽命、漂白與斯托克斯位移；SHG 是瞬時、相干（有固定相位）的散射。</p>
+    <p>右圖紅線是電場，藍線是極化 P(t)。把 χ⁽²⁾ 拉大，藍線變得上下不對稱，底下的頻譜就長出 2ω 的柱子。</p>`,
+  'c1.E0': '電場振幅 E₀（相對）', 'c1.chi': 'χ⁽²⁾ 相對強度',
+  'c1.read': (dc, w1, w2, ratio) => `頻譜振幅：直流 <b>${dc}</b>、ω <b>${w1}</b>、2ω <b>${w2}</b><br>
+    2ω 強度 ∝ (χ⁽²⁾E₀²/2)²；E₀ 加倍 → SHG ×<b>16</b>（強度 I ∝ E₀²，所以 SHG ∝ I²）<br>
+    目前 2ω／ω 振幅比 <b>${ratio}</b>`,
+  'c1.text2': `<p><b>為什麼一定要飛秒雷射？</b>SHG ∝ I²，平均功率一樣時，把光擠進極短的脈衝裡，峰值強度暴增，
+    平均 SHG 訊號放大 <span class="eq">1/(τ·f_rep)</span> 倍（τ 脈寬、f_rep 重複頻率）。</p>
+    <p>常見 Ti:sapphire：80 MHz、100 fs，放大約十萬倍；對生物組織而言，這就是「看得到」與「看不到」的差別。
+    代價是峰值強度高，功率過大一樣會造成多光子損傷，所以「SHG 本身不吸收」不等於「雷射無害」。</p>`,
+  'c1.tau': '脈寬 τ（對數尺度）',
+  'c1.read2': (tau, gain) => `脈寬 <b>${tau}</b>、重複頻率 80 MHz：平均 SHG 是同功率連續光的約 <b>${gain}</b> 倍<br>
+    <span style="color:var(--dim)">（方波脈衝近似；高斯脈衝再乘約 0.66）</span>`,
+
+  'c2.h': '誰會亮？對稱性與相干疊加',
+  'c2.lead': '單一分子會不會倍頻是一回事；整群分子的貢獻能不能「同相相加」才決定你看到多亮。',
+  'c2.tag': '焦點體積內的分子（箭頭＝分子偶極方向）<br>入射偏振沿 x（紅箭頭）',
+  'c2.m.aligned': '同向排列（膠原）', 'c2.m.pairs': '正反成對（中心對稱）', 'c2.m.random': '完全亂向（溶液）',
+  'c2.order': '方向有序度 S', 'c2.flip': '反向極性比例 f', 'c2.N': '分子數 N',
+  'c2.read': (sig, perN, perN2, kind) => `相干和 |Σβᵢ|² = <b>${sig}</b><br>
+    訊號 / N = <b>${perN}</b>　訊號 / N² = <b>${perN2}</b><br>${kind}`,
+  'c2.kind.coh': '→ 隨 N² 增長：<b>相干 SHG</b>（像合唱團齊唱）',
+  'c2.kind.inc': '→ 只隨 N 增長：<b>非相干的超瑞利散射</b>（各唱各的，強度弱得多）',
+  'c2.kind.mid': '→ 介於兩者之間：部分有序',
+  'c2.plotlab': '訊號 vs N（log–log）：虛線斜率 2 ＝ N²、點線斜率 1 ＝ N',
+  'c2.text': `<p><b>中心對稱禁止 SHG：</b>如果把結構反轉（r → −r）後長得一樣，χ⁽²⁾ 必須等於 0，因為 E 反向時 E² 不變、P 卻得反向，兩者只能同為零。
+    水、玻璃、多數細胞質、脂質雙層的兩片（互為鏡像）都屬於這類。</p>
+    <p><b>膠原 I 型</b>（三股螺旋分子頭尾同向堆成纖維）、<b>肌凝蛋白</b>（肌節 A 帶的粗肌絲）、<b>微管</b>（有極性的聚合物，如紡錘體、軸突）
+    是三大內生 SHG 來源。它們不只「非中心對稱」，而且在焦點那麼大的範圍裡<b>極性大致一致</b>，所以 N 個分子的波同相疊加，強度 ∝ N²。</p>
+    <p>試試把「反向極性比例」拉到 0.5：分子本身都沒變，訊號卻幾乎消失。這就是 SHG 影像的亮度反映的是<b>排列秩序</b>，不單是膠原含量。</p>`,
+
+  'c3.h': '強度平方：天生的光學切片',
+  'c3.lead': 'SHG ∝ I² 這件事，讓顯微鏡不需要針孔就只看得到焦點那一層。',
+  'c3.NA': '物鏡數值孔徑 NA',
+  'c3.maplab': '左：雷射強度 I（x–z 剖面）　右：SHG ∝ I²',
+  'c3.plotlab': '每一層平面的總訊號 vs 離焦距離 z',
+  'c3.lin': '線性（一般螢光／反射）', 'c3.sq': 'SHG ∝ I²',
+  'c3.read': (w0, zR, fw) => `束腰 w₀ ≈ <b>${w0} µm</b>、Rayleigh 長度 z_R ≈ <b>${zR} µm</b><br>
+    SHG 軸向切片 FWHM ≈ 2z_R = <b>${fw} µm</b>（線性訊號則是平的，沒有切片）<br>
+    <span style="color:var(--dim)">高斯光束傍軸近似、λ=800 nm、n=1.33；大 NA 時只看趨勢</span>`,
+  'c3.text': `<p>雷射聚焦時，每一個橫切面通過的<b>總光功率都一樣</b>，只是離焦後光斑變大、強度變稀。
+    線性訊號（∝ I）把整個平面積分起來是常數，離焦的層照樣貢獻背景，所以共軛焦顯微鏡要用針孔擋掉。</p>
+    <p>SHG ∝ I²：光斑面積放大 A 倍，強度降為 1/A，每單位面積訊號降為 1/A²，積分後整層只剩 1/A。
+    於是只有焦點附近一小段在發光，<b>z-stack 掃描就是 3D 影像</b>，偵測器前不用針孔，散射光也能全收（對深層組織很重要）。</p>`,
+
+  'c4.h': '相位匹配：為什麼大多往前跑？',
+  'c4.lead': '各處分子發出的 2ω 波彼此有相位差，往前走時幾乎同步，往回走時互相打架。',
+  'c4.tag': '3D 輻射圖樣：雷射由上往下（−y），偏振沿 x<br>下方＝前向 F、上方＝背向 B',
+  'c4.L': '散射體沿光軸厚度 L（對數）', 'c4.w': '散射體橫向尺寸 w（µm）', 'c4.log': '壓縮顯示（看清楚背向小瓣）',
+  'c4.read': (L, F, B, FB, LcF, LcB) => `L = <b>${L} µm</b>：前向 F ∝ <b>${F}</b>、背向 B ∝ <b>${B}</b><br>
+    F/B ≈ <b>${FB}</b><br>同調長度：前向 l_c ≈ <b>${LcF} µm</b>、背向 l_c ≈ <b>${LcB} µm</b>`,
+  'c4.plotlab': 'F 與 B vs L（log–log，同一模型）',
+  'c4.text': `<p>雷射在介質中沿 z 前進，焦點內位於 z 的分子被 E² 驅動，相位是 <span class="eq">2k_ω z</span>；它輻射的 2ω 波往前走到偵測器要再累積 <span class="eq">k_2ω(L−z)</span>，往回走則是 <span class="eq">k_2ω z</span>。
+    把所有分子加起來，差的就是相位失配：</p>
+    <div class="eqline">前向 Δk_F = k_2ω − 2k_ω ≈ 4π(n_2ω−n_ω)/λ　　背向 Δk_B = k_2ω + 2k_ω ≈ 4π(n_2ω+n_ω)/λ</div>
+    <p>訊號 ∝ L²·sinc²(ΔkL/2)。前向的 Δk 很小，同調長度可達數微米到十微米；背向的 Δk 大了一百多倍，同調長度只有約 λ/(4n)，<b>不到 0.1 µm</b>。
+    所以<b>粗大、沿光軸延伸的有序纖維幾乎只往前發光</b>；很細（≪ λ）或排列鬆散的結構，前後差距縮小，背向比例上升。
+    文獻用 <b>F/B 比</b>來推估纖維粗細與排列（例如腫瘤或纖維化組織的膠原重塑）。</p>
+    <div class="note">模型假設：n_ω=1.40、n_2ω=1.42、λ=800 nm 平面波驅動，忽略聚焦造成的 Gouy 相位與組織散射。真實組織量到的 F/B 多在數倍到數十倍，比這裡的長纖維極限小得多，但趨勢一致。</div>`,
+
+  'c5.h': '偏振：把 χ⁽²⁾ 張量看成箭頭',
+  'c5.lead': '轉動入射偏振，纖維被驅動出的極化 P（藍箭頭）方向和大小都跟著變；P 在影像平面上的投影才會被物鏡收到。',
+  'c5.tag': '金色＝纖維（螺旋紋路代表分子傾角 θe），橘虛線＝它在影像平面的投影<br>紅＝入射偏振 E（在水平的影像平面內轉）<br>藍＝感應極化 P　綠＝P 在影像平面的投影（物鏡真正收到的）<br>青色曲線＝已掃過的 I(θ)',
+  'c5.play': '▶ 自動旋轉偏振', 'c5.pause': '⏸ 暫停', 'c5.col': '膠原 ρ=1.4', 'c5.myo': '肌凝蛋白 ρ=0.57',
+  'c5.theta': '入射偏振角 θ', 'c5.rho': 'ρ = χzzz / χzxx', 'c5.phi': '纖維面內方位 φ', 'c5.delta': '纖維出平面仰角 δ',
+  'c5.read': (I, Pz, te, ratio) => `目前強度 I(θ) = <b>${I}</b>（以 χzxx² 為單位）<br>
+    P 沿光軸分量佔 <b>${Pz}%</b>（這部分不輻射到物鏡）<br>
+    分子等效傾角 θe = arctan√(2/ρ) ≈ <b>${te}°</b>；平行／垂直強度比 = <b>${ratio}</b>`,
+  'c5.text': `<p>膠原纖維近似圓柱對稱（C∞ 或 C₆），χ⁽²⁾ 只剩三個獨立分量；假設 Kleinman 對稱（遠離共振時成立）後再剩兩個：沿纖維軸的 <b>χzzz</b> 和交叉項 <b>χzxx</b>。
+    對面內纖維、入射偏振和纖維夾 Δ = θ − φ：</p>
+    <div class="eqline">I(θ) ∝ (ρ cos²Δ + sin²Δ)² + sin²2Δ，ρ = χzzz/χzxx</div>
+    <p>第一項是沿纖維方向的 P，第二項是垂直方向的 P。<b>曲線的對稱軸就是纖維方向 φ</b>，<b>曲線的形狀由 ρ 決定</b>；
+    單軸分子模型下 ρ = 2/tan²θe，θe 是分子相對纖維軸的傾角，所以 ρ 是一把「分子尺度的量角器」：膠原 θe≈49°（ρ≈1.4），肌凝蛋白 θe≈62°（ρ≈0.57，所以肌肉的花瓣橫著長）。</p>
+    <p>把仰角 δ 拉起來：纖維往光軸豎，P 越來越朝 z，物鏡收不到，訊號掉、花瓣變形；如果硬用平面模型去擬合，會得到偏掉的 ρ。
+    想做數據擬合、手性 χ₁₄、組織雙折射，請到 <a href="pshg-polar-playground.html">P-SHG 偏振極座標遊樂場</a>；想看整張影像怎麼逐像素反推，請到 <a href="pshg-image-lab.html">P-SHG 影像實驗室</a>。</p>`,
+
+  'c6.h': '樣品長什麼樣，就看到什麼樣',
+  'c6.lead': '同一種膠原，切的方向、排列方式、極性混不混、樣品厚不厚，影像可以差很多。挑一個樣品，轉偏振看看。',
+  'c6.tag': '樣品 3D 模型（焦平面＝灰色網格）',
+  'c6.p.tendonL': '肌腱縱切', 'c6.p.tendonX': '肌腱橫切', 'c6.p.dermis': '真皮網狀膠原', 'c6.p.cornea': '角膜正交層板',
+  'c6.p.muscle': '骨骼肌（肌凝蛋白）', 'c6.p.tilted': '斜向翹起的纖維',
+  'c6.theta': '入射偏振角 θ', 'c6.spin': '▶ 偏振自動旋轉', 'c6.stop': '⏸ 停止', 'c6.circ': '圓偏振（各方向平均）',
+  'c6.flip': '焦點內反向極性比例 f', 'c6.thick': '樣品深度（散射平均自由程數）',
+  'c6.imgnote': '模擬 SHG 影像（俯視焦平面）：每根纖維的亮度依當前偏振用第 5 章的張量模型算出；色階為絕對值，全部預設共用同一把尺。',
+  'c6.read': (mean, aniso, att, thick) => `影像平均亮度（相對肌腱縱切單根纖維最亮）：<b>${mean}</b><br>
+    視野平均的偏振各向異性（max−min）/(max+min)：<b>${aniso}</b><br>
+    焦點激發衰減 e⁻ᵈ → SHG ×<b>${att}</b>（∝ I²，所以是 e⁻²ᵈ）<br>${thick ? '厚樣品：前向光被散射，<b>只能背向收</b>（含散射折回的前向光）' : '薄樣品：前向、背向都收得到，可量 F/B'}`,
+  'c6.polarlab': '整個視野的平均 I(θ)（藍）vs 單根面內纖維（灰虛線）',
+  'c6.d.tendonL': `<p><b>肌腱縱切：</b>纖維平躺、方向一致、極性一致。最亮，偏振一轉亮度起伏最大，花瓣形狀就是單根纖維的形狀。P-SHG 量 ρ 與方向最乾淨的樣品。</p>`,
+  'c6.d.tendonX': `<p><b>肌腱橫切：</b>同樣的膠原，纖維改成沿光軸豎立。面內電場只能驅動 χzxx，產生的 P 大多沿 z、不往物鏡輻射，<b>整片幾乎黑掉</b>，偏振轉了也沒差。
+    看到暗的橫切面，不要誤判成「沒有膠原」。</p>`,
+  'c6.d.dermis': `<p><b>真皮網狀膠原：</b>纖維在面內往各個方向交織、略有起伏。每根纖維在影像中各自隨偏振亮暗（試試自動旋轉），但整個視野平均起來幾乎不隨偏振變；
+    單張線偏振影像會<b>漏掉與偏振垂直的纖維</b>，所以常用圓偏振或多角度平均。</p>`,
+  'c6.d.cornea': `<p><b>角膜正交層板：</b>每一層內纖維極整齊，相鄰層轉約 90°。焦平面若落在一層之內，看到的是單一方向；切到層界就是兩組互相垂直的纖維，
+    平均起來的花瓣變成四瓣，方向資訊被平均掉。</p>`,
+  'c6.d.muscle': `<p><b>骨骼肌：</b>訊號來自肌節 A 帶的肌凝蛋白粗肌絲，呈約 2.5 µm 週期的亮帶。ρ≈0.57 &lt; 1，最亮的方向是<b>偏振垂直於肌纖維</b>，花瓣和膠原差 90°，
+    這是用 P-SHG 區分膠原與肌凝蛋白的指紋。</p>`,
+  'c6.d.tilted': `<p><b>斜向翹起的纖維：</b>纖維仍彼此平行，但都往光軸翹約 50°。訊號變弱、花瓣變形；如果忽略 δ、硬用平面模型擬合，算出的 ρ 會偏掉。
+    文獻 ρ 值分歧，相當部分來自這種出平面角度。</p>`,
+
+  'c7.h': '一張表帶走，再考自己六題',
+  'c7.table': `<table class="sum">
+    <tr><th>原理</th><td>χ⁽²⁾E² → 2ω；虛能階、不吸收、瞬時、相干</td></tr>
+    <tr><th>誰會亮</th><td>非中心對稱＋極性一致：膠原 I、肌凝蛋白、微管；相干疊加 ∝ N²</td></tr>
+    <tr><th>切片</th><td>SHG ∝ I²，只有焦點發光；不用針孔，散射光也能收；需要飛秒脈衝</td></tr>
+    <tr><th>方向性</th><td>前向同調長度數 µm、背向不到 0.1 µm → 粗大有序纖維以前向為主；F/B 比反映纖維粗細與排列</td></tr>
+    <tr><th>偏振</th><td>I(θ) 對稱軸＝纖維方向；形狀由 ρ = χzzz/χzxx 決定 → 分子傾角 θe</td></tr>
+    <tr><th>樣品</th><td>面內纖維最亮、沿光軸豎立幾乎看不到；極性混亂會抵消；線偏振會漏掉垂直纖維；厚組織只能背向收</td></tr>
+  </table>`,
+  'c7.next': `下一步：<a href="pshg-polar-playground.html">P-SHG 偏振極座標遊樂場</a>（擬合、手性、雙折射、噪聲遊戲）
+    <a href="pshg-image-lab.html">P-SHG 影像實驗室</a>（逐像素 Fourier 反推方向圖與 ρ 圖）`,
+  'quiz.score': (n, m) => `答對 ${n} / ${m}`,
+  'quiz': [
+    { q: '用 800 nm 飛秒雷射激發膠原，SHG 訊號出現在哪個波長？', o: ['800 nm', '400 nm', '約 450–550 nm 的寬帶', '1600 nm'], a: 1,
+      w: '能量守恆：兩個 ω 光子合成一個 2ω 光子，波長剛好一半。它是窄帶，跟螢光的寬帶發射不同。' },
+    { q: '平均功率加倍（其他不變），SHG 訊號大約變成幾倍？', o: ['2 倍', '4 倍', '8 倍', '不變'], a: 1,
+      w: 'SHG ∝ I²。功率加倍 → 強度加倍 → 訊號 ×4。這也是為什麼脈寬變短會大幅提高訊號。' },
+    { q: '為什麼水、玻璃幾乎不產生 SHG？', o: ['它們吸收 400 nm', '它們是中心對稱（或各向同性），χ⁽²⁾ = 0', '它們的折射率太低', '它們沒有電子'], a: 1,
+      w: '中心對稱結構反轉後不變，迫使 χ⁽²⁾ = 0；各向同性的液體在巨觀上也平均為零。' },
+    { q: '同一條肌腱，橫切面的 SHG 遠比縱切面暗，最主要原因是？', o: ['橫切時膠原被破壞', '纖維沿光軸豎立，面內電場驅動出的極化多沿 z、不往物鏡輻射', '橫切面比較厚', '橫切面沒有膠原'], a: 1,
+      w: '見第 6 章「肌腱橫切」：χzzz 需要沿纖維軸的電場分量，纖維豎著時面內偏振給不了。' },
+    { q: '兩個視野的 SHG 亮度差兩倍，可以直接說膠原含量差兩倍嗎？', o: ['可以，SHG 與含量成正比', '不行；亮度還受極性秩序、纖維方向、偏振、粗細與深度散射影響'], a: 1,
+      w: 'SHG 是相干訊號，∝ N² 且對排列極敏感；含量比較需要控制方向、偏振（如圓偏振）與深度，或改用其他指標。' },
+    { q: '活體厚組織成像時，SHG 通常從哪裡收？收到的是什麼？', o: ['只能前向收，背向沒訊號', '背向（物鏡端）收；包含真正的背向 SHG 與被組織散射折回的前向 SHG', '從側面收', '用針孔收'], a: 1,
+      w: '厚組織不透光，只能 epi 偵測；而前向光被多次散射後有一部分會折回物鏡，所以 F/B 比要在薄切片上量才乾淨。' },
+  ],
+},
+en: {
+  'title': 'SHG Microscopy Interactive Classroom 🦉',
+  'h1': 'SHG Microscopy Interactive Classroom',
+  'hero': `Second harmonic generation (SHG) microscopy shows ordered structures such as collagen, myosin and microtubules without any stain.
+    This page walks from the physics to the sample, with a model you can drag and turn in every chapter: <b>drag to rotate the 3D scenes, scroll or pinch to zoom</b>.`,
+  'btn.lang.title': '切換成中文', 'btn.theme.title': 'Toggle dark / light',
+  'theme.light': '☀ Light', 'theme.dark': '🌙 Dark',
+  'drag3d': 'drag to rotate · scroll to zoom',
+  'toc.1': '1 Nonlinearity', 'toc.2': '2 Symmetry', 'toc.3': '3 Sectioning', 'toc.4': '4 Forward/Backward',
+  'toc.5': '5 Polarization', 'toc.6': '6 Samples', 'toc.7': '7 Summary & quiz',
+
+  'c1.h': 'Electron clouds pushed past linear',
+  'c1.lead': 'The optical field drives the electrons in a material; push hard enough and the response stops being proportional to the field. The second harmonic grows out of that bend.',
+  'c1.text': `<p>The polarization (dipole density) induced by light can be written as a power series in the field:</p>
+    <div class="eqline">P = ε₀[ χ⁽¹⁾E + χ⁽²⁾E² + χ⁽³⁾E³ + … ]</div>
+    <p>χ⁽¹⁾ gives ordinary refraction and absorption. The <b>χ⁽²⁾ (second-order susceptibility)</b> term squares E = E₀cos ωt:</p>
+    <div class="eqline">cos²ωt = ½ + ½ cos 2ωt</div>
+    <p>so the polarization gains a <b>2ω</b> oscillation that radiates like an antenna at half the wavelength: 800 nm in, 400 nm out.</p>
+    <p>In the energy picture two ω photons pass through a virtual level and combine into one 2ω photon. The virtual level is not a real state: nothing is excited,
+    so there is no lifetime, no bleaching, no Stokes shift. SHG is instantaneous, coherent (phase-locked) scattering.</p>
+    <p>On the right, red is the field and blue is P(t). Increase χ⁽²⁾ and the blue trace becomes lopsided; a 2ω bar grows in the spectrum.</p>`,
+  'c1.E0': 'Field amplitude E₀ (relative)', 'c1.chi': 'Relative χ⁽²⁾',
+  'c1.read': (dc, w1, w2, ratio) => `Spectral amplitudes: DC <b>${dc}</b>, ω <b>${w1}</b>, 2ω <b>${w2}</b><br>
+    2ω intensity ∝ (χ⁽²⁾E₀²/2)²; doubling E₀ → SHG ×<b>16</b> (I ∝ E₀², so SHG ∝ I²)<br>
+    Current 2ω/ω amplitude ratio <b>${ratio}</b>`,
+  'c1.text2': `<p><b>Why femtosecond lasers?</b> SHG ∝ I². At the same average power, squeezing light into short pulses boosts the peak intensity,
+    and the average SHG grows by <span class="eq">1/(τ·f_rep)</span> (τ pulse width, f_rep repetition rate).</p>
+    <p>A typical Ti:sapphire at 80 MHz and 100 fs gives about a hundred-thousand-fold gain, which is the difference between seeing tissue and not.
+    The price is high peak intensity: too much power still causes multiphoton damage, so "SHG itself is not absorbed" does not mean "the laser is harmless".</p>`,
+  'c1.tau': 'Pulse width τ (log scale)',
+  'c1.read2': (tau, gain) => `Pulse width <b>${tau}</b> at 80 MHz: average SHG ≈ <b>${gain}</b>× a CW beam of equal power<br>
+    <span style="color:var(--dim)">(square-pulse approximation; multiply by ~0.66 for Gaussian pulses)</span>`,
+
+  'c2.h': 'Who lights up? Symmetry and coherent summation',
+  'c2.lead': 'Whether one molecule can double frequency is one thing; whether a crowd of them adds up in phase decides how bright the pixel is.',
+  'c2.tag': 'Molecules inside the focal volume (arrows = dipole direction)<br>Incident polarization along x (red)',
+  'c2.m.aligned': 'Aligned (collagen)', 'c2.m.pairs': 'Antiparallel pairs (centrosymmetric)', 'c2.m.random': 'Fully random (solution)',
+  'c2.order': 'Orientational order S', 'c2.flip': 'Reversed-polarity fraction f', 'c2.N': 'Number of molecules N',
+  'c2.read': (sig, perN, perN2, kind) => `Coherent sum |Σβᵢ|² = <b>${sig}</b><br>
+    signal / N = <b>${perN}</b>  signal / N² = <b>${perN2}</b><br>${kind}`,
+  'c2.kind.coh': '→ grows as N²: <b>coherent SHG</b> (a choir singing in unison)',
+  'c2.kind.inc': '→ grows only as N: <b>incoherent hyper-Rayleigh scattering</b> (everyone sings their own tune, far weaker)',
+  'c2.kind.mid': '→ in between: partially ordered',
+  'c2.plotlab': 'Signal vs N (log–log): dashed slope 2 = N², dotted slope 1 = N',
+  'c2.text': `<p><b>Centrosymmetry forbids SHG:</b> if a structure looks the same after inversion (r → −r), χ⁽²⁾ must vanish: reversing E leaves E² unchanged while P must reverse, so both are zero.
+    Water, glass, most cytoplasm and the two mirror-image leaflets of a lipid bilayer fall in this class.</p>
+    <p><b>Type I collagen</b> (triple helices packed head-to-tail), <b>myosin</b> (thick filaments of the sarcomere A band) and <b>microtubules</b> (polar polymers in spindles and axons)
+    are the three main endogenous SHG sources. They are not only non-centrosymmetric but also <b>share a common polarity</b> across the focal volume, so N molecular waves add in phase and intensity ∝ N².</p>
+    <p>Push the reversed-polarity fraction to 0.5: the molecules are unchanged, yet the signal nearly vanishes. SHG brightness reports <b>structural order</b>, not just how much collagen is there.</p>`,
+
+  'c3.h': 'Intensity squared: built-in optical sectioning',
+  'c3.lead': 'Because SHG ∝ I², the microscope sees only the focal plane, no pinhole needed.',
+  'c3.NA': 'Objective numerical aperture NA',
+  'c3.maplab': 'Left: laser intensity I (x–z section)  Right: SHG ∝ I²',
+  'c3.plotlab': 'Total signal per plane vs defocus z',
+  'c3.lin': 'Linear (fluorescence / reflection)', 'c3.sq': 'SHG ∝ I²',
+  'c3.read': (w0, zR, fw) => `Waist w₀ ≈ <b>${w0} µm</b>, Rayleigh length z_R ≈ <b>${zR} µm</b><br>
+    SHG axial FWHM ≈ 2z_R = <b>${fw} µm</b> (the linear signal is flat: no sectioning)<br>
+    <span style="color:var(--dim)">Paraxial Gaussian beam, λ=800 nm, n=1.33; at high NA read it as a trend</span>`,
+  'c3.text': `<p>A focused beam carries <b>the same total power through every transverse plane</b>; out of focus the spot just spreads and gets dilute.
+    A linear signal (∝ I) integrated over a plane is therefore constant: out-of-focus layers contribute background, which is why a confocal needs a pinhole.</p>
+    <p>For SHG ∝ I², spreading the spot by area A lowers intensity to 1/A, signal per area to 1/A², and the whole plane to 1/A.
+    Only a short stretch around the focus glows, so <b>a z-stack is a 3D image</b>, no pinhole is needed and even scattered photons can be collected, which matters deep in tissue.</p>`,
+
+  'c4.h': 'Phase matching: why most of it goes forward',
+  'c4.lead': 'The 2ω waves from different molecules carry different phases. Going forward they stay nearly in step; going backward they fight each other.',
+  'c4.tag': '3D radiation pattern: laser travels down (−y), polarization along x<br>bottom = forward F, top = backward B',
+  'c4.L': 'Scatterer length along the axis L (log)', 'c4.w': 'Scatterer lateral size w (µm)', 'c4.log': 'Compressed scale (to see the small backward lobe)',
+  'c4.read': (L, F, B, FB, LcF, LcB) => `L = <b>${L} µm</b>: forward F ∝ <b>${F}</b>, backward B ∝ <b>${B}</b><br>
+    F/B ≈ <b>${FB}</b><br>coherence length: forward l_c ≈ <b>${LcF} µm</b>, backward l_c ≈ <b>${LcB} µm</b>`,
+  'c4.plotlab': 'F and B vs L (log–log, same model)',
+  'c4.text': `<p>The laser travels along z; a molecule at z is driven by E² with phase <span class="eq">2k_ω z</span>. Its 2ω wave picks up <span class="eq">k_2ω(L−z)</span> more on the way forward, or <span class="eq">k_2ω z</span> on the way back.
+    Summing over molecules, what matters is the phase mismatch:</p>
+    <div class="eqline">forward Δk_F = k_2ω − 2k_ω ≈ 4π(n_2ω−n_ω)/λ    backward Δk_B = k_2ω + 2k_ω ≈ 4π(n_2ω+n_ω)/λ</div>
+    <p>Signal ∝ L²·sinc²(ΔkL/2). The forward Δk is tiny, so the coherence length reaches several to ten micrometres; the backward Δk is over a hundred times larger, giving a coherence length of only about λ/(4n), <b>under 0.1 µm</b>.
+    Hence <b>thick, axially extended ordered fibres radiate almost only forward</b>, while very thin (≪ λ) or loosely packed structures narrow the gap and raise the backward share.
+    The <b>F/B ratio</b> is used in the literature to infer fibril diameter and packing, for example in collagen remodelling in tumours or fibrosis.</p>
+    <div class="note">Model: n_ω=1.40, n_2ω=1.42, λ=800 nm plane-wave drive; focusing (Gouy phase) and tissue scattering are ignored. Measured tissue F/B is typically a few to a few tens, much smaller than the long-fibre limit here, but the trend is the same.</div>`,
+
+  'c5.h': 'Polarization: the χ⁽²⁾ tensor as arrows',
+  'c5.lead': 'Rotate the incident polarization and the polarization P it drives in the fibre (blue arrow) changes direction and size; only its projection onto the image plane reaches the objective.',
+  'c5.tag': 'Gold = fibre (helical stripes = molecular pitch angle θe), orange dashed = its projection on the image plane<br>Red = incident polarization E (rotating in the horizontal image plane)<br>Blue = induced P   green = projection of P on the image plane (what the objective collects)<br>cyan = I(θ) traced so far',
+  'c5.play': '▶ Auto-rotate polarization', 'c5.pause': '⏸ Pause', 'c5.col': 'Collagen ρ=1.4', 'c5.myo': 'Myosin ρ=0.57',
+  'c5.theta': 'Incident polarization θ', 'c5.rho': 'ρ = χzzz / χzxx', 'c5.phi': 'Fibre in-plane azimuth φ', 'c5.delta': 'Fibre out-of-plane tilt δ',
+  'c5.read': (I, Pz, te, ratio) => `Current intensity I(θ) = <b>${I}</b> (units of χzxx²)<br>
+    Share of P along the optical axis: <b>${Pz}%</b> (this part does not radiate to the objective)<br>
+    Effective molecular pitch θe = arctan√(2/ρ) ≈ <b>${te}°</b>; parallel/perpendicular ratio = <b>${ratio}</b>`,
+  'c5.text': `<p>A collagen fibre is close to cylindrically symmetric (C∞ or C₆), leaving three independent χ⁽²⁾ components; with Kleinman symmetry (valid away from resonance) only two remain: <b>χzzz</b> along the fibre and the cross term <b>χzxx</b>.
+    For an in-plane fibre at angle Δ = θ − φ to the polarization:</p>
+    <div class="eqline">I(θ) ∝ (ρ cos²Δ + sin²Δ)² + sin²2Δ,  ρ = χzzz/χzxx</div>
+    <p>The first term is P along the fibre, the second P across it. <b>The symmetry axis of the curve is the fibre direction φ</b>; <b>the shape is set by ρ</b>.
+    In the single-axis molecular model ρ = 2/tan²θe, with θe the molecular tilt from the fibre axis, so ρ is a molecular-scale protractor: collagen θe≈49° (ρ≈1.4), myosin θe≈62° (ρ≈0.57, which is why the muscle petals lie sideways).</p>
+    <p>Raise the tilt δ: as the fibre stands up along the optical axis, P turns toward z, the objective cannot collect it, the signal drops and the petals distort; forcing an in-plane fit gives a biased ρ.
+    For data fitting, chirality χ₁₄ and tissue birefringence go to the <a href="pshg-polar-playground.html">P-SHG Polar Playground</a>; for pixel-wise reconstruction of a whole image, the <a href="pshg-image-lab.html">P-SHG Image Lab</a>.</p>`,
+
+  'c6.h': 'What the sample is shaped like is what you see',
+  'c6.lead': 'The same collagen can look very different depending on cut direction, packing, polarity mixing and depth. Pick a sample and rotate the polarization.',
+  'c6.tag': '3D sample model (focal plane = grey grid)',
+  'c6.p.tendonL': 'Tendon, longitudinal', 'c6.p.tendonX': 'Tendon, cross-section', 'c6.p.dermis': 'Dermal collagen mesh', 'c6.p.cornea': 'Corneal orthogonal lamellae',
+  'c6.p.muscle': 'Skeletal muscle (myosin)', 'c6.p.tilted': 'Tilted fibres',
+  'c6.theta': 'Incident polarization θ', 'c6.spin': '▶ Auto-rotate polarization', 'c6.stop': '⏸ Stop', 'c6.circ': 'Circular (all directions averaged)',
+  'c6.flip': 'Reversed-polarity fraction in focus f', 'c6.thick': 'Depth (scattering mean free paths)',
+  'c6.imgnote': 'Simulated SHG image (top view of the focal plane): each fibre’s brightness is computed with the chapter-5 tensor model for the current polarization; the colour scale is absolute and shared by all presets.',
+  'c6.read': (mean, aniso, att, thick) => `Mean image brightness (relative to one longitudinal tendon fibre at best polarization): <b>${mean}</b><br>
+    Field-averaged polarization anisotropy (max−min)/(max+min): <b>${aniso}</b><br>
+    Excitation loss e⁻ᵈ at the focus → SHG ×<b>${att}</b> (∝ I², hence e⁻²ᵈ)<br>${thick ? 'Thick sample: forward light is scattered, <b>backward detection only</b> (incl. back-scattered forward light)' : 'Thin sample: both forward and backward are collectable, F/B can be measured'}`,
+  'c6.polarlab': 'Field-averaged I(θ) (blue) vs a single in-plane fibre (grey dashed)',
+  'c6.d.tendonL': `<p><b>Tendon, longitudinal:</b> fibres lie flat, share one direction and one polarity. Brightest, with the largest polarization modulation; the petals are those of a single fibre. The cleanest sample for P-SHG measurements of ρ and orientation.</p>`,
+  'c6.d.tendonX': `<p><b>Tendon, cross-section:</b> the same collagen, but the fibres stand along the optical axis. An in-plane field can only drive χzxx, the resulting P points mostly along z and does not radiate toward the objective, so <b>the field goes nearly dark</b> whatever the polarization.
+    A dark cross-section does not mean "no collagen".</p>`,
+  'c6.d.dermis': `<p><b>Dermal collagen mesh:</b> fibres weave in all in-plane directions with some undulation. Each fibre still brightens and dims with the polarization (try auto-rotate), but the field average barely changes;
+    a single linear-polarization image <b>misses fibres perpendicular to the polarization</b>, so circular polarization or multi-angle averaging is common.</p>`,
+  'c6.d.cornea': `<p><b>Corneal orthogonal lamellae:</b> fibres are extremely regular within each lamella and adjacent lamellae turn by about 90°. Inside one lamella you see one direction; at an interface, two perpendicular sets,
+    and the averaged petals become four-lobed as the orientation information averages out.</p>`,
+  'c6.d.muscle': `<p><b>Skeletal muscle:</b> the signal comes from myosin thick filaments in the sarcomere A bands, giving bright bands with a ~2.5 µm period. With ρ≈0.57 &lt; 1 the brightest direction is <b>polarization perpendicular to the muscle fibre</b>, 90° off from collagen:
+    the P-SHG fingerprint that tells collagen and myosin apart.</p>`,
+  'c6.d.tilted': `<p><b>Tilted fibres:</b> still parallel to each other but tilted about 50° toward the optical axis. The signal weakens and the petals distort; ignore δ and force an in-plane fit, and ρ comes out biased.
+    Much of the scatter of ρ values in the literature comes from such out-of-plane angles.</p>`,
+
+  'c7.h': 'One table to take away, then six questions',
+  'c7.table': `<table class="sum">
+    <tr><th>Principle</th><td>χ⁽²⁾E² → 2ω; virtual level, no absorption, instantaneous, coherent</td></tr>
+    <tr><th>Who lights up</th><td>Non-centrosymmetric with common polarity: collagen I, myosin, microtubules; coherent sum ∝ N²</td></tr>
+    <tr><th>Sectioning</th><td>SHG ∝ I², only the focus emits; no pinhole, scattered light still usable; needs femtosecond pulses</td></tr>
+    <tr><th>Directionality</th><td>Forward coherence length several µm, backward under 0.1 µm → thick ordered fibres emit mostly forward; F/B reflects fibril size and packing</td></tr>
+    <tr><th>Polarization</th><td>Symmetry axis of I(θ) = fibre direction; shape set by ρ = χzzz/χzxx → molecular pitch θe</td></tr>
+    <tr><th>Sample</th><td>In-plane fibres brightest, axial fibres nearly invisible; mixed polarity cancels; linear polarization misses perpendicular fibres; thick tissue only allows backward detection</td></tr>
+  </table>`,
+  'c7.next': `Next: <a href="pshg-polar-playground.html">P-SHG Polar Playground</a> (fitting, chirality, birefringence, noise game)
+    <a href="pshg-image-lab.html">P-SHG Image Lab</a> (pixel-wise Fourier maps of orientation and ρ)`,
+  'quiz.score': (n, m) => `${n} / ${m} correct`,
+  'quiz': [
+    { q: 'Collagen is excited with an 800 nm femtosecond laser. At what wavelength is the SHG signal?', o: ['800 nm', '400 nm', 'a broad band around 450–550 nm', '1600 nm'], a: 1,
+      w: 'Energy conservation: two ω photons combine into one 2ω photon, exactly half the wavelength. It is narrow-band, unlike broad fluorescence emission.' },
+    { q: 'Doubling the average power (all else equal) changes SHG by roughly?', o: ['×2', '×4', '×8', 'no change'], a: 1,
+      w: 'SHG ∝ I². Double the power → double the intensity → ×4 signal. The same law is why shorter pulses boost the signal so much.' },
+    { q: 'Why do water and glass produce almost no SHG?', o: ['they absorb 400 nm', 'they are centrosymmetric (or isotropic), so χ⁽²⁾ = 0', 'their refractive index is too low', 'they have no electrons'], a: 1,
+      w: 'A centrosymmetric structure is unchanged by inversion, which forces χ⁽²⁾ = 0; an isotropic liquid also averages to zero macroscopically.' },
+    { q: 'A tendon cross-section is much darker than a longitudinal section, mainly because?', o: ['cutting destroys the collagen', 'fibres stand along the optical axis, so the in-plane field drives P mostly along z, which does not radiate to the objective', 'the cross-section is thicker', 'there is no collagen in it'], a: 1,
+      w: 'See chapter 6, “Tendon, cross-section”: χzzz needs a field component along the fibre, which an in-plane polarization cannot provide when the fibre stands up.' },
+    { q: 'Two fields of view differ two-fold in SHG brightness. Does that mean two-fold more collagen?', o: ['yes, SHG is proportional to content', 'no; brightness also depends on polarity order, fibre orientation, polarization, fibril size and depth scattering'], a: 1,
+      w: 'SHG is coherent, ∝ N² and very sensitive to arrangement; comparing content needs controlled orientation, polarization (e.g. circular) and depth, or a different metric.' },
+    { q: 'In thick tissue in vivo, where is SHG collected and what does it contain?', o: ['forward only; there is no backward signal', 'backward (through the objective); it contains true backward SHG plus forward SHG scattered back by the tissue', 'from the side', 'through a pinhole'], a: 1,
+      w: 'Thick tissue is opaque, so epi detection is the only option; part of the forward light is multiply scattered back into the objective, which is why F/B must be measured on thin sections.' },
+  ],
+},
+};
+let LANG = 'zh';
+(() => {
+  let l = 'zh'; try { l = localStorage.getItem('owl-lang') || l; } catch (e) {}
+  const q = new URLSearchParams(location.search).get('lang');
+  if (q === 'en' || q === 'zh') l = q;
+  LANG = l;
+})();
+const t = (k, ...a) => { const v = (I18N[LANG][k] ?? I18N.zh[k]); return typeof v === 'function' ? v(...a) : (v ?? k); };
+
+// ─── 主題 ───
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = {};
+const hooks = [];                          // 主題或語言改變時要重畫的函式
+const redraw = () => hooks.forEach(f => f());
+function readColors() {
+  for (const k of ['ink', 'muted', 'dim', 'grid', 'accent', 'red', 'blue', 'gold', 'green', 'purple', 'panel', 'panel2', 'bg']) C[k] = css('--' + k);
+}
+function setTheme(th) {
+  document.documentElement.dataset.theme = th;
+  try { localStorage.setItem('owl-theme', th); } catch (e) {}
+  readColors();
+  $('theme').textContent = th === 'dark' ? t('theme.light') : t('theme.dark');
+  redraw();
+}
+$('theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+function applyLang() {
+  document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-TW';
+  document.title = t('title');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+  $('lang').textContent = LANG === 'en' ? '中文' : 'EN';
+  $('theme').textContent = document.documentElement.dataset.theme === 'dark' ? t('theme.light') : t('theme.dark');
+  buildQuiz();
+  redraw();
+}
+$('lang').onclick = () => { LANG = LANG === 'en' ? 'zh' : 'en'; try { localStorage.setItem('owl-lang', LANG); } catch (e) {} applyLang(); };
+
+// ─── 2D 畫布工具 ───
+const DPR = Math.min(2, window.devicePixelRatio || 1);
+function hidpi(c) {
+  const w = c.width, h = c.height;
+  c.width = w * DPR; c.height = h * DPR;
+  const g = c.getContext('2d'); g.setTransform(DPR, 0, 0, DPR, 0, 0);
+  g.W = w; g.H = h; return g;
+}
+const FONT = '12px "Noto Serif TC", "Source Han Serif TC", serif';
+function axesLogLog(g, x0, y0, w, h, xr, yr, xlab, ylab) {
+  g.strokeStyle = C.grid; g.fillStyle = C.muted; g.font = FONT; g.lineWidth = 1;
+  g.strokeRect(x0, y0, w, h);
+  if (xlab) g.fillText(xlab, x0 + w / 2 - g.measureText(xlab).width / 2, y0 + h + 16);
+  if (ylab) g.fillText(ylab, x0, y0 - 6);
+  return {
+    X: v => x0 + w * (Math.log10(v) - xr[0]) / (xr[1] - xr[0]),
+    Y: v => y0 + h - h * (Math.log10(Math.max(v, 1e-30)) - yr[0]) / (yr[1] - yr[0]),
+  };
+}
+function fmt(v) {
+  if (!isFinite(v)) return '∞';
+  if (v === 0) return '0';
+  const a = Math.abs(v);
+  if (a >= 1e4 || a < 1e-2) { const e = Math.floor(Math.log10(a)); return (v / 10 ** e).toFixed(1) + '×10' + sup(e); }
+  return a >= 100 ? v.toFixed(0) : a >= 10 ? v.toFixed(1) : v.toFixed(2);
+}
+function sup(n) { const m = '⁰¹²³⁴⁵⁶⁷⁸⁹'; return (n < 0 ? '⁻' : '') + String(Math.abs(n)).split('').map(d => m[d]).join(''); }
+
+// ─── 物理：圓柱對稱纖維的 SHG 極化（Kleinman，χzxx=1，χzzz=ρ） ───
+// P = [(1−p²)+ρp²]·a + 2p·(E − p·a)，p = E·a；座標：x,y 影像平面，z 光軸
+function shgP(E, a, rho) {
+  const p = E[0] * a[0] + E[1] * a[1] + E[2] * a[2];
+  const lin = (1 - p * p) + rho * p * p;
+  return [0, 1, 2].map(i => lin * a[i] + 2 * p * (E[i] - p * a[i]));
+}
+function fiberAxis(phi, delta) { const cd = Math.cos(delta); return [cd * Math.cos(phi), cd * Math.sin(phi), Math.sin(delta)]; }
+function Ifiber(theta, phi, delta, rho) {
+  const P = shgP([Math.cos(theta), Math.sin(theta), 0], fiberAxis(phi, delta), rho);
+  return P[0] * P[0] + P[1] * P[1];
+}
+
+// ═══════════════════════════ 第 1 章 ═══════════════════════════
+const g1 = hidpi($('c1wave'));
+function draw1() {
+  const E0 = +$('c1E0').value, chi = +$('c1chi').value;
+  $('c1E0o').textContent = E0.toFixed(2); $('c1chio').textContent = chi.toFixed(2);
+  const g = g1, W = g.W, H = g.H;
+  g.clearRect(0, 0, W, H);
+  const top = 20, h = 150, mid = top + h / 2;
+  g.strokeStyle = C.grid; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(20, mid); g.lineTo(W - 10, mid); g.stroke();
+  const tr = (f, col) => {
+    g.strokeStyle = col; g.lineWidth = 2; g.beginPath();
+    for (let i = 0; i <= 400; i++) {
+      const x = 20 + (W - 30) * i / 400, tt = 4 * Math.PI * i / 400;
+      const y = mid - 60 * f(tt);
+      i ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+  };
+  tr(tt => E0 * Math.cos(tt), C.red);
+  tr(tt => 0.6 * E0 * Math.cos(tt) + chi * (E0 * Math.cos(tt)) ** 2, C.blue);
+  g.font = FONT; g.fillStyle = C.red; g.fillText('E(t)', 24, 14);
+  g.fillStyle = C.blue; g.fillText('P(t) = χ⁽¹⁾E + χ⁽²⁾E²', 70, 14);
+  // 頻譜
+  const dc = chi * E0 * E0 / 2, w1 = 0.6 * E0, w2 = chi * E0 * E0 / 2;
+  const by = H - 22, bh = 90, bars = [['DC', dc, C.muted], ['ω', w1, C.red], ['2ω', w2, C.blue]];
+  bars.forEach(([lab, v, col], i) => {
+    const x = 90 + i * 140, hh = bh * v / 0.6;
+    g.fillStyle = col; g.fillRect(x, by - hh, 36, hh);
+    g.fillStyle = C.muted; g.fillText(lab, x + 10, by + 15);
+  });
+  g.strokeStyle = C.grid; g.beginPath(); g.moveTo(60, by); g.lineTo(W - 20, by); g.stroke();
+  $('c1read').innerHTML = t('c1.read', dc.toFixed(3), w1.toFixed(3), w2.toFixed(3), (w2 / w1).toFixed(3));
+}
+function draw1b() {
+  const lt = +$('c1tau').value, tau = 10 ** lt * 1e-15;            // 50 fs – 10 ns
+  const gain = 1 / (tau * 80e6);
+  const lab = tau < 1e-12 ? (tau * 1e15).toFixed(0) + ' fs' : tau < 1e-9 ? (tau * 1e12).toFixed(1) + ' ps' : (tau * 1e9).toFixed(1) + ' ns';
+  $('c1tauo').textContent = lab;
+  $('c1read2').innerHTML = t('c1.read2', lab, fmt(gain));
+}
+['c1E0', 'c1chi'].forEach(id => $(id).addEventListener('input', draw1));
+$('c1tau').addEventListener('input', draw1b);
+hooks.push(draw1, draw1b);
+
+// ═══════════════════════════ 第 3 章 ═══════════════════════════
+const g3m = hidpi($('c3map')), g3p = hidpi($('c3plot'));
+function draw3() {
+  const NA = +$('c3NA').value; $('c3NAo').textContent = NA.toFixed(2);
+  const lam = 0.8, n = 1.33;
+  const w0 = lam / (Math.PI * NA), zR = Math.PI * w0 * w0 * n / lam;
+  // 熱圖：x ∈ ±3 µm, z ∈ ±6 µm
+  const g = g3m, W = g.W, H = g.H, half = W / 2 - 6;
+  g.clearRect(0, 0, W, H);
+  const nx = 80, nz = 100;
+  const img = (ox, pw) => {
+    const cw = half / nx, ch = (H - 30) / nz;
+    for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) {
+      const x = -3 + 6 * (i + 0.5) / nx, z = -6 + 12 * (j + 0.5) / nz;
+      const w = w0 * Math.sqrt(1 + (z / zR) ** 2);
+      const I = (w0 / w) ** 2 * Math.exp(-2 * x * x / (w * w));
+      const v = Math.pow(I, pw);
+      g.fillStyle = pw === 1 ? `rgba(255,110,90,${Math.min(1, v * 1.2)})` : `rgba(90,170,255,${Math.min(1, v * 1.2)})`;
+      g.fillRect(ox + i * cw, 22 + j * ch, cw + 0.6, ch + 0.6);
+    }
+  };
+  img(0, 1); img(half + 12, 2);
+  g.fillStyle = C.muted; g.font = FONT; g.fillText(t('c3.maplab'), 6, 14);
+  // 每層總訊號
+  const p = g3p, PW = p.W, PH = p.H;
+  p.clearRect(0, 0, PW, PH);
+  const x0 = 40, y0 = 26, w = PW - 56, h = PH - 56;
+  p.strokeStyle = C.grid; p.strokeRect(x0, y0, w, h);
+  p.fillStyle = C.muted; p.font = FONT; p.fillText(t('c3.plotlab'), x0, 16);
+  const X = z => x0 + w * (z + 6) / 12, Y = v => y0 + h - h * v;
+  p.strokeStyle = C.red; p.lineWidth = 2; p.beginPath(); p.moveTo(X(-6), Y(0.95)); p.lineTo(X(6), Y(0.95)); p.stroke();
+  p.strokeStyle = C.blue; p.beginPath();
+  for (let i = 0; i <= 300; i++) { const z = -6 + 12 * i / 300, v = 1 / (1 + (z / zR) ** 2); i ? p.lineTo(X(z), Y(v * 0.95)) : p.moveTo(X(z), Y(v * 0.95)); }
+  p.stroke();
+  p.fillStyle = C.red; p.fillText(t('c3.lin'), x0 + 8, y0 + 30);
+  p.fillStyle = C.blue; p.fillText(t('c3.sq'), x0 + w - 80, y0 + h / 2);
+  p.fillStyle = C.muted; for (const z of [-6, -3, 0, 3, 6]) p.fillText(z + ' µm', X(z) - 12, y0 + h + 15);
+  $('c3read').innerHTML = t('c3.read', w0.toFixed(2), zR.toFixed(2), (2 * zR).toFixed(2));
+}
+$('c3NA').addEventListener('input', draw3);
+hooks.push(draw3);
+
+// ═══════════════════════════ 第 7 章 測驗 ═══════════════════════════
+let quizState = [];
+function buildQuiz() {
+  const qs = t('quiz');
+  if (quizState.length !== qs.length) quizState = qs.map(() => null);
+  const box = $('quiz'); box.innerHTML = '';
+  qs.forEach((q, i) => {
+    const d = document.createElement('div'); d.className = 'q';
+    d.innerHTML = `<p><b>Q${i + 1}.</b> ${q.q}</p><div class="opts"></div><div class="why">${q.w}</div>`;
+    const opts = d.querySelector('.opts'), why = d.querySelector('.why');
+    q.o.forEach((o, j) => {
+      const b = document.createElement('button'); b.className = 'btn'; b.textContent = o;
+      const paint = () => {
+        if (quizState[i] === null) return;
+        if (j === q.a) b.classList.add('right');
+        else if (j === quizState[i]) b.classList.add('wrong');
+        why.style.display = 'block';
+      };
+      b.onclick = () => { if (quizState[i] !== null) return; quizState[i] = j; [...opts.children].forEach(c => c._paint()); score(); };
+      b._paint = paint; opts.appendChild(b); paint();
+    });
+    box.appendChild(d);
+  });
+  score();
+}
+function score() {
+  const qs = t('quiz'), done = quizState.filter(v => v !== null).length;
+  const ok = quizState.filter((v, i) => v === qs[i].a).length;
+  $('quizScore').textContent = done ? t('quiz.score', ok, qs.length) : '';
+}
+
+// 目錄高亮
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) document.querySelectorAll('nav.toc a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
+}), { rootMargin: '-40% 0px -55% 0px' });
+document.querySelectorAll('section.ch').forEach(s => io.observe(s));
+
+readColors();
+applyLang();
+</script>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// 物理座標 (x, y, z光軸) → three 座標 (x, z, −y)：光軸朝上、影像平面是水平面
+const V = (x, y, z) => new THREE.Vector3(x, z, -y);
+const col = name => new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--' + name).trim());
+
+// ─── 共用 3D 舞台：只在可見時重畫 ───
+function makeStage(el, camPos) {
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  el.prepend(renderer.domElement);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, 4 / 3, 0.05, 200);
+  camera.position.copy(camPos);
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.6));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.4); dl.position.set(3, 6, 4); scene.add(dl);
+  const st = { renderer, scene, camera, controls, visible: false, dirty: true, anim: null };
+  const resize = () => {
+    const w = el.clientWidth, h = el.clientHeight;
+    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); st.dirty = true;
+  };
+  new ResizeObserver(resize).observe(el); resize();
+  new IntersectionObserver(es => { st.visible = es[0].isIntersecting; }).observe(el);
+  controls.addEventListener('change', () => { st.dirty = true; });
+  st.bg = () => { scene.background = col('panel2'); st.dirty = true; };
+  st.bg();
+  stages.push(st);
+  return st;
+}
+const stages = [];
+let last = 0;
+function loop(ts) {
+  const dt = Math.min(0.1, (ts - last) / 1000 || 0); last = ts;
+  for (const s of stages) {
+    if (!s.visible) continue;
+    if (s.anim) s.anim(dt);
+    s.controls.update();
+    if (s.dirty) { s.renderer.render(s.scene, s.camera); s.dirty = false; }
+  }
+  requestAnimationFrame(loop);
+}
+const arrow = (color, len = 1) => {
+  const a = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), len, color, 0.18, 0.1);
+  a.line.material.linewidth = 2; return a;
+};
+const setArrow = (a, from, vec, maxLen) => {
+  const L = vec.length();
+  a.visible = L > 1e-4;
+  if (!a.visible) return;
+  a.position.copy(from); a.setDirection(vec.clone().normalize());
+  const len = Math.min(maxLen ?? 99, L);
+  a.setLength(len, Math.min(0.25, len * 0.35), Math.min(0.14, len * 0.2));
+};
+function gridPlane(size, div) {
+  const g = new THREE.GridHelper(size, div, 0x888888, 0x888888);
+  g.material.transparent = true; g.material.opacity = 0.25; return g;
+}
+function themeHook(f) { window.__hooks3d = window.__hooks3d || []; window.__hooks3d.push(f); }
+document.getElementById('theme').addEventListener('click', () => (window.__hooks3d || []).forEach(f => f()));
+
+// ═══════════════════════════ 第 2 章：分子與相干疊加 ═══════════════════════════
+{
+  const st = makeStage(document.getElementById('s2'), new THREE.Vector3(3.2, 2.6, 4.2));
+  const { scene } = st;
+  const MAXN = 400;
+  const cone = new THREE.ConeGeometry(0.05, 0.22, 10); cone.translate(0, 0.04, 0);
+  const mat = new THREE.MeshStandardMaterial({ roughness: 0.5, metalness: 0.1 });
+  const inst = new THREE.InstancedMesh(cone, mat, MAXN);
+  inst.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(MAXN * 3), 3);
+  scene.add(inst);
+  const halo = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16),
+    new THREE.MeshBasicMaterial({ color: 0x5aa9ff, transparent: true, opacity: 0.08, depthWrite: false }));
+  halo.scale.set(1.3, 1.9, 1.3); scene.add(halo);
+  const Earrow = arrow(0xff5a4e, 1.2); scene.add(Earrow);
+  setArrow(Earrow, V(-1.9, 0, 1.6), V(1.2, 0, 0));
+  // 隨機但固定的位置與方向
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const pos = [], rdir = [], flipKey = [];
+  for (let i = 0; i < MAXN; i++) {
+    let x, y, z; do { x = rnd() * 2 - 1; y = rnd() * 2 - 1; z = rnd() * 2 - 1; } while (x * x + y * y + z * z > 1);
+    pos.push([x * 1.2, y * 1.2, z * 1.7]);
+    let a, b, c, r; do { a = rnd() * 2 - 1; b = rnd() * 2 - 1; c = rnd() * 2 - 1; r = a * a + b * b + c * c; } while (r > 1 || r < 0.01);
+    r = Math.sqrt(r); rdir.push([a / r, b / r, c / r]);
+    flipKey.push(rnd());
+  }
+  const pairPartner = i => i ^ 1;             // 正反成對：相鄰兩個互為反向
+  let mode = 'aligned';
+  const dummy = new THREE.Object3D(), up = new THREE.Vector3(0, 1, 0);
+  const hist = [];
+  const g = (() => { const c = document.getElementById('c2plot'); const w = c.width, h = c.height; c.width = w * 2; c.height = h * 2; const x = c.getContext('2d'); x.setTransform(2, 0, 0, 2, 0, 0); x.W = w; x.H = h; return x; })();
+  function dirs(N, S, f) {
+    const out = [];
+    for (let i = 0; i < N; i++) {
+      let d;
+      if (mode === 'pairs') { d = [i % 2 ? -1 : 1, 0, 0]; const r = rdir[i - (i % 2)]; d = [d[0] * S + (1 - S) * r[0] * (i % 2 ? -1 : 1), (1 - S) * r[1] * (i % 2 ? -1 : 1), (1 - S) * r[2] * (i % 2 ? -1 : 1)]; }
+      else if (mode === 'random') d = rdir[i];
+      else { const s = flipKey[i] < f ? -1 : 1; const r = rdir[i]; d = [s * S + (1 - S) * r[0], (1 - S) * r[1], (1 - S) * r[2]]; }
+      const L = Math.hypot(...d) || 1; out.push([d[0] / L, d[1] / L, d[2] / L]);
+    }
+    return out;
+  }
+  // 分子沿自身軸的單一 β 分量：沿 x 偵測、沿 x 驅動 → 貢獻 ∝ u_x³
+  const sumSig = D => { let s = 0; for (const d of D) s += d[0] ** 3; return s * s; };
+  function update() {
+    const S = +document.getElementById('c2S').value, f = +document.getElementById('c2f').value, N = +document.getElementById('c2N').value;
+    document.getElementById('c2So').textContent = S.toFixed(2);
+    document.getElementById('c2fo').textContent = f.toFixed(2);
+    document.getElementById('c2No').textContent = N;
+    document.querySelectorAll('#c2 [data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+    const D = dirs(N, S, f);
+    const cA = new THREE.Color(0xe8a93a), cB = new THREE.Color(0xa45cf0);
+    for (let i = 0; i < MAXN; i++) {
+      if (i < N) {
+        const d = D[i];
+        dummy.position.copy(V(...pos[i]));
+        dummy.quaternion.setFromUnitVectors(up, V(...d).normalize());
+        dummy.scale.setScalar(1);
+        inst.setColorAt(i, d[0] >= 0 ? cA : cB);
+      } else dummy.scale.setScalar(0);
+      dummy.updateMatrix(); inst.setMatrixAt(i, dummy.matrix);
+    }
+    inst.instanceMatrix.needsUpdate = true; inst.instanceColor.needsUpdate = true;
+    const sig = sumSig(D);
+    halo.material.opacity = 0.03 + 0.17 * Math.min(1, sig / (N * N));
+    st.dirty = true;
+    const ratio = sig / (N * N);
+    const kind = ratio > 0.25 ? t('c2.kind.coh') : sig / N < 3 ? t('c2.kind.inc') : t('c2.kind.mid');
+    document.getElementById('c2read').innerHTML = t('c2.read', fmt(sig), fmt(sig / N), fmt(ratio), kind);
+    // 掃 N 畫 log–log
+    g.clearRect(0, 0, g.W, g.H);
+    const A = axesLogLog(g, 40, 24, g.W - 56, g.H - 50, [1, 2.7], [-1, 5.3], 'N', t('c2.plotlab'));
+    g.setLineDash([5, 4]); g.strokeStyle = C.dim; g.beginPath(); g.moveTo(A.X(10), A.Y(100)); g.lineTo(A.X(500), A.Y(250000)); g.stroke();
+    g.setLineDash([2, 3]); g.beginPath(); g.moveTo(A.X(10), A.Y(10 * 0.33)); g.lineTo(A.X(500), A.Y(500 * 0.33)); g.stroke(); g.setLineDash([]);
+    g.strokeStyle = C.accent; g.lineWidth = 2; g.beginPath();
+    for (let k = 0; k <= 40; k++) { const n = Math.round(10 * 40 ** (k / 40)); const s = sumSig(dirs(n, S, f)); const x = A.X(n), y = A.Y(s); k ? g.lineTo(x, y) : g.moveTo(x, y); }
+    g.stroke(); g.lineWidth = 1;
+    g.fillStyle = C.accent; g.beginPath(); g.arc(A.X(N), A.Y(sig), 4, 0, 7); g.fill();
+  }
+  document.querySelectorAll('#c2 [data-mode]').forEach(b => b.onclick = () => {
+    mode = b.dataset.mode;
+    if (mode === 'random') document.getElementById('c2S').value = 0;
+    else if (+document.getElementById('c2S').value < 0.5) document.getElementById('c2S').value = 1;
+    if (mode !== 'aligned') document.getElementById('c2f').value = 0;
+    update();
+  });
+  ['c2S', 'c2f', 'c2N'].forEach(id => document.getElementById(id).addEventListener('input', () => {
+    if (id === 'c2f' && mode !== 'aligned') mode = 'aligned';
+    update();
+  }));
+  update();
+  themeHook(() => { st.bg(); update(); });
+  document.getElementById('lang').addEventListener('click', update);
+}
+
+// ═══════════════════════════ 第 4 章：輻射圖樣 ═══════════════════════════
+{
+  const st = makeStage(document.getElementById('s4'), new THREE.Vector3(4.6, 1.2, 4.6));
+  const { scene } = st;
+  const lam = 0.8, nw = 1.40, n2 = 1.42;
+  const kw = 2 * Math.PI * nw / lam, k2 = 2 * Math.PI * n2 / (lam / 2);
+  const dkF = k2 - 2 * kw, dkB = k2 + 2 * kw;
+  const sinc2 = x => { if (Math.abs(x) < 1e-6) return 1; const s = Math.sin(x) / x; return s * s; };
+  // 方向 û（球座標，物理系；前向 = −z？這裡雷射往 −z 走：前向 = −z）
+  // 相位失配：Δ(û) = 2k_ω − k_2ω·(û·ẑ_prop)，ẑ_prop = 傳播方向
+  const intensity = (ux, uy, uz, L, w) => {
+    const c = -uz;                                  // 與傳播方向（−z）的夾角餘弦
+    const dk = 2 * kw - k2 * c;
+    const axial = L * L * sinc2(dk * L / 2);
+    const st2 = 1 - c * c;
+    const lateral = Math.exp(-(k2 * k2) * st2 * w * w / 4) * w ** 4;   // 高斯橫向分布的形狀因子
+    const dip = 1 - ux * ux;                         // P 沿 x 的偶極輻射
+    return axial * lateral * dip;
+  };
+  const NT = 90, NP = 64;
+  const geo = new THREE.BufferGeometry();
+  const posArr = new Float32Array((NT + 1) * (NP + 1) * 3), colArr = new Float32Array((NT + 1) * (NP + 1) * 3);
+  const idx = [];
+  for (let i = 0; i < NT; i++) for (let j = 0; j < NP; j++) {
+    const a = i * (NP + 1) + j, b = a + NP + 1;
+    idx.push(a, b, a + 1, b, b + 1, a + 1);
+  }
+  geo.setIndex(idx);
+  geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(colArr, 3));
+  const lobe = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: 0.6, transparent: true, opacity: 0.92 }));
+  scene.add(lobe);
+  const axisMat = new THREE.LineBasicMaterial({ color: 0x888888 });
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(0, 0, 2.2), V(0, 0, -2.2)]), axisMat));
+  const laser = arrow(0xff5a4e, 0.8); scene.add(laser); setArrow(laser, V(0, 0, 2.3), V(0, 0, -0.8));
+  const pol = arrow(0xff5a4e, 0.6); scene.add(pol); setArrow(pol, V(0.25, 0, 2.0), V(0.6, 0, 0));
+  const scat = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 1, 24), new THREE.MeshStandardMaterial({ color: 0xe8b84a, transparent: true, opacity: 0.5, depthWrite: false }));
+  scene.add(scat);
+  let logMode = true;
+  const g = (() => { const c = document.getElementById('c4plot'); const w = c.width, h = c.height; c.width = w * 2; c.height = h * 2; const x = c.getContext('2d'); x.setTransform(2, 0, 0, 2, 0, 0); x.W = w; x.H = h; return x; })();
+  // 前向／背向收光：物鏡 NA 0.8 的錐體內積分
+  const collect = (L, w, fwd) => {
+    let s = 0; const NA = 0.8, n = 1.33, cmax = Math.sqrt(1 - (NA / n) ** 2);
+    for (let i = 0; i < 40; i++) {
+      const c = cmax + (1 - cmax) * (i + 0.5) / 40, sn = Math.sqrt(1 - c * c);
+      for (let j = 0; j < 24; j++) {
+        const p = 2 * Math.PI * j / 24, ux = sn * Math.cos(p), uy = sn * Math.sin(p);
+        s += intensity(ux, uy, fwd ? -c : c, L, w);
+      }
+    }
+    return s;
+  };
+  function update() {
+    const L = 10 ** +document.getElementById('c4L').value, w = +document.getElementById('c4w').value;
+    document.getElementById('c4Lo').textContent = L < 1 ? L.toFixed(3) + ' µm' : L.toFixed(2) + ' µm';
+    document.getElementById('c4wo').textContent = w.toFixed(2);
+    document.getElementById('c4log').classList.toggle('on', logMode);
+    let max = 0;
+    const vals = [];
+    for (let i = 0; i <= NT; i++) {
+      const th = Math.PI * i / NT;
+      for (let j = 0; j <= NP; j++) {
+        const ph = 2 * Math.PI * j / NP;
+        const ux = Math.sin(th) * Math.cos(ph), uy = Math.sin(th) * Math.sin(ph), uz = Math.cos(th);
+        const v = intensity(ux, uy, uz, L, w); vals.push([ux, uy, uz, v]); if (v > max) max = v;
+      }
+    }
+    const cF = col('blue'), cB = col('red'), tmp = new THREE.Color();
+    vals.forEach(([ux, uy, uz, v], k) => {
+      let r = v / max; r = logMode ? Math.pow(r, 0.25) : r; r *= 1.9;
+      const p = V(ux * r, uy * r, uz * r);
+      posArr[3 * k] = p.x; posArr[3 * k + 1] = p.y; posArr[3 * k + 2] = p.z;
+      tmp.copy(uz < 0 ? cF : cB);
+      colArr[3 * k] = tmp.r; colArr[3 * k + 1] = tmp.g; colArr[3 * k + 2] = tmp.b;
+    });
+    geo.attributes.position.needsUpdate = true; geo.attributes.color.needsUpdate = true; geo.computeVertexNormals();
+    const sl = Math.min(0.9, 0.12 + 0.3 * Math.log10(1 + L * 10)), sw = Math.min(0.25, 0.04 + w * 0.2);
+    scat.scale.set(sw, sl * 0.6, sw);
+    st.dirty = true;
+    const F = collect(L, w, true), B = collect(L, w, false);
+    document.getElementById('c4read').innerHTML = t('c4.read', L < 1 ? L.toFixed(3) : L.toFixed(2), fmt(F / collect(0.02, w, true)), fmt(B / collect(0.02, w, true)), fmt(F / B),
+      (Math.PI / dkF).toFixed(1), (Math.PI / dkB).toFixed(3));
+    // F、B vs L
+    g.clearRect(0, 0, g.W, g.H);
+    const A = axesLogLog(g, 44, 24, g.W - 60, g.H - 50, [-1.7, 0.7], [-3, 4], 'L (µm)', t('c4.plotlab'));
+    const ref = collect(0.02, w, true);
+    for (const [fwd, cc] of [[true, C.blue], [false, C.red]]) {
+      g.strokeStyle = cc; g.lineWidth = 2; g.beginPath();
+      for (let k = 0; k <= 80; k++) { const LL = 10 ** (-1.7 + 2.4 * k / 80); const v = collect(LL, w, fwd) / ref; k ? g.lineTo(A.X(LL), A.Y(v)) : g.moveTo(A.X(LL), A.Y(v)); }
+      g.stroke();
+    }
+    g.lineWidth = 1; g.strokeStyle = C.ink; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(A.X(L), 24); g.lineTo(A.X(L), g.H - 26); g.stroke(); g.setLineDash([]);
+    g.fillStyle = C.blue; g.fillText('F', g.W - 30, 40); g.fillStyle = C.red; g.fillText('B', g.W - 30, 56);
+  }
+  ['c4L', 'c4w'].forEach(id => document.getElementById(id).addEventListener('input', update));
+  document.getElementById('c4log').onclick = () => { logMode = !logMode; update(); };
+  update();
+  themeHook(() => { st.bg(); update(); });
+  document.getElementById('lang').addEventListener('click', update);
+}
+
+// ═══════════════════════════ 第 5 章：纖維＋偏振＋極化 ═══════════════════════════
+{
+  const st = makeStage(document.getElementById('s5'), new THREE.Vector3(2.6, 3.4, 3.6));
+  const { scene } = st;
+  const grid = gridPlane(5, 10); scene.add(grid);
+  const fiber = new THREE.Group(); scene.add(fiber);
+  const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 3.2, 32, 1, true),
+    new THREE.MeshStandardMaterial({ color: 0xe8b84a, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false }));
+  fiber.add(cyl);
+  let helix = null;
+  const helixMat = new THREE.LineBasicMaterial({ color: 0xd99a1e });
+  function buildHelix(te) {
+    if (helix) { fiber.remove(helix); helix.geometry.dispose(); }
+    const pts = [], r = 0.22, pitchV = r / Math.tan(te * Math.PI / 180);
+    for (let s = -1.6; s <= 1.6; s += 0.01) { const ang = s / pitchV; pts.push(new THREE.Vector3(r * Math.cos(ang), s, r * Math.sin(ang))); }
+    helix = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), helixMat); fiber.add(helix);
+  }
+  const Ea = arrow(0xff5a4e), Pa = arrow(0x3b8fe0), Pt = arrow(0x7ee787);
+  scene.add(Ea, Pa, Pt);
+  const proj = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineDashedMaterial({ color: 0xe8b84a, dashSize: 0.1, gapSize: 0.08 }));
+  scene.add(proj);
+  const curveGeo = new THREE.BufferGeometry(), traceGeo = new THREE.BufferGeometry();
+  const curve = new THREE.Line(curveGeo, new THREE.LineBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.5 }));
+  const trace = new THREE.Line(traceGeo, new THREE.LineBasicMaterial({ color: 0x22c7d6 }));
+  scene.add(curve, trace);
+  const dot = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 8), new THREE.MeshBasicMaterial({ color: 0x22c7d6 })); scene.add(dot);
+  const gp = (() => { const c = document.getElementById('c5polar'); const w = c.width, h = c.height; c.width = w * 2; c.height = h * 2; const x = c.getContext('2d'); x.setTransform(2, 0, 0, 2, 0, 0); x.W = w; x.H = h; return x; })();
+  let playing = false, traceStart = 0, lastTe = -1;
+  const val = id => +document.getElementById(id).value;
+  function update() {
+    const th = val('c5th') * D2R, rho = val('c5rho'), phi = val('c5phi') * D2R, del = val('c5del') * D2R;
+    document.getElementById('c5tho').textContent = val('c5th') + '°';
+    document.getElementById('c5rho_o').textContent = rho.toFixed(2);
+    document.getElementById('c5phio').textContent = val('c5phi') + '°';
+    document.getElementById('c5delo').textContent = val('c5del') + '°';
+    document.getElementById('c5play').innerHTML = playing ? t('c5.pause') : t('c5.play');
+    const te = Math.atan(Math.sqrt(2 / rho)) / D2R;
+    if (Math.abs(te - lastTe) > 0.2) { buildHelix(te); lastTe = te; }
+    const a = fiberAxis(phi, del);
+    fiber.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), V(...a).normalize());
+    fiber.position.copy(V(0, 0, 0));
+    proj.geometry.setFromPoints([V(-1.8 * Math.cos(phi), -1.8 * Math.sin(phi), 0), V(1.8 * Math.cos(phi), 1.8 * Math.sin(phi), 0)]);
+    proj.computeLineDistances();
+    const E = [Math.cos(th), Math.sin(th), 0];
+    const P = shgP(E, a, rho);
+    const Pm = Math.hypot(...P);
+    const sc = 1.3 / Math.max(1, rho, 1.6);
+    setArrow(Ea, V(0, 0, 0), V(E[0] * 1.5, E[1] * 1.5, 0));
+    setArrow(Pa, V(0, 0, 0), V(P[0] * sc, P[1] * sc, P[2] * sc));
+    setArrow(Pt, V(0, 0, 0), V(P[0] * sc, P[1] * sc, 0));
+    // 極座標曲線畫在影像平面上（下方 0.02）
+    const R = 2.1, pts = [], tr = [];
+    let max = 0; const vals = [];
+    for (let k = 0; k <= 360; k++) { const v = Ifiber(k * D2R, phi, del, rho); vals.push(v); if (v > max) max = v; }
+    const norm = Math.max(max, 1e-9);
+    for (let k = 0; k <= 360; k++) {
+      const r = R * vals[k] / norm, p = V(r * Math.cos(k * D2R), r * Math.sin(k * D2R), -0.01);
+      pts.push(p);
+    }
+    curveGeo.setFromPoints(pts);
+    const thd = val('c5th');
+    for (let k = 0; k <= thd; k++) tr.push(pts[k]);
+    traceGeo.setFromPoints(tr.length > 1 ? tr : [pts[0], pts[0]]);
+    const Inow = P[0] * P[0] + P[1] * P[1];
+    dot.position.copy(V(R * Inow / norm * Math.cos(th), R * Inow / norm * Math.sin(th), -0.01));
+    st.dirty = true;
+    // 2D 極座標
+    const g = gp, cx = g.W / 2, cy = g.H / 2 + 4, RR = g.H / 2 - 22;
+    g.clearRect(0, 0, g.W, g.H);
+    g.strokeStyle = C.grid; g.lineWidth = 1;
+    for (const f of [0.5, 1]) { g.beginPath(); g.arc(cx, cy, RR * f, 0, 7); g.stroke(); }
+    for (let d = 0; d < 180; d += 45) { const q = d * D2R; g.beginPath(); g.moveTo(cx - RR * Math.cos(q), cy + RR * Math.sin(q)); g.lineTo(cx + RR * Math.cos(q), cy - RR * Math.sin(q)); g.stroke(); }
+    const ref = []; let rmax = 0; for (let k = 0; k <= 360; k++) { const v = Ifiber(k * D2R, phi, 0, rho); ref.push(v); rmax = Math.max(rmax, v); }
+    const gmax = Math.max(rmax, max);
+    const plot = (arr, color, dash, upto = 360) => {
+      g.strokeStyle = color; g.setLineDash(dash); g.lineWidth = 2; g.beginPath();
+      for (let k = 0; k <= upto; k++) { const r = RR * arr[k] / gmax, x = cx + r * Math.cos(k * D2R), y = cy - r * Math.sin(k * D2R); k ? g.lineTo(x, y) : g.moveTo(x, y); }
+      g.stroke(); g.setLineDash([]);
+    };
+    if (del > 0) plot(ref, C.dim, [4, 4]);
+    plot(vals, C.accent, []);
+    g.fillStyle = C.red; const rr = RR * Inow / gmax; g.beginPath(); g.arc(cx + rr * Math.cos(th), cy - rr * Math.sin(th), 4, 0, 7); g.fill();
+    g.strokeStyle = C.gold; g.setLineDash([6, 4]); g.beginPath(); g.moveTo(cx - RR * Math.cos(phi), cy + RR * Math.sin(phi)); g.lineTo(cx + RR * Math.cos(phi), cy - RR * Math.sin(phi)); g.stroke(); g.setLineDash([]);
+    g.fillStyle = C.muted; g.font = FONT; g.fillText('I(θ)', 8, 16);
+    const Pzs = Pm > 0 ? (P[2] * P[2]) / (Pm * Pm) * 100 : 0;
+    const ratio = Ifiber(phi, phi, 0, rho) / Math.max(1e-9, Ifiber(phi + Math.PI / 2, phi, 0, rho));
+    document.getElementById('c5read').innerHTML = t('c5.read', Inow.toFixed(2), Pzs.toFixed(0), te.toFixed(1), ratio.toFixed(2));
+  }
+  ['c5th', 'c5rho', 'c5phi', 'c5del'].forEach(id => document.getElementById(id).addEventListener('input', update));
+  document.getElementById('c5play').onclick = () => { playing = !playing; update(); };
+  document.getElementById('c5col').onclick = () => { document.getElementById('c5rho').value = 1.4; update(); };
+  document.getElementById('c5myo').onclick = () => { document.getElementById('c5rho').value = 0.57; update(); };
+  let acc = 0;
+  st.anim = dt => {
+    if (!playing) return;
+    acc += dt * 40;
+    if (acc >= 1) { const s = document.getElementById('c5th'); s.value = (+s.value + Math.floor(acc)) % 361; acc -= Math.floor(acc); update(); }
+  };
+  update();
+  themeHook(() => { st.bg(); update(); });
+  document.getElementById('lang').addEventListener('click', update);
+}
+
+// ═══════════════════════════ 第 6 章：樣品形式 ═══════════════════════════
+{
+  const st = makeStage(document.getElementById('s6'), new THREE.Vector3(4.2, 4.6, 5.6));
+  const { scene } = st;
+  scene.add(gridPlane(8, 16));
+  const group = new THREE.Group(); scene.add(group);
+  const fmatA = new THREE.MeshStandardMaterial({ color: 0xe8b84a, roughness: 0.55 });
+  const fmatB = new THREE.MeshStandardMaterial({ color: 0xc06cff, roughness: 0.55 });
+  const fmatM = new THREE.MeshStandardMaterial({ color: 0xd2a8ff, roughness: 0.55 });
+  const box = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(8, 2.4, 6)), new THREE.LineBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.35 }));
+  scene.add(box);
+  const gi = (() => { const c = document.getElementById('c6img'); const w = c.width, h = c.height; c.width = w * 2; c.height = h * 2; const x = c.getContext('2d'); x.setTransform(2, 0, 0, 2, 0, 0); x.W = w; x.H = h; return x; })();
+  const gp = (() => { const c = document.getElementById('c6polar'); const w = c.width, h = c.height; c.width = w * 2; c.height = h * 2; const x = c.getContext('2d'); x.setTransform(2, 0, 0, 2, 0, 0); x.W = w; x.H = h; return x; })();
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const gauss = () => { let u = 0; for (let i = 0; i < 6; i++) u += rnd(); return (u - 3) / 1.0; };
+  // 纖維：{ c:[x,y,z] 中心（µm 縮放後的場景單位）, phi, delta, len, rho, seg(肌節) }
+  const PRESETS = {
+    tendonL: () => { const F = []; for (let i = 0; i < 26; i++) F.push({ c: [0, -2.6 + 5.2 * i / 25, (rnd() - 0.5) * 0.6], phi: 3 * gauss() * D2R, delta: 3 * gauss() * D2R, len: 7.4, rho: 1.4 }); return F; },
+    tendonX: () => { const F = []; for (let i = 0; i < 9; i++) for (let j = 0; j < 7; j++) F.push({ c: [-3.4 + 6.8 * i / 8, -2.5 + 5 * j / 6, 0], phi: rnd() * Math.PI, delta: (88 - 4 * rnd()) * D2R, len: 2.2, rho: 1.4 }); return F; },
+    dermis: () => { const F = []; for (let i = 0; i < 34; i++) F.push({ c: [(rnd() - 0.5) * 6, (rnd() - 0.5) * 4.4, (rnd() - 0.5) * 0.8], phi: rnd() * Math.PI, delta: 12 * gauss() * D2R, len: 2.5 + 2.5 * rnd(), rho: 1.4 }); return F; },
+    cornea: () => { const F = []; for (let i = 0; i < 16; i++) F.push({ c: [0, -2.6 + 5.2 * i / 15, 0.18], phi: 0, delta: 0, len: 7.4, rho: 1.4 }); for (let i = 0; i < 20; i++) F.push({ c: [-3.5 + 7 * i / 19, 0, -0.18], phi: Math.PI / 2, delta: 0, len: 5.4, rho: 1.4 }); return F; },
+    muscle: () => { const F = []; for (let i = 0; i < 12; i++) for (let s = 0; s < 6; s++) F.push({ c: [-3.1 + 1.25 * s, -2.5 + 5 * i / 11, 0], phi: 0, delta: 0, len: 0.65, rho: 0.57, myo: true }); return F; },
+    tilted: () => { const F = []; for (let i = 0; i < 22; i++) F.push({ c: [(rnd() - 0.5) * 1.5, -2.6 + 5.2 * i / 21, 0], phi: 20 * D2R, delta: (50 + 3 * gauss()) * D2R, len: 3.2, rho: 1.4 }); return F; },
+  };
+  let preset = 'tendonL', fibers = [], spinning = false, circ = false, acc = 0;
+  const cylGeo = new THREE.CylinderGeometry(0.11, 0.11, 1, 14);
+  function build() {
+    seed = 11 + Object.keys(PRESETS).indexOf(preset) * 101;
+    fibers = PRESETS[preset]();
+    const f = +document.getElementById('c6f').value;
+    while (group.children.length) group.remove(group.children[0]);
+    fibers.forEach(fb => {
+      fb.flip = rnd() < f;
+      const m = new THREE.Mesh(cylGeo, fb.myo ? fmatM : fmatA);
+      const a = fiberAxis(fb.phi, fb.delta);
+      m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), V(...a).normalize());
+      m.scale.set(fb.myo ? 1.5 : 1, fb.len, fb.myo ? 1.5 : 1);
+      m.position.copy(V(...fb.c));
+      group.add(m);
+    });
+    document.querySelectorAll('#c6presets .btn').forEach(b => b.classList.toggle('on', b.dataset.p === preset));
+    document.getElementById('c6desc').innerHTML = t('c6.d.' + preset);
+    st.dirty = true;
+    update();
+  }
+  // 參考尺度：肌腱縱切、偏振平行時單根纖維的強度
+  const REF = Ifiber(0, 0, 0, 1.4);
+  const fiberI = (fb, th) => circ ? 0.5 * (Ifiber(0, fb.phi, fb.delta, fb.rho) + Ifiber(Math.PI / 2, fb.phi, fb.delta, fb.rho)) : Ifiber(th, fb.phi, fb.delta, fb.rho);
+  function update() {
+    const thd = +document.getElementById('c6th').value, th = thd * D2R;
+    const f = +document.getElementById('c6f').value, depth = +document.getElementById('c6t').value;
+    document.getElementById('c6tho').textContent = circ ? '○' : thd + '°';
+    document.getElementById('c6fo').textContent = f.toFixed(2);
+    document.getElementById('c6to').textContent = depth.toFixed(2);
+    document.getElementById('c6spin').innerHTML = spinning ? t('c6.stop') : t('c6.spin');
+    document.getElementById('c6circ').classList.toggle('on', circ);
+    // 焦點內 ~20 根原纖維：期望 |Σ|² / N² = (1−2f)² + 4f(1−f)/20
+    const coh = (1 - 2 * f) ** 2 + 4 * f * (1 - f) / 20;
+    const att = Math.exp(-2 * depth);                         // 激發強度衰減 e^{-d}，SHG ∝ I² → e^{-2d}
+    // 影像
+    const g = gi, W = g.W, H = g.H;
+    g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+    const sx = W / 8.4, sy = H / 6.3, ox = W / 2, oy = H / 2;
+    let sum = 0;
+    for (const fb of fibers) {
+      const I = fiberI(fb, th) / REF * coh * att;
+      sum += I;
+      const a = fiberAxis(fb.phi, fb.delta);
+      const half = fb.len / 2;
+      const x1 = ox + sx * (fb.c[0] - a[0] * half), y1 = oy - sy * (fb.c[1] - a[1] * half);
+      const x2 = ox + sx * (fb.c[0] + a[0] * half), y2 = oy - sy * (fb.c[1] + a[1] * half);
+      const v = Math.min(1, I);
+      const wpx = fb.myo ? 9 : 4;
+      g.strokeStyle = `rgba(90,190,255,${0.04 + 0.96 * v})`; g.lineCap = 'round'; g.lineWidth = Math.abs(a[2]) > 0.95 ? wpx * 1.6 : wpx;
+      g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2 + (x1 === x2 && y1 === y2 ? 0.5 : 0), y2); g.stroke();
+    }
+    g.fillStyle = 'rgba(255,255,255,0.75)'; g.font = FONT;
+    if (!circ) {
+      const L = 26, cx = W - 36, cy = 34;
+      g.strokeStyle = '#ff7b72'; g.lineWidth = 2; g.beginPath(); g.moveTo(cx - L * Math.cos(th), cy + L * Math.sin(th)); g.lineTo(cx + L * Math.cos(th), cy - L * Math.sin(th)); g.stroke();
+      g.fillText('E', cx + 28, cy + 4);
+    } else g.fillText('E ○', W - 44, 38);
+    // 視野平均 I(θ)
+    const avg = [], single = [];
+    let amax = 0, amin = Infinity;
+    for (let k = 0; k <= 360; k++) {
+      let s = 0; for (const fb of fibers) s += Ifiber(k * D2R, fb.phi, fb.delta, fb.rho);
+      s /= Math.max(1, fibers.length); avg.push(s);
+      single.push(Ifiber(k * D2R, 0, 0, 1.4));
+      amax = Math.max(amax, s); amin = Math.min(amin, s);
+    }
+    const p = gp, cx = p.W / 2, cy = p.H / 2 + 6, R = p.H / 2 - 24;
+    p.clearRect(0, 0, p.W, p.H);
+    p.strokeStyle = C.grid; p.lineWidth = 1;
+    for (const q of [0.5, 1]) { p.beginPath(); p.arc(cx, cy, R * q, 0, 7); p.stroke(); }
+    const gm = Math.max(...single);
+    const pl = (arr, color, dash) => { p.strokeStyle = color; p.setLineDash(dash); p.lineWidth = 2; p.beginPath();
+      arr.forEach((v, k) => { const r = R * v / gm, x = cx + r * Math.cos(k * D2R), y = cy - r * Math.sin(k * D2R); k ? p.lineTo(x, y) : p.moveTo(x, y); }); p.stroke(); p.setLineDash([]); };
+    pl(single, C.dim, [4, 4]); pl(avg, C.accent, []);
+    if (!circ) { p.strokeStyle = C.red; p.beginPath(); p.moveTo(cx, cy); p.lineTo(cx + R * Math.cos(th), cy - R * Math.sin(th)); p.stroke(); }
+    p.fillStyle = C.muted; p.font = FONT; p.fillText(t('c6.polarlab'), 8, 14);
+    const mean = sum / Math.max(1, fibers.length);
+    const aniso = (amax - amin) / (amax + amin || 1);
+    document.getElementById('c6read').innerHTML = t('c6.read', mean.toFixed(3), aniso.toFixed(2), att.toFixed(2), depth > 1);
+    st.dirty = true;
+  }
+  document.querySelectorAll('#c6presets .btn').forEach(b => b.onclick = () => { preset = b.dataset.p; build(); });
+  document.getElementById('c6th').addEventListener('input', () => { circ = false; update(); });
+  document.getElementById('c6f').addEventListener('input', build);
+  document.getElementById('c6t').addEventListener('input', update);
+  document.getElementById('c6spin').onclick = () => { spinning = !spinning; if (spinning) circ = false; update(); };
+  document.getElementById('c6circ').onclick = () => { circ = !circ; if (circ) spinning = false; update(); };
+  st.anim = dt => {
+    if (!spinning) return;
+    acc += dt * 30;
+    if (acc >= 1) { const s = document.getElementById('c6th'); s.value = (+s.value + Math.floor(acc)) % 181; acc -= Math.floor(acc); update(); }
+  };
+  build();
+  themeHook(() => { st.bg(); update(); });
+  document.getElementById('lang').addEventListener('click', () => { document.getElementById('c6desc').innerHTML = t('c6.d.' + preset); update(); });
+}
+
+requestAnimationFrame(loop);
+</script>
+<script>
+document.fonts && document.fonts.ready.then(() => redraw());
+</script>
+</body>
+</html>

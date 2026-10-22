@@ -74,6 +74,7 @@
   }
   h1 { font-size: 1.25rem; margin: 0; font-weight: 600; }
   .titlebar { position: relative; width: 100%; max-width: 1152px; display: flex; align-items: center; justify-content: center; }
+  a.chip { background: none; color: var(--muted); border: 1px solid var(--grid); border-radius: 8px; padding: 5px 9px; font-size: 0.78rem; line-height: 1.2; }
   .titlebar .btns { position: absolute; right: 0; top: 50%; transform: translateY(-50%); display: flex; gap: 6px; }
   button.chip {
     background: none; color: var(--muted); border: 1px solid var(--grid);
@@ -147,6 +148,7 @@
 <div class="titlebar">
   <h1><span data-i18n="h1"></span> <span style="color:var(--muted);font-weight:400">v2.3</span></h1>
   <span class="btns">
+    <a class="chip" href="shg-academy.html" data-i18n="btn.academy" style="text-decoration:none"></a>
     <button class="chip" id="lang" data-i18n-title="btn.lang.title"></button>
     <button class="chip" id="theme" data-i18n-title="btn.theme.title"></button>
   </span>
@@ -247,6 +249,7 @@ zh: {
   'title': 'P-SHG 偏振極座標遊樂場 v2.3 🦉',
   'h1': 'P-SHG 偏振極座標遊樂場',
   'btn.lang.title': 'Switch to English',
+  'btn.academy': '📘 SHG 基礎教室（3D）',
   'btn.theme.title': '切換深色／淺色',
   'theme.light': '☀ 淺色', 'theme.dark': '🌙 深色',
   'sub': `纖維狀組織（C₆ 圓柱對稱）的偏振解析 SHG 模型。單軸分子模型下
@@ -319,6 +322,7 @@ en: {
   'title': 'P-SHG Polar Playground v2 🦉',
   'h1': 'P-SHG Polar Playground',
   'btn.lang.title': '切換成中文',
+  'btn.academy': '📘 SHG basics (3D)',
   'btn.theme.title': 'Toggle dark / light',
   'theme.light': '☀ Light', 'theme.dark': '🌙 Dark',
   'sub': `A polarization-resolved SHG model of fibrous tissue (C₆ cylindrical symmetry). In the single-axis molecular model
