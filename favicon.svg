@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#14161c"/>
+  <!-- cat head with ears -->
+  <path d="M12 52 V22 L13 9 L25 18 Q32 16 39 18 L51 9 L52 22 V52 Q32 58 12 52 Z" fill="#6ec6ff"/>
+  <!-- inner ears -->
+  <path d="M16 20 L16.5 14 L22 18.5 Z M48 20 L47.5 14 L42 18.5 Z" fill="#14161c" opacity="0.35"/>
+  <!-- eyes: red (omega) and violet (2 omega) -->
+  <ellipse cx="23" cy="33" rx="5" ry="6" fill="#14161c"/>
+  <ellipse cx="41" cy="33" rx="5" ry="6" fill="#14161c"/>
+  <ellipse cx="23" cy="33" rx="1.6" ry="4.6" fill="#ff5a5a"/>
+  <ellipse cx="41" cy="33" rx="1.6" ry="4.6" fill="#a98bff"/>
+  <!-- nose and mouth -->
+  <path d="M29.5 41 H34.5 L32 43.5 Z" fill="#14161c"/>
+  <path d="M32 43.5 Q30 47 26.5 45.5 M32 43.5 Q34 47 37.5 45.5" stroke="#14161c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <!-- whiskers -->
+  <path d="M5 40 L19 41 M6 46 L19 44 M59 40 L45 41 M58 46 L45 44" stroke="#e6e6ec" stroke-width="1.4" stroke-linecap="round" opacity="0.8"/>
+</svg>
