@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FLIM Phasor 遊樂場 🦉</title>
+<title>FLIM Phasor 遊樂場 🐱</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
@@ -380,7 +380,7 @@ $('theme').onclick = () => setTheme(document.documentElement.dataset.theme === '
 // ═══════════════════════════ 語言 / Language ═══════════════════════════
 function applyLang() {
   document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-TW';
-  document.title = t('title') + ' 🦉';
+  document.title = t('title') + ' 🐱';
   document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
   $('lang').textContent = LANG === 'en' ? '中文' : 'EN';

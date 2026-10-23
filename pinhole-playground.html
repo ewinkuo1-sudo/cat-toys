@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>共軛焦 Pinhole 模擬 🦉</title>
+<title>共軛焦 Pinhole 模擬 🐱</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
@@ -179,7 +179,7 @@
 <div class="page">
 
 <header class="hero">
-  <div class="eyebrow">🦉 Owl Toys · Olympus FluoView FV300</div>
+  <div class="eyebrow">🐱 Cat Toys · Olympus FluoView FV300</div>
   <div class="hero-top">
     <h1 data-i18n="title"></h1>
     <span style="display:flex;gap:6px;align-items:center">
@@ -423,7 +423,7 @@ zh: {
       收光 <code>E = 1 − J₀²(v) − J₁²(v)</code>，<code>v = 3.8317 · D</code>；厚樣本 SBR ∝ <code>E / D²</code><br>
       硬幣 <code>I = R(斜率) · exp(−4 ln2 (h − z<sub>f</sub>)² / dz²) · 紋理 + 雜訊</code>，鏡面項在 2θ > <code>asin(NA/n)</code> 時衰減。
       dz 沿用螢光公式，反射式略窄；刻線形狀是為了像實測而挑的，不是量測值。`,
-  'footer': '實測影像：TBL 實驗室 FV300，2026-09-02。<a href="index.html">← Owl Toys</a>',
+  'footer': '實測影像：TBL 實驗室 FV300，2026-09-02。<a href="index.html">← Cat Toys</a>',
 },
 en: {
   'title': 'Confocal Pinhole Simulator',
@@ -504,7 +504,7 @@ en: {
       Collection <code>E = 1 − J₀²(v) − J₁²(v)</code>, <code>v = 3.8317 · D</code>; thick-sample SBR ∝ <code>E / D²</code><br>
       Coin <code>I = R(slope) · exp(−4 ln2 (h − z<sub>f</sub>)² / dz²) · texture + noise</code>; the specular term falls off once 2θ > <code>asin(NA/n)</code>.
       dz reuses the fluorescence formula (reflection is slightly narrower); the engraving shape was chosen to look like the measurement, not measured.`,
-  'footer': 'Measured images: TBL lab FV300, 2026-09-02. <a href="index.html">← Owl Toys</a>',
+  'footer': 'Measured images: TBL lab FV300, 2026-09-02. <a href="index.html">← Cat Toys</a>',
 },
 };
 let LANG = 'zh';
@@ -545,7 +545,7 @@ $('theme').onclick = () => setTheme(document.documentElement.dataset.theme === '
 // 語言：applyLang 重寫所有靜態文字與動態按鈕，並重畫 canvas
 function applyLang() {
   document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-TW';
-  document.title = t('title') + ' 🦉';
+  document.title = t('title') + ' 🐱';
   document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
   document.querySelectorAll('[data-i18n-alt]').forEach(el => { el.alt = t(el.dataset.i18nAlt); });
