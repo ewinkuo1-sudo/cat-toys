@@ -2,7 +2,7 @@
 
 貓貓（MrEwin 的 AI 助理 Claude）隨手做的互動小玩具。每個玩具都是單一 HTML 檔，不依賴任何外部套件，瀏覽器打開就能玩（字型用 Google Fonts 的思源宋體 Noto Serif TC，離線時退回系統宋體）。
 
-**線上玩：** https://ewinkuo1-sudo.github.io/owl-toys/
+**線上玩：** https://ewinkuo1-sudo.github.io/cat-toys/
 
 每頁右上角可切換 **中文／English**（`?lang=en`）與 **淺色／深色**（`?theme=dark`），選擇會記在瀏覽器裡、全站共用。
 
@@ -10,18 +10,18 @@
 
 | 玩具 | 說明 |
 |---|---|
-| [GLCM 紋理分類遊樂場](https://ewinkuo1-sudo.github.io/owl-toys/glcm-texture-playground.html) | 合成膠原小塊（整齊／雜亂）→ GLCM → 紋理特徵 → 線性 SVM 分界與訓練／測試準確率；方向隨機時單一方向特徵失效、各向異性救回 |
-| [光纖脈衝變寬遊樂場](https://ewinkuo1-sudo.github.io/owl-toys/fiber-dispersion-playground.html) | 飛秒脈衝在光纖裡的群速色散：熔融石英 Sellmeier β₂、出口脈寬、色散長度、雙光子訊號倍率、負色散預補償；未含波導色散、TOD、SPM |
-| [SHG 顯微術互動教室（3D）](https://ewinkuo1-sudo.github.io/owl-toys/shg-academy.html) | 從物理到樣品的完整 SHG 教學：χ⁽²⁾ 非線性與飛秒增益、3D 分子群看中心對稱與相干疊加、I² 光學切片、3D 輻射圖樣看相位匹配與 F/B、3D 纖維＋偏振＋極化箭頭看 P-SHG 花瓣、六種樣品（肌腱縱／橫切、真皮、角膜、骨骼肌、斜向纖維）3D 模型＋模擬影像、總表與測驗 |
-| [FV300 3D 互動顯微鏡](https://ewinkuo1-sudo.github.io/owl-toys/fv300-3d-microscope.html) | Three.js 搭的 FV300 / IX71 3D 模型，外觀依實驗室實機照片建：掀開掃描頭看振鏡、DM、傘齒輪帶動的 pinhole 轉盤、PMT；激發／螢光光路發光線＋流動光子、振鏡即時掃描、FluoView 螢幕同步顯示合成影像；可調 pinhole、掃描速度（雜訊／幀時間）與 Z 軸（深度分層樣品、光學切片厚度剖面）；點零件看中英文說明與即時數值 |
-| [I/Q 零差解調遊樂場](https://ewinkuo1-sudo.github.io/owl-toys/iq-homodyne-playground.html) | PMT 載波裡拉曼（τ≈0）與螢光（τ>0）相位不同，兩顆混頻器＋90° 正交參考做 I/Q 解調；訊號鏈逐段動畫、I-Q 平面幾何、合成組織的 Fiji 四步重建，以及 φ₀ 沒校正時相位圖怎麼歪 |
-| [FV300 光路模擬器（2D）](https://ewinkuo1-sudo.github.io/owl-toys/fv300-optics-sim.html) | 3D 版之前的側視圖版本：完整 FV300 / IX71 光路追跡；切雷射、發散角、振鏡、pinhole、分光鏡／barrier filter、物鏡、離焦，即時算光斑、Airy 半徑、切片厚度、pinhole 效率與 PMT 訊號；附濾片透射光譜 |
-| [FLIM Phasor 遊樂場](https://ewinkuo1-sudo.github.io/owl-toys/flim-phasor-playground.html) | 從 TCSPC 直方圖取諧波算 phasor：半圓、弦、IRF 校正、背景、二次諧波、非圓形雜訊點雲；合成 FLIM 影像＋游標圈選反查像素與其衰減 |
-| [反卷積互動實驗台](https://ewinkuo1-sudo.github.io/owl-toys/deconvolution-playground.html) | Richardson-Lucy 迭代滑桿看 semi-convergence：迭代過頭雜訊放大成 ringing |
-| [共軛焦 Pinhole 模擬](https://ewinkuo1-sudo.github.io/owl-toys/pinhole-playground.html) | FV300 五段 CONFOCAL APERTURE 旋鈕換算 AU → 切片厚度 vs 收光量；反射式硬幣實測對照：最小針孔＝等高線儀，掃 z、z-stack 重建高度圖 |
-| [桌面反射梳狀濾波模擬](https://ewinkuo1-sudo.github.io/owl-toys/desk-comb-filter.html) | 桌面反射幾何 → 梳狀濾波頻響，為什麼 EQ 修不了 600 Hz 梳齒 |
-| [房間模態 2D 駐波熱圖](https://ewinkuo1-sudo.github.io/owl-toys/room-modes-heatmap.html) | 矩形房間駐波熱圖、可拖聽點，69 Hz 軸向模態對應 ~2.5 m 邊長 |
-| [脈衝串 ↔ 頻率梳遊樂場](https://ewinkuo1-sudo.github.io/owl-toys/pulse-comb-playground.html) | 週期脈衝串 ⇔ 頻率梳的互動模擬：疊諧波長出尖脈衝、螢光壽命低通、NADH 1f/2f 取頻取捨 |
-| [P-SHG 偏振極座標遊樂場 v2](https://ewinkuo1-sudo.github.io/owl-toys/pshg-polar-playground.html) | P-SHG 完整模擬：ρ↔θe 換算、δ／χ₁₄／雙折射 Γ 三種表觀 ρ 偏差、X/Y 分光、Fourier 係數、CSV 擬合、噪聲遊戲（Tiaho 2007 + Lee 2023 APL） |
-| [P-SHG 影像實驗室](https://ewinkuo1-sudo.github.io/owl-toys/pshg-image-lab.html) | 合成組織 → 多偏振角影像疊＋光子噪聲 → 逐像素 Fourier 反推 φ/ρ 圖；角度數×光子預算的實驗設計取捨 |
-| [CARS 拍頻遊樂場](https://ewinkuo1-sudo.github.io/owl-toys/cars-beat-playground.html) | pump/Stokes 拍頻（真實比例）打上分子振動 Ω 才生 anti-Stokes；分子相位落後、χ_NR 峰位偏移／凹陷位置、Boltzmann 因子、變換極限脈寬即時計算；可調 pump 波長與 Ω／Γ，切換自發拉曼 / CARS / SRS 並附比較表；中英雙語（EN／中文鈕或 `?lang=en`）；URL 參數可分享 |
+| [GLCM 紋理分類遊樂場](https://ewinkuo1-sudo.github.io/cat-toys/glcm-texture-playground.html) | 合成膠原小塊（整齊／雜亂）→ GLCM → 紋理特徵 → 線性 SVM 分界與訓練／測試準確率；方向隨機時單一方向特徵失效、各向異性救回 |
+| [光纖脈衝變寬遊樂場](https://ewinkuo1-sudo.github.io/cat-toys/fiber-dispersion-playground.html) | 飛秒脈衝在光纖裡的群速色散：熔融石英 Sellmeier β₂、出口脈寬、色散長度、雙光子訊號倍率、負色散預補償；未含波導色散、TOD、SPM |
+| [SHG 顯微術互動教室（3D）](https://ewinkuo1-sudo.github.io/cat-toys/shg-academy.html) | 從物理到樣品的完整 SHG 教學：χ⁽²⁾ 非線性與飛秒增益、3D 分子群看中心對稱與相干疊加、I² 光學切片、3D 輻射圖樣看相位匹配與 F/B、3D 纖維＋偏振＋極化箭頭看 P-SHG 花瓣、六種樣品（肌腱縱／橫切、真皮、角膜、骨骼肌、斜向纖維）3D 模型＋模擬影像、總表與測驗 |
+| [FV300 3D 互動顯微鏡](https://ewinkuo1-sudo.github.io/cat-toys/fv300-3d-microscope.html) | Three.js 搭的 FV300 / IX71 3D 模型，外觀依實驗室實機照片建：掀開掃描頭看振鏡、DM、傘齒輪帶動的 pinhole 轉盤、PMT；激發／螢光光路發光線＋流動光子、振鏡即時掃描、FluoView 螢幕同步顯示合成影像；可調 pinhole、掃描速度（雜訊／幀時間）與 Z 軸（深度分層樣品、光學切片厚度剖面）；點零件看中英文說明與即時數值 |
+| [I/Q 零差解調遊樂場](https://ewinkuo1-sudo.github.io/cat-toys/iq-homodyne-playground.html) | PMT 載波裡拉曼（τ≈0）與螢光（τ>0）相位不同，兩顆混頻器＋90° 正交參考做 I/Q 解調；訊號鏈逐段動畫、I-Q 平面幾何、合成組織的 Fiji 四步重建，以及 φ₀ 沒校正時相位圖怎麼歪 |
+| [FV300 光路模擬器（2D）](https://ewinkuo1-sudo.github.io/cat-toys/fv300-optics-sim.html) | 3D 版之前的側視圖版本：完整 FV300 / IX71 光路追跡；切雷射、發散角、振鏡、pinhole、分光鏡／barrier filter、物鏡、離焦，即時算光斑、Airy 半徑、切片厚度、pinhole 效率與 PMT 訊號；附濾片透射光譜 |
+| [FLIM Phasor 遊樂場](https://ewinkuo1-sudo.github.io/cat-toys/flim-phasor-playground.html) | 從 TCSPC 直方圖取諧波算 phasor：半圓、弦、IRF 校正、背景、二次諧波、非圓形雜訊點雲；合成 FLIM 影像＋游標圈選反查像素與其衰減 |
+| [反卷積互動實驗台](https://ewinkuo1-sudo.github.io/cat-toys/deconvolution-playground.html) | Richardson-Lucy 迭代滑桿看 semi-convergence：迭代過頭雜訊放大成 ringing |
+| [共軛焦 Pinhole 模擬](https://ewinkuo1-sudo.github.io/cat-toys/pinhole-playground.html) | FV300 五段 CONFOCAL APERTURE 旋鈕換算 AU → 切片厚度 vs 收光量；反射式硬幣實測對照：最小針孔＝等高線儀，掃 z、z-stack 重建高度圖 |
+| [桌面反射梳狀濾波模擬](https://ewinkuo1-sudo.github.io/cat-toys/desk-comb-filter.html) | 桌面反射幾何 → 梳狀濾波頻響，為什麼 EQ 修不了 600 Hz 梳齒 |
+| [房間模態 2D 駐波熱圖](https://ewinkuo1-sudo.github.io/cat-toys/room-modes-heatmap.html) | 矩形房間駐波熱圖、可拖聽點，69 Hz 軸向模態對應 ~2.5 m 邊長 |
+| [脈衝串 ↔ 頻率梳遊樂場](https://ewinkuo1-sudo.github.io/cat-toys/pulse-comb-playground.html) | 週期脈衝串 ⇔ 頻率梳的互動模擬：疊諧波長出尖脈衝、螢光壽命低通、NADH 1f/2f 取頻取捨 |
+| [P-SHG 偏振極座標遊樂場 v2](https://ewinkuo1-sudo.github.io/cat-toys/pshg-polar-playground.html) | P-SHG 完整模擬：ρ↔θe 換算、δ／χ₁₄／雙折射 Γ 三種表觀 ρ 偏差、X/Y 分光、Fourier 係數、CSV 擬合、噪聲遊戲（Tiaho 2007 + Lee 2023 APL） |
+| [P-SHG 影像實驗室](https://ewinkuo1-sudo.github.io/cat-toys/pshg-image-lab.html) | 合成組織 → 多偏振角影像疊＋光子噪聲 → 逐像素 Fourier 反推 φ/ρ 圖；角度數×光子預算的實驗設計取捨 |
+| [CARS 拍頻遊樂場](https://ewinkuo1-sudo.github.io/cat-toys/cars-beat-playground.html) | pump/Stokes 拍頻（真實比例）打上分子振動 Ω 才生 anti-Stokes；分子相位落後、χ_NR 峰位偏移／凹陷位置、Boltzmann 因子、變換極限脈寬即時計算；可調 pump 波長與 Ω／Γ，切換自發拉曼 / CARS / SRS 並附比較表；中英雙語（EN／中文鈕或 `?lang=en`）；URL 參數可分享 |
