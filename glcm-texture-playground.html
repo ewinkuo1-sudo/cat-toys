@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLCM 紋理分類遊樂場 🐱</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root, :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #14161c; --panel: #1d2028; --ink: #e6e6ec; --muted: #9aa0ae;
+    --accent: #6ec6ff; --ref: #ffb86c; --grid: #2e3340;
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f2f3f6; --panel: #ffffff; --ink: #1c1f27; --muted: #5b6272;
+    --accent: #1e6fc0; --ref: #d4741a; --grid: #dfe2e9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: var(--bg); color: var(--ink);
+    font-family: "Noto Serif TC", "Source Han Serif TC", "Songti TC", serif;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+  .head { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 1.25rem; margin: 0; font-weight: 600; }
+  button.chip {
+    background: none; color: var(--muted); border: 1px solid var(--grid);
+    border-radius: 8px; padding: 5px 9px; font-size: 0.78rem; cursor: pointer;
+    font-family: inherit; line-height: 1.2; transition: border-color .12s, color .12s;
+  }
+  button.chip:hover { border-color: var(--muted); color: var(--ink); }
+  button.chip.on { border-color: var(--accent); color: var(--accent); }
+  .sub { color: var(--muted); font-size: 0.85rem; margin: 0; max-width: 760px; text-align: center; line-height: 1.6; }
+  .sub b { color: var(--ink); }
+  .wrap { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: flex-start; max-width: 1240px; }
+  .plots { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: flex-start; max-width: 860px; }
+  canvas { background: var(--panel); border-radius: 12px; max-width: 100%; height: auto; display: block; }
+  #cScatter { cursor: crosshair; }
+  .controls {
+    background: var(--panel); border-radius: 12px; padding: 20px;
+    display: flex; flex-direction: column; gap: 16px; min-width: 280px;
+    flex: 1 1 280px; max-width: 360px;
+  }
+  :root[data-theme="light"] canvas, :root[data-theme="light"] .controls { box-shadow: 0 1px 3px rgba(20,24,40,0.06); }
+  .ctl label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px; gap: 8px; }
+  .ctl output { color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ctl .cap { font-size: 0.9rem; margin-bottom: 6px; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  select { font-family: inherit; font-size: 0.85rem; background: var(--panel); color: var(--ink); border: 1px solid var(--grid); border-radius: 6px; padding: 3px 6px; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 0.85rem; }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--muted); }
+  .toggle input { accent-color: var(--ref); }
+  .stats { font-size: 0.85rem; color: var(--muted); line-height: 1.8; border-top: 1px solid var(--grid); padding-top: 12px; }
+  .stats b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .stats .good { color: var(--accent); }
+  .stats .warn { color: var(--ref); }
+  .hint { font-size: 0.78rem; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--grid); padding-top: 12px; }
+  @media (max-width: 520px) {
+    body { padding: 12px; }
+    .controls { width: 100%; max-width: 100%; min-width: 0; }
+  }
+</style>
+</head>
+<body>
+<script>
+// 先套主題，避免首繪閃白／閃黑（完整邏輯在頁尾）
+(() => {
+  let th = 'light'; try { th = localStorage.getItem('owl-theme') || th; } catch (e) {}
+  const q = new URLSearchParams(location.search).get('theme');
+  if (q === 'dark' || q === 'light') th = q;
+  document.documentElement.dataset.theme = th;
+})();
+</script>
+<div class="head">
+  <h1 data-i18n="title"></h1>
+  <button class="chip" id="lang" data-i18n-title="btn.lang.title"></button>
+  <button class="chip" id="theme" data-i18n-title="btn.theme.title"></button>
+</div>
+<p class="sub" data-i18n="sub"></p>
+<div class="wrap">
+  <div class="plots">
+    <canvas id="cGallery" width="420" height="150"></canvas>
+    <canvas id="cScatter" width="420" height="400"></canvas>
+    <canvas id="cPatch" width="256" height="282"></canvas>
+    <canvas id="cGlcm" width="256" height="282"></canvas>
+  </div>
+  <div class="controls">
+    <div class="ctl">
+      <label><span data-i18n="lbl.diff"></span> <output id="diffOut"></output></label>
+      <input type="range" id="diff" min="6" max="70" step="1" value="35">
+    </div>
+    <div class="ctl">
+      <label><span data-i18n="lbl.noise"></span> <output id="noiseOut"></output></label>
+      <input type="range" id="noise" min="0" max="0.5" step="0.01" value="0.12">
+    </div>
+    <div class="toggle">
+      <input type="checkbox" id="rot">
+      <label for="rot" data-i18n="lbl.rot"></label>
+    </div>
+    <div class="ctl">
+      <label><span data-i18n="lbl.dist"></span> <output id="distOut"></output></label>
+      <input type="range" id="dist" min="1" max="8" step="1" value="2">
+    </div>
+    <div class="ctl">
+      <div class="cap" data-i18n="lbl.angle"></div>
+      <div class="row" id="angles"></div>
+    </div>
+    <div class="ctl">
+      <div class="row"><span data-i18n="lbl.fx"></span> <select id="fx"></select></div>
+      <div class="row" style="margin-top:6px"><span data-i18n="lbl.fy"></span> <select id="fy"></select></div>
+    </div>
+    <div class="row"><button class="chip" id="reseed" data-i18n="btn.reseed"></button></div>
+    <div class="stats" id="stats"></div>
+    <div class="hint" data-i18n="hint"></div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+
+// ═══════════════════════════ 文字字典 / Strings ═══════════════════════════
+const I18N = {
+zh: {
+  'title': 'GLCM 紋理分類遊樂場',
+  'doc.title': 'GLCM 紋理分類遊樂場 🐱',
+  'btn.lang.title': 'Switch to English',
+  'btn.theme.title': '切換深色／淺色',
+  'theme.light': '☀ 淺色', 'theme.dark': '🌙 深色',
+  'sub': `電腦不會「看」纖維整不整齊，要先把影像變成數字。<b>灰階共生矩陣（GLCM）</b>數的是：
+    往某個方向走幾格，「這格多亮、那格多亮」的組合出現幾次。從這張表算出對比、同質性等<b>紋理特徵</b>，
+    再交給<b>支持向量機（SVM）</b>在特徵空間畫一條分界線。這裡的影像全是合成的假組織，A 組纖維整齊、B 組纖維雜亂，不代表任何真實病理或論文資料。`,
+  'lbl.diff': 'B 組纖維方向亂度',
+  'lbl.noise': '影像雜訊',
+  'lbl.rot': '每塊組織的整體方向隨機（像真實切片）',
+  'lbl.dist': 'GLCM 位移距離 d',
+  'lbl.angle': 'GLCM 方向',
+  'ang.avg': '四向平均',
+  'lbl.fx': '橫軸特徵', 'lbl.fy': '縱軸特徵',
+  'btn.reseed': '重新抽一批樣本',
+  'f.contrast': '對比 Contrast', 'f.homog': '同質性 Homogeneity', 'f.energy': '能量 Energy',
+  'f.corr': '相關 Correlation', 'f.entropy': '熵 Entropy', 'f.aniso': '各向異性（四向對比差）',
+  'cv.gallery': '樣本（每組前 8 塊）',
+  'cv.A': 'A 整齊', 'cv.B': 'B 雜亂',
+  'cv.scatter': '特徵空間＋線性 SVM 分界',
+  'cv.click': '點一個點，看那塊組織',
+  'cv.train': '● 訓練', 'cv.test': '○ 測試',
+  'cv.patch': n => `第 ${n} 塊`,
+  'cv.arrow': '箭頭＝位移方向（長度放大 3 倍）',
+  'cv.glcm': 'GLCM（8 灰階，顏色＝出現比例）',
+  'cv.i': '這格灰階 i', 'cv.j': '那格灰階 j',
+  'st.sel': (g, c) => `選中：<b>${g}</b> 組，SVM 判成 <b>${c}</b>`,
+  'st.feat': (a, va, b, vb) => `${a}：<b>${va}</b>　${b}：<b>${vb}</b>`,
+  'st.acc': (tr, te) => `訓練準確率 <b>${tr}</b>　測試準確率 <b>${te}</b>`,
+  'st.good': '<span class="good">兩組在這兩個特徵上分得開</span>',
+  'st.meh': '<span class="warn">分不太開：換特徵、換方向，或回頭看影像</span>',
+  'st.gap': '<span class="warn">訓練比測試好很多：分界線可能在背雜訊</span>',
+  'hint': `玩法：先維持預設，看「對比」把兩組分開（沿纖維走、亮度變化小；斜著走、變化大）。
+    接著勾「整體方向隨機」：單一方向的對比會被組織擺的方向打亂，測試準確率往下掉。
+    再把一個特徵換成「各向異性」——它比較四個方向的對比差多少，不管纖維朝哪，準確率就回來了。
+    <br>真實研究還要注意：同一個病人的影像不能同時出現在訓練和測試裡、樣本數要夠、結果要在別的資料集驗證。`,
+},
+en: {
+  'title': 'GLCM Texture Classification Playground',
+  'doc.title': 'GLCM Texture Playground 🐱',
+  'btn.lang.title': '切換為中文',
+  'btn.theme.title': 'Toggle dark / light',
+  'theme.light': '☀ Light', 'theme.dark': '🌙 Dark',
+  'sub': `A computer can't "see" whether fibers are tidy; the image first has to become numbers. The <b>grey-level co-occurrence matrix (GLCM)</b> counts
+    how often "this pixel is this bright, the one d steps away is that bright" occurs. From that table come <b>texture features</b> such as contrast and homogeneity,
+    and a <b>support vector machine (SVM)</b> draws a dividing line in feature space. All images here are synthetic tissue: group A has aligned fibers, group B disordered ones. They do not represent any real pathology or published data.`,
+  'lbl.diff': 'Group B fiber disorder',
+  'lbl.noise': 'Image noise',
+  'lbl.rot': 'Random overall orientation per patch (like real sections)',
+  'lbl.dist': 'GLCM offset distance d',
+  'lbl.angle': 'GLCM direction',
+  'ang.avg': '4-way average',
+  'lbl.fx': 'x-axis feature', 'lbl.fy': 'y-axis feature',
+  'btn.reseed': 'Draw a new batch',
+  'f.contrast': 'Contrast', 'f.homog': 'Homogeneity', 'f.energy': 'Energy',
+  'f.corr': 'Correlation', 'f.entropy': 'Entropy', 'f.aniso': 'Anisotropy (4-way contrast spread)',
+  'cv.gallery': 'Samples (first 8 per group)',
+  'cv.A': 'A aligned', 'cv.B': 'B disordered',
+  'cv.scatter': 'Feature space + linear SVM boundary',
+  'cv.click': 'Click a point to see its patch',
+  'cv.train': '● train', 'cv.test': '○ test',
+  'cv.patch': n => `patch #${n}`,
+  'cv.arrow': 'arrow ×3',
+  'cv.glcm': 'GLCM (8 grey levels, colour = fraction)',
+  'cv.i': 'grey level i (here)', 'cv.j': 'grey level j (there)',
+  'st.sel': (g, c) => `Selected: group <b>${g}</b>, SVM says <b>${c}</b>`,
+  'st.feat': (a, va, b, vb) => `${a}: <b>${va}</b>   ${b}: <b>${vb}</b>`,
+  'st.acc': (tr, te) => `Train accuracy <b>${tr}</b>   test accuracy <b>${te}</b>`,
+  'st.good': '<span class="good">The two groups separate on these features</span>',
+  'st.meh': '<span class="warn">Poor separation: change features or direction, or look at the images again</span>',
+  'st.gap': '<span class="warn">Train much better than test: the line may be memorising noise</span>',
+  'hint': `How to play: with the defaults, see contrast split the groups (walking along a fiber the brightness barely changes; across it, it changes a lot).
+    Then tick "random overall orientation": single-direction contrast gets scrambled by how the tissue happens to lie, and test accuracy drops.
+    Now switch one feature to "anisotropy", which compares contrast across four directions regardless of where the fibers point, and the accuracy comes back.
+    <br>Real studies also need: images from one patient never split across train and test, enough samples, and validation on an independent dataset.`,
+},
+};
+let LANG = 'zh';
+const t = (k, ...a) => { const v = (I18N[LANG][k] ?? I18N.zh[k]); return typeof v === 'function' ? v(...a) : (v ?? k); };
+
+// ═══════════════════════════ 主題 / Theme ═══════════════════════════
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const C = {};
+function readColors() {
+  const map = { ink: '--ink', muted: '--muted', accent: '--accent', ref: '--ref', grid: '--grid', panel: '--panel' };
+  for (const k in map) C[k] = css(map[k]);
+}
+let booted = false;
+function redrawAll() { if (booted) { fillSelects(); render(); } }
+function setTheme(th) {
+  document.documentElement.dataset.theme = th;
+  try { localStorage.setItem('owl-theme', th); } catch (e) {}
+  $('theme').textContent = th === 'dark' ? t('theme.light') : t('theme.dark');
+  readColors();
+  redrawAll();
+}
+$('theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+
+// ═══════════════════════════ 語言 / Language ═══════════════════════════
+function applyLang() {
+  document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-TW';
+  document.title = t('doc.title');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+  $('lang').textContent = LANG === 'en' ? '中文' : 'EN';
+  $('theme').textContent = document.documentElement.dataset.theme === 'dark' ? t('theme.light') : t('theme.dark');
+  redrawAll();
+}
+function setLang(l) {
+  LANG = l === 'en' ? 'en' : 'zh';
+  try { localStorage.setItem('owl-lang', LANG); } catch (e) {}
+  applyLang();
+}
+(() => {
+  let l = 'zh'; try { l = localStorage.getItem('owl-lang') || l; } catch (e) {}
+  const q = new URLSearchParams(location.search).get('lang');
+  if (q === 'en' || q === 'zh') l = q;
+  LANG = l;
+})();
+$('lang').onclick = () => setLang(LANG === 'en' ? 'zh' : 'en');
+
+/* ---------- 亂數（固定種子） ---------- */
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function randn(rng) {
+  const u = Math.max(1e-12, rng()), v = rng();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+/* ---------- 合成組織：一塊 64×64，由 22 條纖維疊成 ---------- */
+const N = 64, NP = N * N, LV = 8, PER = 40;          // 每組 40 塊
+const SPREAD_A = 6;                                   // A 組方向標準差（度）
+function makePatch(rng, spreadDeg, theta0, noise) {
+  const g = new Float32Array(NP).fill(0.08);
+  for (let f = 0; f < 22; f++) {
+    const th = theta0 + spreadDeg * Math.PI / 180 * randn(rng);
+    const cx = rng() * N, cy = rng() * N, half = 14 + rng() * 18;
+    const ux = Math.cos(th), uy = Math.sin(th), amp = 0.28 + 0.27 * rng(), sw = 1.1 + 0.6 * rng();
+    const x0 = Math.max(0, Math.floor(Math.min(cx - ux * half, cx + ux * half) - 4)), x1 = Math.min(N - 1, Math.ceil(Math.max(cx - ux * half, cx + ux * half) + 4));
+    const y0 = Math.max(0, Math.floor(Math.min(cy - uy * half, cy + uy * half) - 4)), y1 = Math.min(N - 1, Math.ceil(Math.max(cy - uy * half, cy + uy * half) + 4));
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+      const dx = x - cx, dy = y - cy;
+      const s = Math.max(-half, Math.min(half, dx * ux + dy * uy));
+      const px = dx - s * ux, py = dy - s * uy;
+      g[y * N + x] += amp * Math.exp(-(px * px + py * py) / (2 * sw * sw));
+    }
+  }
+  for (let i = 0; i < NP; i++) g[i] = Math.max(0, Math.min(1, g[i] + noise * randn(rng)));
+  return g;
+}
+const quant = g => { const q = new Uint8Array(NP); for (let i = 0; i < NP; i++) q[i] = Math.min(LV - 1, Math.floor(g[i] * LV)); return q; };
+
+/* ---------- GLCM 與特徵 ---------- */
+const ANG = [0, 45, 90, 135];
+function offsetOf(d, a) {           // 影像 y 往下，角度逆時針
+  return { 0: [d, 0], 45: [d, -d], 90: [0, -d], 135: [-d, -d] }[a];
+}
+function glcm(q, d, a) {
+  const [ox, oy] = offsetOf(d, a), P = new Float64Array(LV * LV);
+  let n = 0;
+  for (let y = 0; y < N; y++) {
+    const yy = y + oy; if (yy < 0 || yy >= N) continue;
+    for (let x = 0; x < N; x++) {
+      const xx = x + ox; if (xx < 0 || xx >= N) continue;
+      const i = q[y * N + x], j = q[yy * N + xx];
+      P[i * LV + j]++; P[j * LV + i]++; n += 2;       // 對稱
+    }
+  }
+  for (let k = 0; k < P.length; k++) P[k] /= n;
+  return P;
+}
+function feats(P) {
+  let con = 0, hom = 0, asm = 0, ent = 0, mi = 0, mj = 0;
+  for (let i = 0; i < LV; i++) for (let j = 0; j < LV; j++) {
+    const p = P[i * LV + j];
+    con += (i - j) ** 2 * p; hom += p / (1 + (i - j) ** 2); asm += p * p;
+    if (p > 0) ent -= p * Math.log2(p);
+    mi += i * p; mj += j * p;
+  }
+  let si = 0, sj = 0, cov = 0;
+  for (let i = 0; i < LV; i++) for (let j = 0; j < LV; j++) {
+    const p = P[i * LV + j]; si += (i - mi) ** 2 * p; sj += (j - mj) ** 2 * p; cov += (i - mi) * (j - mj) * p;
+  }
+  return { contrast: con, homog: hom, energy: Math.sqrt(asm), corr: cov / Math.sqrt(si * sj + 1e-12), entropy: ent };
+}
+const FEATS = ['contrast', 'homog', 'energy', 'corr', 'entropy', 'aniso'];
+
+/* ---------- 狀態 ---------- */
+let seed = 20261024, samples = [], sel = 0, angle = 0, model = null;
+function getAngleSet() { return angle === 'avg' ? ANG : [angle]; }
+
+function rebuild() {
+  const rng = mulberry32(seed);
+  const spreadB = parseFloat($('diff').value), noise = parseFloat($('noise').value), rot = $('rot').checked;
+  samples = [];
+  for (let k = 0; k < 2 * PER; k++) {
+    const cls = k % 2;                                         // 0 = A、1 = B，交錯排
+    const th0 = rot ? rng() * Math.PI : 0;
+    const img = makePatch(rng, cls ? spreadB : SPREAD_A, th0, noise);
+    samples.push({ cls, img, q: quant(img), train: (k >> 1) % 2 === 0 });
+  }
+  recompute();
+}
+function recompute() {
+  const d = parseInt($('dist').value, 10), set = getAngleSet();
+  for (const s of samples) {
+    const per = ANG.map(a => ({ a, f: feats(glcm(s.q, d, a)) }));
+    const use = per.filter(p => set.includes(p.a));
+    const f = {};
+    for (const k of FEATS.slice(0, 5)) f[k] = use.reduce((m, p) => m + p.f[k], 0) / use.length;
+    const cs = per.map(p => p.f.contrast), mx = Math.max(...cs), mn = Math.min(...cs);
+    f.aniso = (mx - mn) / (mx + mn + 1e-9);
+    s.f = f; s.P = glcm(s.q, d, set[0]);
+  }
+  train();
+}
+
+/* ---------- 線性 SVM：標準化後對 hinge loss 做批次次梯度下降 ---------- */
+function train() {
+  const fx = $('fx').value, fy = $('fy').value;
+  const xs = samples.map(s => [s.f[fx], s.f[fy]]);
+  const mu = [0, 1].map(k => xs.reduce((m, v) => m + v[k], 0) / xs.length);
+  const sd = [0, 1].map(k => Math.sqrt(xs.reduce((m, v) => m + (v[k] - mu[k]) ** 2, 0) / xs.length) || 1);
+  const Z = xs.map(v => [(v[0] - mu[0]) / sd[0], (v[1] - mu[1]) / sd[1]]);
+  const tr = samples.map((s, i) => i).filter(i => samples[i].train);
+  let w = [0, 0], b = 0;
+  const lam = 0.01, lr = 0.1;
+  for (let ep = 0; ep < 500; ep++) {
+    let gw = [lam * w[0], lam * w[1]], gb = 0;
+    for (const i of tr) {
+      const y = samples[i].cls ? 1 : -1;
+      if (y * (w[0] * Z[i][0] + w[1] * Z[i][1] + b) < 1) { gw[0] -= y * Z[i][0] / tr.length; gw[1] -= y * Z[i][1] / tr.length; gb -= y / tr.length; }
+    }
+    w = [w[0] - lr * gw[0], w[1] - lr * gw[1]]; b -= lr * gb;
+  }
+  const pred = (x, y) => (w[0] * (x - mu[0]) / sd[0] + w[1] * (y - mu[1]) / sd[1] + b) > 0 ? 1 : 0;
+  let okTr = 0, nTr = 0, okTe = 0, nTe = 0;
+  samples.forEach((s, i) => {
+    s.pred = pred(xs[i][0], xs[i][1]);
+    if (s.train) { nTr++; okTr += s.pred === s.cls; } else { nTe++; okTe += s.pred === s.cls; }
+  });
+  model = { pred, accTr: okTr / nTr, accTe: okTe / nTe };
+}
+
+/* ---------- 顏色 ---------- */
+const colA = () => C.accent, colB = () => C.ref;
+const font = s => `${s}px "Noto Serif TC", "Source Han Serif TC", serif`;
+const off = document.createElement('canvas'); off.width = N; off.height = N;
+const octx = off.getContext('2d'), oimg = octx.createImageData(N, N);
+function blitPatch(ctx, img, x, y, size) {
+  const d = oimg.data;
+  for (let i = 0; i < NP; i++) { const c = Math.round(img[i] * 255); d[i * 4] = c; d[i * 4 + 1] = c; d[i * 4 + 2] = c; d[i * 4 + 3] = 255; }
+  octx.putImageData(oimg, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(off, x, y, size, size);
+}
+
+/* ---------- 樣本牆 ---------- */
+function drawGallery() {
+  const cv = $('cGallery'), ctx = cv.getContext('2d');
+  ctx.fillStyle = C.panel; ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.fillStyle = C.ink; ctx.font = font(13); ctx.fillText(t('cv.gallery'), 12, 18);
+  ctx.font = font(12);
+  const x0 = 20 + Math.max(ctx.measureText(t('cv.A')).width, ctx.measureText(t('cv.B')).width);
+  const sz = Math.min(38, Math.floor((cv.width - x0 - 10) / 8) - 4);   // 標籤寬度依語言不同，縮圖跟著縮
+  for (const cls of [0, 1]) {
+    const y = 30 + cls * (sz + 12);
+    ctx.fillStyle = cls ? colB() : colA(); ctx.font = font(12);
+    ctx.fillText(t(cls ? 'cv.B' : 'cv.A'), 12, y + sz / 2 + 4);
+    samples.filter(s => s.cls === cls).slice(0, 8).forEach((s, k) => {
+      blitPatch(ctx, s.img, x0 + k * (sz + 4), y, sz);
+      if (samples.indexOf(s) === sel) { ctx.strokeStyle = cls ? colB() : colA(); ctx.lineWidth = 2; ctx.strokeRect(x0 + k * (sz + 4) - 1, y - 1, sz + 2, sz + 2); }
+    });
+  }
+}
+
+/* ---------- 特徵散點 ---------- */
+let scatterMap = null;
+function drawScatter() {
+  const cv = $('cScatter'), ctx = cv.getContext('2d');
+  const w = cv.width, h = cv.height, mL = 50, mR = 14, mT = 40, mB = 44;
+  const pw = w - mL - mR, ph = h - mT - mB;
+  ctx.fillStyle = C.panel; ctx.fillRect(0, 0, w, h);
+  const fx = $('fx').value, fy = $('fy').value;
+  const xs = samples.map(s => s.f[fx]), ys = samples.map(s => s.f[fy]);
+  const pad = (lo, hi) => { const r = (hi - lo) || 1; return [lo - 0.08 * r, hi + 0.08 * r]; };
+  const [xl, xh] = pad(Math.min(...xs), Math.max(...xs)), [yl, yh] = pad(Math.min(...ys), Math.max(...ys));
+  const X = v => mL + pw * (v - xl) / (xh - xl), Y = v => mT + ph - ph * (v - yl) / (yh - yl);
+  // 分界：依預測類別把背景淡淡上色
+  const cell = 6;
+  for (let py = 0; py < ph; py += cell) for (let px = 0; px < pw; px += cell) {
+    const vx = xl + (xh - xl) * (px + cell / 2) / pw, vy = yh - (yh - yl) * (py + cell / 2) / ph;
+    ctx.fillStyle = model.pred(vx, vy) ? colB() : colA();
+    ctx.globalAlpha = 0.09; ctx.fillRect(mL + px, mT + py, cell, cell);
+  }
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = C.grid; ctx.strokeRect(mL, mT, pw, ph);
+  ctx.fillStyle = C.muted; ctx.font = font(10);
+  for (let k = 0; k <= 4; k++) {
+    const vx = xl + (xh - xl) * k / 4, vy = yl + (yh - yl) * k / 4;
+    ctx.textAlign = 'center'; ctx.fillText(vx.toPrecision(3), X(vx), mT + ph + 14);
+    ctx.textAlign = 'right'; ctx.fillText(vy.toPrecision(3), mL - 4, Y(vy) + 3);
+  }
+  ctx.textAlign = 'center'; ctx.font = font(11); ctx.fillStyle = C.ink;
+  ctx.fillText(t('f.' + fx), mL + pw / 2, h - 10);
+  ctx.save(); ctx.translate(12, mT + ph / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(t('f.' + fy), 0, 0); ctx.restore();
+  ctx.textAlign = 'left'; ctx.font = font(13); ctx.fillText(t('cv.scatter'), 12, 18);
+  ctx.font = font(10); ctx.fillStyle = C.muted; ctx.fillText(t('cv.click') + '　' + t('cv.train') + '　' + t('cv.test'), 12, 33);
+  scatterMap = [];
+  samples.forEach((s, i) => {
+    const x = X(s.f[fx]), y = Y(s.f[fy]);
+    scatterMap.push([x, y, i]);
+    ctx.strokeStyle = ctx.fillStyle = s.cls ? colB() : colA(); ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.arc(x, y, 4.2, 0, 2 * Math.PI);
+    s.train ? ctx.fill() : ctx.stroke();
+    if (i === sel) { ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 8, 0, 2 * Math.PI); ctx.stroke(); }
+  });
+}
+$('cScatter').addEventListener('click', e => {
+  const cv = $('cScatter'), r = cv.getBoundingClientRect();
+  const x = (e.clientX - r.left) * cv.width / r.width, y = (e.clientY - r.top) * cv.height / r.height;
+  let best = -1, bd = 1e9;
+  for (const [px, py, i] of scatterMap) { const d = (px - x) ** 2 + (py - y) ** 2; if (d < bd) { bd = d; best = i; } }
+  if (best >= 0 && bd < 400) { sel = best; render(); }
+});
+
+/* ---------- 選中的那塊＋它的 GLCM ---------- */
+function drawPatch() {
+  const cv = $('cPatch'), ctx = cv.getContext('2d'), s = samples[sel];
+  ctx.fillStyle = C.panel; ctx.fillRect(0, 0, cv.width, cv.height);
+  blitPatch(ctx, s.img, 0, 26, 256);
+  ctx.fillStyle = s.cls ? colB() : colA(); ctx.font = font(12);
+  ctx.fillText(t(s.cls ? 'cv.B' : 'cv.A') + ' · ' + t('cv.patch', sel + 1), 10, 17);
+  // 位移箭頭（影像本身放大 4 倍，箭頭再放大 3 倍才看得到）
+  const d = parseInt($('dist').value, 10), set = getAngleSet();
+  ctx.strokeStyle = '#ffd34d'; ctx.fillStyle = '#ffd34d'; ctx.lineWidth = 3; ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 3;
+  for (const a of set) {
+    const [ox, oy] = offsetOf(d, a), sc = 12, cx = 128, cy = 26 + 128;
+    const ex = cx + ox * sc, ey = cy + oy * sc;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex, ey); ctx.stroke();
+    const ang = Math.atan2(ey - cy, ex - cx);
+    ctx.beginPath(); ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - 7 * Math.cos(ang - 0.4), ey - 7 * Math.sin(ang - 0.4));
+    ctx.lineTo(ex - 7 * Math.cos(ang + 0.4), ey - 7 * Math.sin(ang + 0.4)); ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = C.muted; ctx.font = font(10); ctx.textAlign = 'right'; ctx.fillText(t('cv.arrow'), 248, 17); ctx.textAlign = 'left';
+}
+function drawGlcm() {
+  const cv = $('cGlcm'), ctx = cv.getContext('2d'), P = samples[sel].P;
+  ctx.fillStyle = C.panel; ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.fillStyle = C.ink; ctx.font = font(12); ctx.fillText(t('cv.glcm'), 10, 17);
+  const x0 = 34, y0 = 34, sz = 26;
+  let mx = 0; for (const p of P) mx = Math.max(mx, p);
+  for (let i = 0; i < LV; i++) for (let j = 0; j < LV; j++) {
+    const v = Math.sqrt(P[i * LV + j] / mx);                // √ 讓小值也看得到
+    ctx.fillStyle = `hsl(${210 - 180 * v}, 70%, ${92 - 50 * v}%)`;
+    ctx.fillRect(x0 + j * sz, y0 + i * sz, sz - 1, sz - 1);
+  }
+  ctx.strokeStyle = C.muted; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + LV * sz, y0 + LV * sz); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = C.muted; ctx.font = font(10);
+  ctx.textAlign = 'center'; ctx.fillText(t('cv.j') + ' →', x0 + LV * sz / 2, y0 + LV * sz + 16);
+  ctx.save(); ctx.translate(14, y0 + LV * sz / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(t('cv.i') + ' →', 0, 0); ctx.restore();
+  ctx.textAlign = 'left';
+}
+
+/* ---------- 選單 ---------- */
+function fillSelects() {
+  for (const [id, def] of [['fx', 'contrast'], ['fy', 'homog']]) {
+    const el = $(id), cur = el.value || def;
+    el.innerHTML = FEATS.map(k => `<option value="${k}">${t('f.' + k)}</option>`).join('');
+    el.value = cur;
+  }
+  $('angles').innerHTML = [...ANG, 'avg'].map(a => `<button class="chip${a === angle ? ' on' : ''}" data-a="${a}">${a === 'avg' ? t('ang.avg') : a + '°'}</button>`).join('');
+  $('angles').querySelectorAll('button').forEach(b => b.onclick = () => {
+    angle = b.dataset.a === 'avg' ? 'avg' : parseInt(b.dataset.a, 10);
+    fillSelects(); recompute(); render();
+  });
+}
+
+/* ---------- 總繪製 ---------- */
+function render() {
+  $('diffOut').textContent = '±' + $('diff').value + '°（A ±' + SPREAD_A + '°）';
+  $('noiseOut').textContent = parseFloat($('noise').value).toFixed(2);
+  $('distOut').textContent = $('dist').value + ' px';
+  drawGallery(); drawScatter(); drawPatch(); drawGlcm();
+  const s = samples[sel], fx = $('fx').value, fy = $('fy').value;
+  const pct = v => (v * 100).toFixed(0) + '%';
+  let verdict = model.accTe >= 0.85 ? t('st.good') : t('st.meh');
+  if (model.accTr - model.accTe > 0.15) verdict = t('st.gap');
+  $('stats').innerHTML =
+    t('st.sel', s.cls ? 'B' : 'A', s.pred ? 'B' : 'A') + '<br>' +
+    t('st.feat', t('f.' + fx), s.f[fx].toFixed(3), t('f.' + fy), s.f[fy].toFixed(3)) + '<br>' +
+    t('st.acc', pct(model.accTr), pct(model.accTe)) + '<br>' + verdict;
+}
+
+/* ---------- 事件 ---------- */
+for (const id of ['diff', 'noise']) $(id).addEventListener('input', () => { rebuild(); render(); });
+$('rot').addEventListener('change', () => { rebuild(); render(); });
+$('dist').addEventListener('input', () => { recompute(); render(); });
+$('fx').addEventListener('change', () => { train(); render(); });
+$('fy').addEventListener('change', () => { train(); render(); });
+$('reseed').onclick = () => { seed = (seed * 1103515245 + 12345) >>> 0; rebuild(); render(); };
+
+readColors();
+fillSelects();
+rebuild();
+booted = true;
+setTheme(document.documentElement.dataset.theme || 'light');
+applyLang();
+</script>
+<script>
+// 思源宋體（Noto Serif TC）是網路字型：載完後重畫一次 canvas，讓圖上的字也換成宋體
+document.fonts && document.fonts.ready.then(() => {
+  if (typeof redrawAll === 'function') redrawAll(); else if (typeof render === 'function') render();
+});
+</script>
+</body>
+</html>
