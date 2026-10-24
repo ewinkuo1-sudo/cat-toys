@@ -1,0 +1,34 @@
+name: Deploy mirror to Cloudflare Workers
+
+# GitHub Pages 由 main 分支直接發布（legacy），這裡只負責 Cloudflare 鏡像。
+# 需要 repo 密鑰 CLOUDFLARE_API_TOKEN；沒設時整個 job 跳過，不會失敗。
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cloudflare:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - name: Checkout
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        uses: actions/checkout@v4
+      - name: Collect site files
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: |
+          mkdir dist
+          cp *.html *.svg *.png dist/
+      - name: Deploy to Cloudflare Workers
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # 預設 3.90 需要 main 腳本；純靜態 assets 要 v4
+          wranglerVersion: "4"
+          command: deploy

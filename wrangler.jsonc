@@ -1,0 +1,11 @@
+{
+  // Cloudflare Workers 靜態鏡像（https://owl-toys.emd-sleep-interactive.workers.dev/）。
+  // dist/ 由 CI 從 repo 根目錄複製網頁檔產生，不進 repo；見 .github/workflows/cloudflare.yml。
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "owl-toys",
+  "compatibility_date": "2026-09-18",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash"
+  }
+}
