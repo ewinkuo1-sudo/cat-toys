@@ -83,10 +83,23 @@
   }
   button.chip:hover { border-color: var(--muted); color: var(--ink); }
   .topbtns { position: absolute; top: 16px; right: 16px; display: flex; gap: 6px; }
+  .imgs3 { display: flex; gap: 10px; justify-content: center; }
+  .imgs3 figure { margin: 0; flex: 1 1 0; min-width: 0; max-width: 200px; text-align: center; }
+  .imgs3 figcaption { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .imgs3 canvas { cursor: crosshair; }
+  .playrow { display: flex; gap: 8px; align-items: center; }
+  button.play {
+    flex: 1; background: var(--accent); color: var(--on-ink); border: none; border-radius: 8px;
+    padding: 8px 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  details.adv { border-top: 1px solid var(--grid); padding-top: 8px; font-size: 0.82rem; }
+  details.adv summary { cursor: pointer; color: var(--muted); }
   :root[data-theme="light"] .panel, :root[data-theme="light"] .controls { box-shadow: 0 1px 3px rgba(20,24,40,0.06); }
   @media (max-width: 700px) {
     body { padding: 10px; }
     .topbtns { top: 8px; right: 8px; }
+    h1 { margin-top: 34px; }
+    #ctrlWeigh { order: -1; }   /* 手機上播放鈕放最上面 */
     .controls { width: 100%; flex: 1 1 100%; }
     .col { flex: 1 1 100%; }
   }
@@ -102,13 +115,60 @@
 <p class="sub" data-i18n="sub"></p>
 
 <div class="tabs" id="tabBar">
-  <button class="active" data-tab="chain" data-i18n="tab.chain"></button>
+  <button class="active" data-tab="weigh" data-i18n="tab.weigh"></button>
+  <button data-tab="chain" data-i18n="tab.chain"></button>
   <button data-tab="phasor" data-i18n="tab.phasor"></button>
   <button data-tab="image" data-i18n="tab.image"></button>
 </div>
 
+<!-- ===== TAB 0: Weigh (I = Σ photons×cos, Q = Σ photons×sin) ===== -->
+<div class="section active" id="sec-weigh">
+  <div class="wrap">
+    <div class="col" style="flex:1 1 620px">
+      <div class="panel">
+        <h2><span data-i18n="w.title"></span> <small data-i18n="w.small"></small></h2>
+        <canvas id="cWeigh" width="720" height="280"></canvas>
+        <div class="legend" style="margin-top:6px">
+          <span><span class="dot" style="background:var(--raman)"></span> <span data-i18n="w.leg.raman"></span></span>
+          <span><span class="dot" style="background:var(--fluo)"></span> <span data-i18n="w.leg.fluo"></span></span>
+          <span><span class="dot" style="background:var(--accent)"></span> <span data-i18n="w.leg.cos"></span></span>
+          <span><span class="dot" style="background:var(--ref)"></span> <span data-i18n="w.leg.sin"></span></span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="imgs3">
+          <figure><figcaption data-i18n="w.img.all"></figcaption><canvas id="cWAll" width="200" height="200"></canvas></figure>
+          <figure><figcaption style="color:var(--accent)">I</figcaption><canvas id="cWI" width="200" height="200"></canvas></figure>
+          <figure><figcaption style="color:var(--ref)">Q</figcaption><canvas id="cWQ" width="200" height="200"></canvas></figure>
+        </div>
+      </div>
+    </div>
+    <div class="controls" id="ctrlWeigh">
+      <div class="playrow">
+        <button class="play" id="bPlay"></button>
+        <button class="chip" id="bReset" data-i18n="w.reset"></button>
+      </div>
+      <input type="range" id="sSweep" min="0" max="200" step="1" value="0">
+      <div class="sec" data-i18n="w.sec.pixel"></div>
+      <div class="presets" id="presetsW">
+        <button data-px="raman" data-i18n="w.px.raman"></button>
+        <button data-px="fluo" data-i18n="w.px.fluo"></button>
+        <button data-px="mix" data-i18n="w.px.mix"></button>
+      </div>
+      <div class="info" data-i18n="w.info"></div>
+      <details class="adv">
+        <summary data-i18n="w.adv"></summary>
+        <div class="ctl" style="margin-top:8px">
+          <label><span data-i18n="lbl.tau"></span><output id="oTauW">2.0 ns</output></label>
+          <input type="range" id="sTauW" min="0.2" max="8" step="0.1" value="2">
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
 <!-- ===== TAB 1: Signal Chain ===== -->
-<div class="section active" id="sec-chain">
+<div class="section" id="sec-chain">
   <div class="wrap">
     <div class="col" style="flex:1 1 620px">
       <div class="panel">
@@ -256,13 +316,22 @@ const I18N = {
 zh: {
   'title': 'I/Q 零差解調遊樂場 🐱',
   'h1': 'I/Q 零差解調遊樂場',
-  'sub': `卓 lab 偵測鏈的核心：PMT 收到的 80 MHz 載波裡，<b>拉曼光子</b>（τ≈0）和<b>螢光光子</b>（τ>0）的相位不同。
-  兩顆混頻器搭 90° 正交參考做 I/Q 解調，算出 <code>振幅 √(I²+Q²)</code> 和 <code>相位 φ = atan2(Q, I)</code>，
-  就能在同一張影像裡把兩者分開——<b>不需要光學濾片</b>。`,
+  'sub': `<b>拉曼光子</b>一來就到，<b>螢光光子</b>晚一點才到。把光子用 cos、sin 兩種權重「秤重」再加總，就是 I 和 Q。`,
   'btn.lang.title': 'Switch to English',
   'btn.theme.title': '切換深色／淺色',
   'theme.light': '☀ 淺色', 'theme.dark': '🌙 深色',
-  'tab.chain': '訊號鏈', 'tab.phasor': 'I-Q 平面', 'tab.image': '合成影像',
+  'tab.weigh': '秤重', 'tab.chain': '訊號鏈', 'tab.phasor': 'I-Q 平面', 'tab.image': '合成影像',
+  // 分頁 0：秤重
+  'w.title': '這個像素的光子', 'w.small': '一個雷射週期內何時到（點下方影像換像素）',
+  'w.leg.raman': '拉曼光子', 'w.leg.fluo': '螢光光子', 'w.leg.cos': 'cos 權重', 'w.leg.sin': 'sin 權重',
+  'w.img.all': '所有光子',
+  'w.play': '▶ 播放', 'w.pause': '⏸ 暫停', 'w.reset': '↺ 重來',
+  'w.sec.pixel': '換一個像素',
+  'w.px.raman': '拉曼', 'w.px.fluo': '螢光', 'w.px.mix': '混合',
+  'w.info': `混頻器＝乘上權重，低通＝加總。<br><b>拉曼</b>落在 sin≈0 的地方，所以 Q 看不到拉曼。`,
+  'w.adv': '進階：螢光壽命 τ',
+  'w.cap.I': 'I ＝ 用 cos 秤重，再加總', 'w.cap.Q': 'Q ＝ 用 sin 秤重，再加總', 'w.cap.done': 'Q 看不到拉曼',
+  'w.ax.t': '光子到達時間 (ns)', 'w.ax.pulse': '雷射脈衝', 'w.ax.T': 'T = 12.5 ns（80 MHz）',
   // 分頁 1：訊號鏈
   'p1.title': '① PMT 輸出', 'p1.small': '80 MHz 載波 × 螢光衰減包絡',
   'p2.title': '② 混頻器輸出', 'p2.small': '訊號 × 參考（藍=I路 0°, 橘=Q路 90°）',
@@ -302,13 +371,21 @@ zh: {
 en: {
   'title': 'I/Q Homodyne Playground 🐱',
   'h1': 'I/Q Homodyne Playground',
-  'sub': `The heart of the TBL lab detection chain: inside the 80 MHz carrier the PMT picks up, <b>Raman photons</b> (τ≈0) and <b>fluorescence photons</b> (τ>0) carry different phases.
-  Two mixers fed with 90°-offset references do the I/Q demodulation; from <code>amplitude √(I²+Q²)</code> and <code>phase φ = atan2(Q, I)</code>
-  you can separate the two in a single image — <b>no optical filter needed</b>.`,
+  'sub': `<b>Raman photons</b> arrive at once; <b>fluorescence photons</b> arrive a little later. Weigh the photons by cos and by sin, add them up — that is I and Q.`,
   'btn.lang.title': '切換成中文',
   'btn.theme.title': 'Toggle dark / light',
   'theme.light': '☀ Light', 'theme.dark': '🌙 Dark',
-  'tab.chain': 'Signal chain', 'tab.phasor': 'I-Q plane', 'tab.image': 'Synthetic image',
+  'tab.weigh': 'Weigh', 'tab.chain': 'Signal chain', 'tab.phasor': 'I-Q plane', 'tab.image': 'Synthetic image',
+  'w.title': 'Photons in this pixel', 'w.small': 'when they arrive within one laser period (click an image below to pick a pixel)',
+  'w.leg.raman': 'Raman photons', 'w.leg.fluo': 'Fluorescence photons', 'w.leg.cos': 'cos weight', 'w.leg.sin': 'sin weight',
+  'w.img.all': 'All photons',
+  'w.play': '▶ Play', 'w.pause': '⏸ Pause', 'w.reset': '↺ Restart',
+  'w.sec.pixel': 'Pick a pixel',
+  'w.px.raman': 'Raman', 'w.px.fluo': 'Fluorescence', 'w.px.mix': 'Mixed',
+  'w.info': `Mixer = multiply by the weight; low-pass = add up.<br><b>Raman</b> lands where sin≈0, so Q does not see Raman.`,
+  'w.adv': 'Advanced: fluorescence lifetime τ',
+  'w.cap.I': 'I = weigh by cos, add up', 'w.cap.Q': 'Q = weigh by sin, add up', 'w.cap.done': 'Q does not see Raman',
+  'w.ax.t': 'photon arrival time (ns)', 'w.ax.pulse': 'pulse', 'w.ax.T': 'T = 12.5 ns (80 MHz)',
   'p1.title': '① PMT output', 'p1.small': '80 MHz carrier × fluorescence-decay envelope',
   'p2.title': '② Mixer outputs', 'p2.small': 'signal × reference (blue = I, 0°; orange = Q, 90°)',
   'p3.title': '③ After low-pass → SR570', 'p3.small': 'only the DC part is left (the I and Q values)',
@@ -436,6 +513,7 @@ const cbSweep = document.getElementById('cbSweep'), cbUC = document.getElementBy
 function noiseLabel(v) { return t(v < 20 ? 'noise.low' : v < 50 ? 'noise.mid' : v < 80 ? 'noise.high' : 'noise.xhigh'); }
 
 function updateOutputs() {
+  document.getElementById('oTauW').textContent = (+document.getElementById('sTauW').value).toFixed(1) + ' ns';
   document.getElementById('oTau1').textContent = (+sTau1.value).toFixed(1) + ' ns';
   document.getElementById('oRaman1').textContent = sRaman1.value + '%';
   document.getElementById('oPhi0').textContent = sPhi0.value + '°';
@@ -464,8 +542,8 @@ function iqForTau(tau_ns, phi0_deg) {
 }
 
 function iqMixed(tau_ns, ramanFrac, phi0_deg) {
-  const rF = ramanFrac;
-  const rR = 1 - rF;
+  const rR = ramanFrac;      // 拉曼佔比
+  const rF = 1 - rR;         // 其餘是螢光
   const fluo = iqForTau(tau_ns, phi0_deg);
   const raman = iqForTau(0, phi0_deg);
   return {
@@ -546,9 +624,9 @@ function drawChain() {
     ctx.lineWidth = 1.2;
     for (let i = 0; i < N; i++) {
       const t = (i / N) * tMax;
-      const tInPeriod = t % (1 / 40e6);
+      const tInPeriod = t % T_PERIOD;
       const envelope_fluo = Math.exp(-tInPeriod / (tau || 1e-15));
-      const envelope = ramanFrac > 0.999 ? 1 : (1 - ramanFrac) * 1 + ramanFrac * envelope_fluo;
+      const envelope = ramanFrac + (1 - ramanFrac) * envelope_fluo;
       const carrier = Math.cos(OMEGA * t + phi0);
       const noise = noiseAmt * (Math.random() - 0.5) * 2;
       const sig = envelope * carrier + noise * 0.5;
@@ -565,8 +643,8 @@ function drawChain() {
     ctx.setLineDash([4, 4]);
     for (let i = 0; i < N; i++) {
       const t = (i / N) * tMax;
-      const tInPeriod = t % (1 / 40e6);
-      const env = ramanFrac > 0.999 ? 1 : (1 - ramanFrac) * 1 + ramanFrac * Math.exp(-tInPeriod / (tau || 1e-15));
+      const tInPeriod = t % T_PERIOD;
+      const env = ramanFrac + (1 - ramanFrac) * Math.exp(-tInPeriod / (tau || 1e-15));
       const x = (i / N) * w;
       const y = mid - env * amp;
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
@@ -602,11 +680,11 @@ function drawChain() {
       const refPhase = ch * Math.PI / 2;
       for (let i = 0; i < N; i++) {
         const t = (i / N) * tMax;
-        const tInPeriod = t % (1 / 40e6);
+        const tInPeriod = t % T_PERIOD;
         const env_fluo = Math.exp(-tInPeriod / (tau || 1e-15));
         const sig_fluo = env_fluo * Math.cos(OMEGA * t);
         const sig_raman = Math.cos(OMEGA * t);
-        const sig = (1 - ramanFrac) * sig_raman + ramanFrac * sig_fluo;
+        const sig = ramanFrac * sig_raman + (1 - ramanFrac) * sig_fluo;
         const ref = Math.cos(OMEGA * t + phi0 + refPhase);
         const mixed = sig * ref;
         const noise = noiseAmt * (Math.random() - 0.5) * 0.3;
@@ -1009,10 +1087,221 @@ function drawImage() {
   }
 }
 
+// --- Tab 0: Weigh ---
+// 光子直方圖：一個週期 T = 12.5 ns 切 50 格（每格 0.25 ns），格 k 的光子都當作在 t_k = k·dt 抵達。
+// 拉曼全在 t = 0；螢光 ∝ exp(−t/τ)（前幾個脈衝的殘光疊回來只改變總量，形狀不變），歸一成總和 1。
+// I = Σ 光子 × cos(2πt/T)，Q = Σ 光子 × sin(2πt/T)。掃描進度 S：0→1 掃 cos 得 I，1→2 掃 sin 得 Q。
+const W_NB = 50, W_DT = 0.25, W_T = 12.5, W_SZ = 96;
+const sSweep = document.getElementById('sSweep'), sTauW = document.getElementById('sTauW');
+const bPlay = document.getElementById('bPlay');
+let wS = 0, wPlaying = false, wLast = 0;
+let wSel = { x: 0, y: 0 };
+const W_R = new Float32Array(W_SZ * W_SZ), W_F = new Float32Array(W_SZ * W_SZ);
+const W_PX = {};
+(() => {
+  let seed = 12345;
+  const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const g = (x, y, cx, cy, s) => Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / (2 * s * s));
+  for (let y = 0; y < W_SZ; y++) for (let x = 0; x < W_SZ; x++) {
+    const i = y * W_SZ + x;
+    // 拉曼：兩條斜向纖維；螢光：兩團細胞
+    const d1 = (x - 0.55 * y - 8) / 1.14, d2 = (x - 0.55 * y - 40) / 1.14;
+    let r = 0.85 * Math.exp(-d1 * d1 / 30) + 0.6 * Math.exp(-d2 * d2 / 18);
+    let f = 0.9 * g(x, y, 62, 36, 11) + 0.7 * g(x, y, 30, 70, 9);
+    W_R[i] = Math.max(0, r * (0.85 + 0.3 * rnd()));
+    W_F[i] = Math.max(0, f * (0.85 + 0.3 * rnd()));
+  }
+  // 預設像素：最純的拉曼、最純的螢光、兩者都多的混合
+  let best = { raman: -1, fluo: -1, mix: -1 };
+  for (let y = 4; y < W_SZ - 4; y++) for (let x = 4; x < W_SZ - 4; x++) {
+    const i = y * W_SZ + x, r = W_R[i], f = W_F[i];
+    const sc = { raman: r - 3 * f, fluo: f - 3 * r, mix: Math.min(3 * r, f) };   // 混合：螢光約拉曼 3 倍，直方圖兩者都看得到
+    for (const k in sc) if (sc[k] > best[k]) { best[k] = sc[k]; W_PX[k] = { x, y }; }
+  }
+  wSel = { ...W_PX.mix };
+})();
+let W_VMAX = 0;
+for (let i = 0; i < W_R.length; i++) W_VMAX = Math.max(W_VMAX, W_R[i] + W_F[i]);
+
+function wFluoBins(tau) {
+  const p = new Float64Array(W_NB); let s = 0;
+  for (let k = 0; k < W_NB; k++) { p[k] = Math.exp(-k * W_DT / tau); s += p[k]; }
+  for (let k = 0; k < W_NB; k++) p[k] /= s;
+  return p;
+}
+// 掃到時間 tEnd（ns）為止的加權和；tEnd ≥ T 表示整個週期
+function wPartial(p, fn, tEnd) {
+  let s = 0;
+  for (let k = 0; k < W_NB; k++) { const tk = k * W_DT; if (tk >= tEnd) break; s += p[k] * fn(TAU_2PI * tk / W_T); }
+  return s;
+}
+const hexRGB = h => { const m = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(m.substr(i, 2), 16)); };
+
+function drawWeigh() {
+  if (!wPlaying) wS = +sSweep.value / 100;
+  bPlay.textContent = wPlaying ? t('w.pause') : t('w.play');
+  const tau = +sTauW.value;
+  const pF = wFluoBins(tau);
+  const pR = new Float64Array(W_NB); pR[0] = 1;
+  const sI = Math.min(wS, 1), sQ = Math.min(Math.max(wS - 1, 0), 1);
+  const tI = sI >= 1 ? Infinity : sI * W_T, tQ = sQ >= 1 ? Infinity : sQ * W_T;
+  const qOn = wS > 1;
+  // 單位光子量的部分和：拉曼 / 螢光 各一份
+  const uRI = wPartial(pR, Math.cos, tI), uFI = wPartial(pF, Math.cos, tI);
+  const uRQ = qOn ? wPartial(pR, Math.sin, tQ) : 0, uFQ = qOn ? wPartial(pF, Math.sin, tQ) : 0;
+
+  const si = wSel.y * W_SZ + wSel.x, r = W_R[si], f = W_F[si];
+  const Ival = r * uRI + f * uFI, Qval = r * uRQ + f * uFQ;
+
+  // ---- 直方圖 + 權重曲線 + I/Q 柱 ----
+  {
+    const c = document.getElementById('cWeigh');
+    const pw = c.parentElement.clientWidth - 28;
+    const narrow = pw < 560;
+    c.dataset.w = narrow ? 460 : 720; c.dataset.h = narrow ? 320 : 280;
+    const { ctx, w, h } = setupCanvas(c);
+    ctx.fillStyle = C.panel; ctx.fillRect(0, 0, w, h);
+    const fs = narrow ? 13 : 12;
+    const barsW = narrow ? 110 : 140;
+    const x0 = 40, x1 = w - barsW - 14, yTop = 46, yB = h - 40;
+    const X = tt => x0 + (tt / W_T) * (x1 - x0);
+    const yMid = (yTop + yB) / 2, hw = (yB - yTop) / 2;
+    const phaseQ = wS >= 1;
+    const tSweep = phaseQ ? sQ * W_T : sI * W_T;
+
+    // 標題（目前在做哪一步）
+    ctx.textAlign = 'center'; ctx.font = `600 ${fs + 3}px system-ui`;
+    ctx.fillStyle = wS >= 2 ? C.ref : C.ink;
+    ctx.fillText(wS >= 2 ? t('w.cap.done') : phaseQ ? t('w.cap.Q') : t('w.cap.I'), (x0 + x1) / 2, 22);
+
+    // 軸
+    ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x0, yB); ctx.lineTo(x1, yB); ctx.moveTo(x0, yMid); ctx.lineTo(x1, yMid); ctx.stroke();
+    ctx.fillStyle = C.faint; ctx.font = `${fs - 1}px system-ui`; ctx.textAlign = 'center';
+    for (const tt of [0, 2.5, 5, 7.5, 10, 12.5]) ctx.fillText(tt, X(tt), yB + 14);
+    ctx.fillText(t('w.ax.t'), (x0 + x1) / 2, yB + 30);
+    // 雷射脈衝標記與週期
+    ctx.strokeStyle = C.violet; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(X(0), yTop - 6); ctx.lineTo(X(0), yB); ctx.moveTo(X(W_T), yTop - 6); ctx.lineTo(X(W_T), yB); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = C.violet; ctx.font = `${fs - 1}px system-ui`;
+    ctx.textAlign = 'left'; ctx.fillText(t('w.ax.pulse'), X(0) + 4, yTop - 6);
+    ctx.textAlign = 'right'; ctx.fillText(t('w.ax.T'), X(W_T) - 4, yTop - 6);
+
+    // 光子柱（拉曼在下、螢光疊上）；還沒掃到的變淡
+    let ymax = 1e-9;
+    for (let k = 0; k < W_NB; k++) ymax = Math.max(ymax, r * pR[k] + f * pF[k]);
+    const Yh = v => (v / (ymax * 1.08)) * (yB - yTop);
+    const bw = (x1 - x0) / W_NB;
+    for (let k = 0; k < W_NB; k++) {
+      const tk = k * W_DT;
+      ctx.globalAlpha = (wS >= 2 || tk < tSweep) ? 1 : 0.3;
+      const hr = Yh(r * pR[k]), hf = Yh(f * pF[k]);
+      ctx.fillStyle = C.raman; ctx.fillRect(X(tk) + 0.5, yB - hr, bw - 1, hr);
+      ctx.fillStyle = C.fluo; ctx.fillRect(X(tk) + 0.5, yB - hr - hf, bw - 1, hf);
+    }
+    ctx.globalAlpha = 1;
+
+    // 權重曲線（cos 或 sin，±1 對應整個繪圖區高度的一半）
+    const fn = phaseQ ? Math.sin : Math.cos, wc = phaseQ ? C.ref : C.accent;
+    ctx.strokeStyle = wc; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i <= 200; i++) {
+      const tt = (i / 200) * W_T, y = yMid - fn(TAU_2PI * tt / W_T) * hw * 0.92;
+      i ? ctx.lineTo(X(tt), y) : ctx.moveTo(X(tt), y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = wc; ctx.font = `${fs - 1}px system-ui`; ctx.textAlign = 'right';
+    ctx.fillText('+1', x0 - 4, yMid - hw * 0.92 + 4); ctx.fillText('−1', x0 - 4, yMid + hw * 0.92 + 4); ctx.fillText('0', x0 - 4, yMid + 4);
+
+    // 掃描線與目前權重值
+    if (wS > 0 && wS < 2 && tSweep < W_T) {
+      const xs = X(tSweep), wv = fn(TAU_2PI * tSweep / W_T), ys = yMid - wv * hw * 0.92;
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1; ctx.globalAlpha = 0.5;
+      ctx.beginPath(); ctx.moveTo(xs, yTop); ctx.lineTo(xs, yB); ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.fillStyle = wc; ctx.beginPath(); ctx.arc(xs, ys, 5, 0, TAU_2PI); ctx.fill();
+      ctx.font = `600 ${fs}px system-ui`;
+      const lbl = '×' + wv.toFixed(2);
+      ctx.textAlign = xs > x1 - 60 ? 'right' : 'left';
+      ctx.fillText(lbl, xs + (xs > x1 - 60 ? -8 : 8), ys - 8);
+    }
+
+    // I / Q 柱
+    const bx0 = x1 + 22, bxW = (w - 8 - bx0) / 2, lo = -0.15, hi = 1.05;
+    const BY = v => yB - ((v / W_VMAX - lo) / (hi - lo)) * (yB - yTop);
+    const y0b = BY(0);
+    ctx.strokeStyle = C.grid; ctx.beginPath(); ctx.moveTo(bx0 - 4, y0b); ctx.lineTo(w - 4, y0b); ctx.stroke();
+    [[Ival, C.accent, 'I', true], [Qval, C.ref, 'Q', qOn]].forEach(([v, col, name, on], j) => {
+      const bx = bx0 + j * bxW + bxW * 0.18, bwid = bxW * 0.64, yv = BY(v);
+      if (on) { ctx.fillStyle = col; ctx.fillRect(bx, Math.min(y0b, yv), bwid, Math.abs(y0b - yv)); }
+      ctx.fillStyle = col; ctx.font = `600 ${fs + 2}px system-ui`; ctx.textAlign = 'center';
+      ctx.fillText(name, bx + bwid / 2, yB + 16);
+      if (on) { ctx.font = `${fs}px system-ui`; ctx.fillText((v / W_VMAX).toFixed(2), bx + bwid / 2, Math.min(y0b, yv) - 6); }
+    });
+  }
+
+  // ---- 三張影像：所有光子 / I / Q，跟著掃描同步變亮 ----
+  {
+    // 影像一律黑底，用深色主題的亮色調，淺色主題下才不會太暗
+    const tint = { all: [230, 230, 236], I: hexRGB('#6ec6ff'), Q: hexRGB('#ffb86c') };
+    const off = document.createElement('canvas'); off.width = W_SZ; off.height = W_SZ;
+    const octx = off.getContext('2d');
+    const paint = (id, val, col) => {
+      const im = octx.createImageData(W_SZ, W_SZ);
+      for (let i = 0; i < W_R.length; i++) {
+        const v = Math.max(0, Math.min(1, val(i) / W_VMAX)) ** 0.8;
+        im.data[i * 4] = col[0] * v; im.data[i * 4 + 1] = col[1] * v; im.data[i * 4 + 2] = col[2] * v; im.data[i * 4 + 3] = 255;
+      }
+      octx.putImageData(im, 0, 0);
+      const c = document.getElementById(id);
+      const { ctx, w, h } = setupCanvas(c);
+      ctx.imageSmoothingEnabled = true; ctx.drawImage(off, 0, 0, w, h);
+      // 目前像素
+      const s = w / W_SZ;
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+      ctx.strokeRect((wSel.x - 2) * s, (wSel.y - 2) * s, 5 * s, 5 * s);
+    };
+    paint('cWAll', i => W_R[i] + W_F[i], tint.all);
+    paint('cWI', i => W_R[i] * uRI + W_F[i] * uFI, tint.I);
+    paint('cWQ', i => W_R[i] * uRQ + W_F[i] * uFQ, tint.Q);
+  }
+}
+
+function wStep(ts) {
+  if (!wPlaying) return;
+  const dt = wLast ? (ts - wLast) / 1000 : 0; wLast = ts;
+  wS = Math.min(2, wS + dt * 0.25);          // 每一半（cos 或 sin）約 4 秒
+  sSweep.value = Math.round(wS * 100);
+  if (wS >= 2) wPlaying = false;
+  drawWeigh();
+  if (wPlaying) requestAnimationFrame(wStep);
+}
+bPlay.onclick = () => {
+  if (wPlaying) { wPlaying = false; drawWeigh(); return; }
+  if (+sSweep.value >= 200) { sSweep.value = 0; wS = 0; }
+  wS = +sSweep.value / 100; wPlaying = true; wLast = 0;
+  requestAnimationFrame(wStep);
+};
+document.getElementById('bReset').onclick = () => { wPlaying = false; sSweep.value = 0; drawWeigh(); };
+sSweep.addEventListener('input', () => { wPlaying = false; drawWeigh(); });
+document.getElementById('presetsW').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  wSel = { ...W_PX[b.dataset.px] }; drawWeigh();
+});
+['cWAll', 'cWI', 'cWQ'].forEach(id => document.getElementById(id).addEventListener('click', e => {
+  const rc = e.currentTarget.getBoundingClientRect();
+  wSel = {
+    x: Math.max(0, Math.min(W_SZ - 1, Math.floor((e.clientX - rc.left) / rc.width * W_SZ))),
+    y: Math.max(0, Math.min(W_SZ - 1, Math.floor((e.clientY - rc.top) / rc.height * W_SZ))),
+  };
+  drawWeigh();
+}));
+
 // --- Main draw ---
 function draw() {
   const activeTab = document.querySelector('.tabs button.active').dataset.tab;
-  if (activeTab === 'chain') drawChain();
+  if (activeTab !== 'weigh') wPlaying = false;
+  if (activeTab === 'weigh') drawWeigh();
+  else if (activeTab === 'chain') drawChain();
   else if (activeTab === 'phasor') drawPhasor();
   else if (activeTab === 'image') drawImage();
 }
