@@ -69,6 +69,10 @@
 <h1 data-i18n="title"></h1>
 <p class="sub" data-i18n="sub"></p>
 
+<a class="card" href="iq-homodyne-playground.html">
+  <h2><span data-i18n="card.iq.title"></span> <small>2026-11-05</small></h2>
+  <p data-i18n="card.iq.desc"></p>
+</a>
 <a class="card" href="glcm-texture-playground.html">
   <h2><span data-i18n="card.glcm.title"></span> <small>2026-10-24</small></h2>
   <p data-i18n="card.glcm.desc"></p>
@@ -84,11 +88,6 @@
 <a class="card" href="fv300-3d-microscope.html">
   <h2><span data-i18n="card.fv300.title"></span> <small>2026-09-06</small></h2>
   <p data-i18n="card.fv300.desc"></p>
-</a>
-
-<a class="card" href="iq-homodyne-playground.html">
-  <h2><span data-i18n="card.iq.title"></span> <small>2026-09-02</small></h2>
-  <p data-i18n="card.iq.desc"></p>
 </a>
 
 <a class="card" href="fv300-optics-sim.html">
@@ -174,9 +173,8 @@ zh: {
   點任何零件跳出中英文說明與規格，切雷射（405/488，543/633 預留）、pinhole 段位、濾片組合、掃描速度、Z 軸位置，看切片厚度、雜訊與影像跟著變。`,
 
   'card.iq.title': 'I/Q 零差解調遊樂場',
-  'card.iq.desc': `卓 lab 偵測鏈的物理直覺：PMT 載波裡拉曼（τ≈0）和螢光（τ>0）相位不同，兩顆混頻器＋90° 正交參考做 I/Q 解調。
-  訊號鏈逐段動畫、I-Q 平面上拉曼/螢光/混合三點的幾何關係、合成組織的 Fiji 四步重建（Ch1·Ch2→振幅·相位），
-  以及 φ₀ 沒校正時相位圖怎麼歪掉。`,
+  'card.iq.desc': `拉曼光子一來就到，螢光光子晚一點才到。把光子用 cos、sin 兩種權重「秤重」再加總，就是 I 和 Q——
+  按播放看柱子和影像一起長出來，Q 影像裡看不到拉曼。進階頁還有訊號鏈、I-Q 平面和 φ₀ 校正。`,
 
   'card.cars.title': 'CARS 拍頻遊樂場',
   'card.cars.date': '2026-09-02 · 09-08 重製',
@@ -250,9 +248,8 @@ en: {
   Click any part for a bilingual description and specs; switch lasers (405/488, with 543/633 reserved), pinhole step, filter set, scan speed and Z position, and watch section thickness, noise and the image change with them.`,
 
   'card.iq.title': 'I/Q Homodyne Playground',
-  'card.iq.desc': `The physical intuition behind the TBL lab detection chain: inside the PMT carrier, Raman (τ≈0) and fluorescence (τ>0) sit at different phases, so two mixers plus a 90° quadrature reference do the I/Q demodulation.
-  Stage-by-stage signal-chain animation, the geometry of the Raman / fluorescence / mixed points on the I-Q plane, a four-step Fiji reconstruction of synthetic tissue (Ch1·Ch2 → amplitude·phase),
-  and how the phase map skews when φ₀ is not calibrated.`,
+  'card.iq.desc': `Raman photons arrive at once; fluorescence photons arrive a little later. Weigh the photons by cos and by sin, add them up — that is I and Q.
+  Press play and watch the bars and the images build together; Raman never shows up in Q. Further tabs cover the signal chain, the I-Q plane and φ₀ calibration.`,
 
   'card.cars.title': 'CARS Beat-Frequency Playground',
   'card.cars.date': '2026-09-02 · remade 09-08',
