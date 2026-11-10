@@ -13,57 +13,69 @@
   :root, :root[data-theme="dark"] {
     color-scheme: dark;
     --bg: #14161c; --panel: #1d2028; --ink: #e6e6ec; --muted: #9aa0ae;
-    --accent: #6ec6ff; --ref: #ffb86c; --grid: #2e3340;
+    --accent: #6ec6ff; --ref: #ffb86c; --grid: #2e3340; --good: #5fd08a;
   }
   :root[data-theme="light"] {
     color-scheme: light;
     --bg: #f2f3f6; --panel: #ffffff; --ink: #1c1f27; --muted: #5b6272;
-    --accent: #1e6fc0; --ref: #d4741a; --grid: #dfe2e9;
+    --accent: #1e6fc0; --ref: #d4741a; --grid: #dfe2e9; --good: #1f9a55;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; padding: 24px;
+    margin: 0; padding: 20px 16px 40px;
     background: var(--bg); color: var(--ink);
     font-family: "Noto Serif TC", "Source Han Serif TC", "Songti TC", serif;
-    display: flex; flex-direction: column; align-items: center; gap: 16px;
   }
-  .head { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .page { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+  .head { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
   h1 { font-size: 1.25rem; margin: 0; font-weight: 600; }
+  button, select { font-family: inherit; }
   button.chip {
     background: none; color: var(--muted); border: 1px solid var(--grid);
-    border-radius: 8px; padding: 5px 9px; font-size: 0.78rem; cursor: pointer;
-    font-family: inherit; line-height: 1.2; transition: border-color .12s, color .12s;
+    border-radius: 8px; padding: 6px 10px; font-size: 0.82rem; cursor: pointer;
+    line-height: 1.2; white-space: nowrap; transition: border-color .12s, color .12s, background .12s;
   }
   button.chip:hover { border-color: var(--muted); color: var(--ink); }
   button.chip.on { border-color: var(--accent); color: var(--accent); }
-  .sub { color: var(--muted); font-size: 0.85rem; margin: 0; max-width: 760px; text-align: center; line-height: 1.6; }
-  .sub b { color: var(--ink); }
-  .wrap { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: flex-start; max-width: 1240px; }
-  .plots { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: flex-start; max-width: 860px; }
-  canvas { background: var(--panel); border-radius: 12px; max-width: 100%; height: auto; display: block; }
-  #cScatter { cursor: crosshair; }
-  .controls {
-    background: var(--panel); border-radius: 12px; padding: 20px;
-    display: flex; flex-direction: column; gap: 16px; min-width: 280px;
-    flex: 1 1 280px; max-width: 360px;
-  }
-  :root[data-theme="light"] canvas, :root[data-theme="light"] .controls { box-shadow: 0 1px 3px rgba(20,24,40,0.06); }
-  .ctl label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px; gap: 8px; }
+  button.chip.done::after { content: " ✔"; color: var(--good); }
+  .steps { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .steps button.chip { font-size: 0.9rem; padding: 8px 12px; }
+  .steps button.chip.on { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  .cap { margin: 0; text-align: center; font-size: 1rem; line-height: 1.7; min-height: 1.7em; }
+  .cap b { color: var(--accent); } .cap i { color: var(--ref); font-style: normal; font-weight: 700; }
+  .box { background: var(--panel); border-radius: 12px; padding: 12px 14px; }
+  :root[data-theme="light"] .box { box-shadow: 0 1px 3px rgba(20,24,40,0.06); }
+  canvas { width: 100%; display: block; }
+  #c1, #cS { cursor: pointer; }
+  .live { margin: 6px 4px 12px; text-align: center; font-size: 0.95rem; min-height: 1.6em; line-height: 1.6; }
+  .live b { color: var(--accent); } .live i { color: var(--ref); font-style: normal; font-weight: 700; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; }
+  .grp { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.88rem; color: var(--muted); }
+  .duo { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 14px; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .tile .k { font-size: 0.85rem; color: var(--muted); }
+  .tile .v { font-size: 1.9rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.25; color: var(--good); }
+  .tile.bad .v { color: var(--ref); }
+  .tile .n { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 24px; align-items: start; }
+  .ctl label.sl { display: flex; justify-content: space-between; font-size: 0.92rem; margin-bottom: 6px; gap: 8px; }
   .ctl output { color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .ctl .cap { font-size: 0.9rem; margin-bottom: 6px; }
+  .ctl .cap2 { font-size: 0.92rem; margin-bottom: 6px; }
   input[type=range] { width: 100%; accent-color: var(--accent); }
-  select { font-family: inherit; font-size: 0.85rem; background: var(--panel); color: var(--ink); border: 1px solid var(--grid); border-radius: 6px; padding: 3px 6px; }
-  .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 0.85rem; }
-  .toggle { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--muted); }
-  .toggle input { accent-color: var(--ref); }
-  .stats { font-size: 0.85rem; color: var(--muted); line-height: 1.8; border-top: 1px solid var(--grid); padding-top: 12px; }
-  .stats b { color: var(--ink); font-variant-numeric: tabular-nums; }
-  .stats .good { color: var(--accent); }
-  .stats .warn { color: var(--ref); }
-  .hint { font-size: 0.78rem; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--grid); padding-top: 12px; }
-  @media (max-width: 520px) {
-    body { padding: 12px; }
-    .controls { width: 100%; max-width: 100%; min-width: 0; }
+  select { font-size: 0.88rem; background: var(--panel); color: var(--ink); border: 1px solid var(--grid); border-radius: 6px; padding: 4px 6px; max-width: 100%; }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 0.92rem; }
+  .toggle input { accent-color: var(--ref); width: 18px; height: 18px; flex: none; }
+  .chal p { margin: 10px 0 0; line-height: 1.7; }
+  .chal .status { color: var(--muted); font-size: 0.92rem; }
+  .chal .status.ok { color: var(--good); font-weight: 600; }
+  details { font-size: 0.86rem; color: var(--muted); line-height: 1.8; }
+  details summary { cursor: pointer; color: var(--ink); font-size: 0.9rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 640px) {
+    body { padding: 12px 12px 32px; }
+    .cap { font-size: 0.95rem; text-align: left; }
+    .duo { grid-template-columns: 1fr; }
+    .tile .v { font-size: 1.5rem; }
   }
 </style>
 </head>
@@ -77,48 +89,94 @@
   document.documentElement.dataset.theme = th;
 })();
 </script>
-<div class="head">
-  <h1 data-i18n="title"></h1>
-  <button class="chip" id="lang" data-i18n-title="btn.lang.title"></button>
-  <button class="chip" id="theme" data-i18n-title="btn.theme.title"></button>
-</div>
-<p class="sub" data-i18n="sub"></p>
-<div class="wrap">
-  <div class="plots">
-    <canvas id="cGallery" width="420" height="150"></canvas>
-    <canvas id="cScatter" width="420" height="400"></canvas>
-    <canvas id="cPatch" width="256" height="282"></canvas>
-    <canvas id="cGlcm" width="256" height="282"></canvas>
+<div class="page">
+  <div class="head">
+    <h1 data-i18n="title"></h1>
+    <button class="chip" id="lang" data-i18n-title="btn.lang.title"></button>
+    <button class="chip" id="theme" data-i18n-title="btn.theme.title"></button>
   </div>
-  <div class="controls">
-    <div class="ctl">
-      <label><span data-i18n="lbl.diff"></span> <output id="diffOut"></output></label>
-      <input type="range" id="diff" min="6" max="70" step="1" value="35">
+  <nav class="steps" id="steps"></nav>
+  <p class="cap" id="cap"></p>
+
+  <!-- ① 數一數 -->
+  <div class="box" data-steps="1">
+    <canvas id="c1"></canvas>
+    <p class="live" id="live1"></p>
+    <div class="bar">
+      <div class="grp"><button class="chip" id="t1play"></button><button class="chip" id="t1step" data-i18n="t1.step"></button><button class="chip" id="t1all" data-i18n="t1.all"></button><button class="chip" id="t1reset" data-i18n="t1.reset"></button></div>
+      <div class="grp"><span data-i18n="t1.pattern"></span><span class="grp" id="t1pat"></span></div>
+      <div class="grp"><span data-i18n="t1.dir"></span><span class="grp" id="t1dir"></span></div>
     </div>
-    <div class="ctl">
-      <label><span data-i18n="lbl.noise"></span> <output id="noiseOut"></output></label>
-      <input type="range" id="noise" min="0" max="0.5" step="0.01" value="0.12">
+  </div>
+
+  <!-- ② 讀這張表 -->
+  <div class="box" data-steps="2">
+    <canvas id="c2"></canvas>
+    <p class="live" id="live2"></p>
+    <div class="bar">
+      <div class="grp"><span class="grp" id="t2src"></span></div>
+      <div class="grp"><span data-i18n="t2.dir"></span><span class="grp" id="t2dir"></span></div>
+      <div class="grp" style="flex:1 1 220px"><span data-i18n="t2.rot"></span><input type="range" id="t2rot" min="0" max="180" step="5" value="0" style="flex:1"><output id="t2rotOut"></output></div>
     </div>
-    <div class="toggle">
-      <input type="checkbox" id="rot">
-      <label for="rot" data-i18n="lbl.rot"></label>
+  </div>
+
+  <!-- ③ 以後：散點＋分類 -->
+  <div class="duo" data-steps="3 4 5">
+    <div class="box"><canvas id="cS"></canvas></div>
+    <div class="box"><canvas id="cD"></canvas></div>
+  </div>
+  <div class="tiles" data-steps="3 4 5">
+    <div class="box tile" id="tileTe"><div class="k" data-i18n="tile.test"></div><div class="v" id="vTe"></div><div class="n" id="nTe"></div></div>
+    <div class="box tile" id="tileCv"><div class="k" data-i18n="tile.cv"></div><div class="v" id="vCv"></div><div class="n" id="nCv"></div></div>
+  </div>
+
+  <div class="box chal" data-steps="5">
+    <div class="bar" id="chalBtns"></div>
+    <p id="chalGoal"></p>
+    <p class="status" id="chalStatus"></p>
+  </div>
+
+  <div class="box controls" data-steps="3 4 5">
+    <div class="ctl toggle" data-steps="3 4 5">
+      <input type="checkbox" id="rot"><label for="rot" data-i18n="lbl.rot"></label>
     </div>
-    <div class="ctl">
-      <label><span data-i18n="lbl.dist"></span> <output id="distOut"></output></label>
+    <div class="ctl" data-steps="3">
+      <div class="cap2" data-i18n="lbl.quick"></div>
+      <div class="grp" id="quick"></div>
+    </div>
+    <div class="ctl" data-steps="4 5">
+      <div class="grp"><span data-i18n="lbl.fx"></span> <select id="fx"></select></div>
+      <div class="grp" style="margin-top:6px"><span data-i18n="lbl.fy"></span> <select id="fy"></select></div>
+    </div>
+    <div class="ctl toggle" data-steps="4 5">
+      <input type="checkbox" id="all6"><label for="all6" data-i18n="lbl.all6"></label>
+    </div>
+    <div class="ctl" data-steps="4 5">
+      <div class="cap2" data-i18n="lbl.angle"></div>
+      <div class="grp" id="angles"></div>
+    </div>
+    <div class="ctl" data-steps="4 5">
+      <label class="sl"><span data-i18n="lbl.dist"></span> <output id="distOut"></output></label>
       <input type="range" id="dist" min="1" max="8" step="1" value="2">
     </div>
-    <div class="ctl">
-      <div class="cap" data-i18n="lbl.angle"></div>
-      <div class="row" id="angles"></div>
+    <div class="ctl" data-steps="4 5">
+      <label class="sl"><span data-i18n="lbl.diff"></span> <output id="diffOut"></output></label>
+      <input type="range" id="diff" min="6" max="70" step="1" value="35">
     </div>
-    <div class="ctl">
-      <div class="row"><span data-i18n="lbl.fx"></span> <select id="fx"></select></div>
-      <div class="row" style="margin-top:6px"><span data-i18n="lbl.fy"></span> <select id="fy"></select></div>
+    <div class="ctl" data-steps="4 5">
+      <label class="sl"><span data-i18n="lbl.noise"></span> <output id="noiseOut"></output></label>
+      <input type="range" id="noise" min="0" max="0.5" step="0.01" value="0.12">
     </div>
-    <div class="row"><button class="chip" id="reseed" data-i18n="btn.reseed"></button></div>
-    <div class="stats" id="stats"></div>
-    <div class="hint" data-i18n="hint"></div>
+    <div class="ctl" data-steps="4 5">
+      <div class="grp"><button class="chip" id="reseed" data-i18n="btn.reseed"></button><button class="chip" id="upload" data-i18n="btn.upload"></button></div>
+    </div>
   </div>
+  <input type="file" id="file" accept="image/*" hidden>
+
+  <details>
+    <summary data-i18n="more.sum"></summary>
+    <div data-i18n="more.txt"></div>
+  </details>
 </div>
 <script>
 const $ = id => document.getElementById(id);
@@ -131,38 +189,58 @@ zh: {
   'btn.lang.title': 'Switch to English',
   'btn.theme.title': '切換深色／淺色',
   'theme.light': '☀ 淺色', 'theme.dark': '🌙 深色',
-  'sub': `電腦不會「看」纖維整不整齊，要先把影像變成數字。<b>灰階共生矩陣（GLCM）</b>數的是：
-    往某個方向走幾格，「這格多亮、那格多亮」的組合出現幾次。從這張表算出對比、同質性等<b>紋理特徵</b>，
-    再交給<b>支持向量機（SVM）</b>在特徵空間畫一條分界線。這裡的影像全是合成的假組織，A 組纖維整齊、B 組纖維雜亂，不代表任何真實病理或論文資料。`,
-  'lbl.diff': 'B 組纖維方向亂度',
-  'lbl.noise': '影像雜訊',
-  'lbl.rot': '每塊組織的整體方向隨機（像真實切片）',
-  'lbl.dist': 'GLCM 位移距離 d',
-  'lbl.angle': 'GLCM 方向',
-  'ang.avg': '四向平均',
-  'lbl.fx': '橫軸特徵', 'lbl.fy': '縱軸特徵',
-  'btn.reseed': '重新抽一批樣本',
-  'f.contrast': '對比 Contrast', 'f.homog': '同質性 Homogeneity', 'f.energy': '能量 Energy',
-  'f.corr': '相關 Correlation', 'f.entropy': '熵 Entropy', 'f.aniso': '各向異性（四向對比差）',
-  'cv.gallery': '樣本（每組前 8 塊）',
-  'cv.A': 'A 整齊', 'cv.B': 'B 雜亂',
-  'cv.scatter': '特徵空間＋線性 SVM 分界',
-  'cv.click': '點一個點，看那塊組織',
-  'cv.train': '● 訓練', 'cv.test': '○ 測試',
-  'cv.patch': n => `第 ${n} 塊`,
-  'cv.arrow': '箭頭＝位移方向（長度放大 3 倍）',
-  'cv.glcm': 'GLCM（8 灰階，顏色＝出現比例）',
-  'cv.i': '這格灰階 i', 'cv.j': '那格灰階 j',
-  'st.sel': (g, c) => `選中：<b>${g}</b> 組，SVM 判成 <b>${c}</b>`,
-  'st.feat': (a, va, b, vb) => `${a}：<b>${va}</b>　${b}：<b>${vb}</b>`,
-  'st.acc': (tr, te) => `訓練準確率 <b>${tr}</b>　測試準確率 <b>${te}</b>`,
-  'st.good': '<span class="good">兩組在這兩個特徵上分得開</span>',
-  'st.meh': '<span class="warn">分不太開：換特徵、換方向，或回頭看影像</span>',
-  'st.gap': '<span class="warn">訓練比測試好很多：分界線可能在背雜訊</span>',
-  'hint': `玩法：先維持預設，看「對比」把兩組分開（沿纖維走、亮度變化小；斜著走、變化大）。
-    接著勾「整體方向隨機」：單一方向的對比會被組織擺的方向打亂，測試準確率往下掉。
-    再把一個特徵換成「各向異性」——它比較四個方向的對比差多少，不管纖維朝哪，準確率就回來了。
-    <br>真實研究還要注意：同一個病人的影像不能同時出現在訓練和測試裡、樣本數要夠、結果要在別的資料集驗證。`,
+  'step.1': '① 數一數', 'step.2': '② 讀這張表', 'step.3': '③ 電腦怎麼分', 'step.4': '④ 自由玩', 'step.5': '⑤ 挑戰',
+  'cap.1': '電腦看不懂「整齊」，它只會數：<b>這格</b>多亮、<i>隔壁那格</i>多亮，這種組合出現幾次。數完的表就是 GLCM。',
+  'cap.2': '順著纖維走，亮度不太變，數字擠在對角線；橫著走，亮度一直變，數字散開。換方向、轉組織看看。',
+  'cap.3': '每個點是一塊組織，位置由兩個紋理數字決定。電腦畫一條線，線的兩邊就是它的判斷。',
+  'cap.4': '全部開放：改影像、改 GLCM 的數法、換特徵，或放一張自己的圖進來。',
+  'cap.5': '三個小任務，達成時會亮起 ✔。',
+  // ①
+  't1.play': '⏸ 暫停', 't1.paused': '▶ 播放', 't1.step': '數下一對', 't1.all': '一次數完', 't1.reset': '重來',
+  't1.pattern': '圖樣', 't1.dir': '隔壁在哪',
+  'pat.h': '橫條紋', 'pat.v': '直條紋', 'pat.d': '斜紋', 'pat.n': '亂點',
+  'c1.img': '小影像（點格子可改亮度）', 'c1.this': '這格亮度', 'c1.that': '那格亮度',
+  'c1.count': (k, n) => `已數 ${k} ／ ${n} 對`, 'c1.diag': '斜線上＝兩格一樣亮',
+  'l1.start': '按播放，或一對一對數。',
+  'l1.pair': (a, b) => `<b>這格 ${a}</b>、<i>那格 ${b}</i> → 第 ${a} 列、第 ${b} 欄 ＋1`,
+  'l1.same': '數完了：全部在斜線上。沿這個方向走，亮度都沒變。',
+  'l1.diff': '數完了：沒有一個在斜線上。沿這個方向走，每一步亮度都變。',
+  'l1.mix': p => `數完了：${p} 在斜線上。有的沒變、有的變了。`,
+  // ②
+  't2.dir': '往哪走', 't2.rot': '轉動組織',
+  'src.A': 'A 整齊', 'src.B': 'B 雜亂', 'src.up': '放自己的圖',
+  'c2.patch': '組織影像', 'c2.glcm': 'GLCM', 'c2.bars': '四個方向的對比',
+  'c2.axes': '↓ 這格亮度　→ 那格亮度', 'c2.aniso': v => `各向異性 ${v}（最高和最低差多少）`,
+  'l2.along': '這個方向<b>順著纖維</b>：亮度不太變，擠在對角線，對比低。',
+  'l2.across': '這個方向<i>橫切纖維</i>：亮度常變，散離對角線，對比高。',
+  'l2.mid': '這個方向介於順著和橫切之間。',
+  'l2.iso': '四個方向差不多：這塊組織的纖維沒有共同方向。',
+  // ③
+  'tile.test': '沒看過的組織，判對幾成', 'tile.cv': '換五種分法各考一次，平均',
+  'n.train': v => `練習用的那一半：${v}`, 'n.good': '分得開', 'n.meh': '分不太開：換特徵或方向試試', 'n.gap': '練習比考試好很多：線可能在背雜訊',
+  'n.cv': '每次留五分之一當考題，輪五次',
+  'lbl.rot': '每塊組織的方向隨機（像真實切片）',
+  'lbl.quick': '橫軸用哪個數字', 'q.contrast': '單一方向的對比', 'q.aniso': '各向異性',
+  'lbl.fx': '橫軸', 'lbl.fy': '縱軸', 'lbl.all6': '六個數字全用（分界畫不出來，只看準確率）',
+  'lbl.angle': 'GLCM 往哪走', 'ang.avg': '四向平均',
+  'lbl.dist': '隔幾格', 'lbl.diff': 'B 組纖維亂度', 'lbl.noise': '影像雜訊',
+  'btn.reseed': '重新抽一批', 'btn.upload': '放自己的圖',
+  'f.contrast': '對比', 'f.homog': '同質性', 'f.energy': '能量', 'f.corr': '相關', 'f.entropy': '熵', 'f.aniso': '各向異性',
+  'cs.title': '每個點＝一塊組織', 'cs.title6': '每個點＝一塊組織（分界在六維，這裡只畫兩維）',
+  'cs.legend': '● 練習　○ 考試　點一下看那塊', 'cs.you': '★ 你的圖',
+  'cd.groups': '兩組長這樣', 'cd.A': 'A 整齊', 'cd.B': 'B 雜亂',
+  'cd.sel': (g, c, ok) => `選中：${g} 組 → 電腦判 ${c} ${ok ? '✔' : '✘'}`, 'cd.user': c => `你的圖 → 電腦判 ${c}`,
+  'cd.note': '只認得合成纖維，判你的圖只是好玩',
+  // 挑戰
+  'chal.1': '① 方向亂掉了', 'chal.2': '② 雜訊很大', 'chal.3': '③ 只亂一點點',
+  'goal.1': '組織方向已經設成隨機。把「判對幾成」救回 90% 以上。',
+  'goal.2': '影像雜訊 0.40。讓「判對幾成」到 90% 以上。',
+  'goal.3': 'B 組只比 A 組亂一點（±10°，A 組 ±6°）。讓「判對幾成」到 80% 以上。',
+  'chal.ok': '✔ 過關', 'chal.no': v => `目前 ${v}`,
+  'more.sum': '說明與簡化',
+  'more.txt': `影像全是合成的假組織（A 組纖維方向 ±6°、B 組可調），不代表任何真實病理或論文資料。GLCM 用 8 個亮度等級；
+    「各向異性」＝四個方向的對比裡（最高−最低）÷（最高＋最低）。分界是線性支持向量機（SVM），一半樣本練習、一半考試。
+    真實研究還要注意：同一個病人的影像不能同時出現在練習和考試裡、樣本數要夠、結果要在別的資料集驗證。`,
 },
 en: {
   'title': 'GLCM Texture Classification Playground',
@@ -170,38 +248,54 @@ en: {
   'btn.lang.title': '切換為中文',
   'btn.theme.title': 'Toggle dark / light',
   'theme.light': '☀ Light', 'theme.dark': '🌙 Dark',
-  'sub': `A computer can't "see" whether fibers are tidy; the image first has to become numbers. The <b>grey-level co-occurrence matrix (GLCM)</b> counts
-    how often "this pixel is this bright, the one d steps away is that bright" occurs. From that table come <b>texture features</b> such as contrast and homogeneity,
-    and a <b>support vector machine (SVM)</b> draws a dividing line in feature space. All images here are synthetic tissue: group A has aligned fibers, group B disordered ones. They do not represent any real pathology or published data.`,
-  'lbl.diff': 'Group B fiber disorder',
-  'lbl.noise': 'Image noise',
-  'lbl.rot': 'Random overall orientation per patch (like real sections)',
-  'lbl.dist': 'GLCM offset distance d',
-  'lbl.angle': 'GLCM direction',
-  'ang.avg': '4-way average',
-  'lbl.fx': 'x-axis feature', 'lbl.fy': 'y-axis feature',
-  'btn.reseed': 'Draw a new batch',
-  'f.contrast': 'Contrast', 'f.homog': 'Homogeneity', 'f.energy': 'Energy',
-  'f.corr': 'Correlation', 'f.entropy': 'Entropy', 'f.aniso': 'Anisotropy (4-way contrast spread)',
-  'cv.gallery': 'Samples (first 8 per group)',
-  'cv.A': 'A aligned', 'cv.B': 'B disordered',
-  'cv.scatter': 'Feature space + linear SVM boundary',
-  'cv.click': 'Click a point to see its patch',
-  'cv.train': '● train', 'cv.test': '○ test',
-  'cv.patch': n => `patch #${n}`,
-  'cv.arrow': 'arrow ×3',
-  'cv.glcm': 'GLCM (8 grey levels, colour = fraction)',
-  'cv.i': 'grey level i (here)', 'cv.j': 'grey level j (there)',
-  'st.sel': (g, c) => `Selected: group <b>${g}</b>, SVM says <b>${c}</b>`,
-  'st.feat': (a, va, b, vb) => `${a}: <b>${va}</b>   ${b}: <b>${vb}</b>`,
-  'st.acc': (tr, te) => `Train accuracy <b>${tr}</b>   test accuracy <b>${te}</b>`,
-  'st.good': '<span class="good">The two groups separate on these features</span>',
-  'st.meh': '<span class="warn">Poor separation: change features or direction, or look at the images again</span>',
-  'st.gap': '<span class="warn">Train much better than test: the line may be memorising noise</span>',
-  'hint': `How to play: with the defaults, see contrast split the groups (walking along a fiber the brightness barely changes; across it, it changes a lot).
-    Then tick "random overall orientation": single-direction contrast gets scrambled by how the tissue happens to lie, and test accuracy drops.
-    Now switch one feature to "anisotropy", which compares contrast across four directions regardless of where the fibers point, and the accuracy comes back.
-    <br>Real studies also need: images from one patient never split across train and test, enough samples, and validation on an independent dataset.`,
+  'step.1': '① Count', 'step.2': '② Read the table', 'step.3': '③ How it sorts', 'step.4': '④ Free play', 'step.5': '⑤ Challenges',
+  'cap.1': 'A computer cannot see "tidy". It can only count: how bright is <b>this pixel</b>, how bright is <i>its neighbour</i>, and how often each combination occurs. The finished table is the GLCM.',
+  'cap.2': 'Walk along the fibers and brightness barely changes, so counts hug the diagonal. Walk across and it keeps changing, so they spread out. Change the direction, rotate the tissue.',
+  'cap.3': 'Each point is one patch of tissue, placed by two texture numbers. The computer draws a line; each side is its verdict.',
+  'cap.4': 'Everything is open: change the images, how the GLCM counts, the features, or drop in an image of your own.',
+  'cap.5': 'Three small tasks; a ✔ lights up when you get there.',
+  't1.play': '⏸ Pause', 't1.paused': '▶ Play', 't1.step': 'Next pair', 't1.all': 'Count all', 't1.reset': 'Reset',
+  't1.pattern': 'Pattern', 't1.dir': 'Neighbour is',
+  'pat.h': 'Horizontal stripes', 'pat.v': 'Vertical stripes', 'pat.d': 'Diagonal', 'pat.n': 'Random',
+  'c1.img': 'Tiny image (click a cell to change it)', 'c1.this': 'this pixel', 'c1.that': 'neighbour',
+  'c1.count': (k, n) => `${k} / ${n} pairs counted`, 'c1.diag': 'on the diagonal = same brightness',
+  'l1.start': 'Press play, or count pair by pair.',
+  'l1.pair': (a, b) => `<b>this ${a}</b>, <i>neighbour ${b}</i> → row ${a}, column ${b}, +1`,
+  'l1.same': 'Done: everything is on the diagonal. Along this direction the brightness never changes.',
+  'l1.diff': 'Done: nothing is on the diagonal. Along this direction the brightness changes at every step.',
+  'l1.mix': p => `Done: ${p} on the diagonal. Some steps change, some do not.`,
+  't2.dir': 'Walk', 't2.rot': 'Rotate tissue',
+  'src.A': 'A aligned', 'src.B': 'B disordered', 'src.up': 'Use my image',
+  'c2.patch': 'Tissue image', 'c2.glcm': 'GLCM', 'c2.bars': 'Contrast in four directions',
+  'c2.axes': '↓ this pixel   → neighbour', 'c2.aniso': v => `Anisotropy ${v} (gap between highest and lowest)`,
+  'l2.along': 'This direction runs <b>along the fibers</b>: brightness barely changes, counts hug the diagonal, contrast is low.',
+  'l2.across': 'This direction <i>cuts across the fibers</i>: brightness keeps changing, counts leave the diagonal, contrast is high.',
+  'l2.mid': 'This direction is between along and across.',
+  'l2.iso': 'All four directions look alike: the fibers in this patch share no common direction.',
+  'tile.test': 'Unseen patches judged correctly', 'tile.cv': 'Average over five different splits',
+  'n.train': v => `On the half it practised with: ${v}`, 'n.good': 'The groups separate', 'n.meh': 'Poor separation: try another feature or direction', 'n.gap': 'Practice far better than the exam: the line may be memorising noise',
+  'n.cv': 'Hold out one fifth as the exam, five times over',
+  'lbl.rot': 'Random orientation per patch (like real sections)',
+  'lbl.quick': 'Number on the horizontal axis', 'q.contrast': 'Contrast in one direction', 'q.aniso': 'Anisotropy',
+  'lbl.fx': 'x-axis', 'lbl.fy': 'y-axis', 'lbl.all6': 'Use all six numbers (boundary cannot be drawn; watch the accuracy)',
+  'lbl.angle': 'GLCM direction', 'ang.avg': '4-way average',
+  'lbl.dist': 'Pixels apart', 'lbl.diff': 'Group B fiber disorder', 'lbl.noise': 'Image noise',
+  'btn.reseed': 'Draw a new batch', 'btn.upload': 'Use my image',
+  'f.contrast': 'Contrast', 'f.homog': 'Homogeneity', 'f.energy': 'Energy', 'f.corr': 'Correlation', 'f.entropy': 'Entropy', 'f.aniso': 'Anisotropy',
+  'cs.title': 'Each point = one patch', 'cs.title6': 'Each point = one patch (boundary lives in 6-D; only two shown)',
+  'cs.legend': '● practice   ○ exam   click a point to see it', 'cs.you': '★ your image',
+  'cd.groups': 'What the two groups look like', 'cd.A': 'A aligned', 'cd.B': 'B disordered',
+  'cd.sel': (g, c, ok) => `Selected: group ${g} → judged ${c} ${ok ? '✔' : '✘'}`, 'cd.user': c => `Your image → judged ${c}`,
+  'cd.note': 'It only knows synthetic fibers; judging your image is just for fun',
+  'chal.1': '① Orientation scrambled', 'chal.2': '② Heavy noise', 'chal.3': '③ Barely different',
+  'goal.1': 'Patch orientation is now random. Bring "judged correctly" back above 90%.',
+  'goal.2': 'Image noise is 0.40. Get "judged correctly" to 90% or more.',
+  'goal.3': 'Group B is only slightly messier than A (±10° vs ±6°). Get "judged correctly" to 80% or more.',
+  'chal.ok': '✔ Done', 'chal.no': v => `Now ${v}`,
+  'more.sum': 'Notes and simplifications',
+  'more.txt': `All images are synthetic tissue (group A fiber spread ±6°, group B adjustable) and represent no real pathology or published data. The GLCM uses 8 grey levels;
+    "anisotropy" = (highest − lowest) ÷ (highest + lowest) of the contrast in four directions. The boundary is a linear support vector machine (SVM), half the patches for practice and half for the exam.
+    Real studies also need: images from one patient never split across practice and exam, enough samples, and validation on an independent dataset.`,
 },
 };
 let LANG = 'zh';
@@ -211,11 +305,11 @@ const t = (k, ...a) => { const v = (I18N[LANG][k] ?? I18N.zh[k]); return typeof 
 const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const C = {};
 function readColors() {
-  const map = { ink: '--ink', muted: '--muted', accent: '--accent', ref: '--ref', grid: '--grid', panel: '--panel' };
+  const map = { ink: '--ink', muted: '--muted', accent: '--accent', ref: '--ref', grid: '--grid', panel: '--panel', good: '--good', bg: '--bg' };
   for (const k in map) C[k] = css(map[k]);
 }
 let booted = false;
-function redrawAll() { if (booted) { fillSelects(); render(); } }
+function redrawAll() { if (booted) { buildUI(); render(); } }
 function setTheme(th) {
   document.documentElement.dataset.theme = th;
   try { localStorage.setItem('owl-theme', th); } catch (e) {}
@@ -240,15 +334,37 @@ function setLang(l) {
   try { localStorage.setItem('owl-lang', LANG); } catch (e) {}
   applyLang();
 }
+const QS = new URLSearchParams(location.search);
 (() => {
   let l = 'zh'; try { l = localStorage.getItem('owl-lang') || l; } catch (e) {}
-  const q = new URLSearchParams(location.search).get('lang');
+  const q = QS.get('lang');
   if (q === 'en' || q === 'zh') l = q;
   LANG = l;
 })();
 $('lang').onclick = () => setLang(LANG === 'en' ? 'zh' : 'en');
 
-/* ---------- 亂數（固定種子） ---------- */
+/* ═══════════════════════════ 共用工具 ═══════════════════════════ */
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const font = (s, b) => `${b ? '600 ' : ''}${s}px "Noto Serif TC", "Source Han Serif TC", serif`;
+const pct = v => (v * 100).toFixed(0) + '%';
+function prep(cv, hOf) {
+  const W = cv.clientWidth; if (!W) return null;
+  const H = Math.round(hOf(W)), dpr = Math.min(2, window.devicePixelRatio || 1);
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + 'px'; }
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+  return { ctx, W, H };
+}
+function chips(el, items, cur, pick) {
+  el.innerHTML = items.map(([v, label]) => `<button class="chip${String(v) === String(cur) ? ' on' : ''}" data-v="${v}">${label}</button>`).join('');
+  el.querySelectorAll('button').forEach(b => b.onclick = () => pick(b.dataset.v));
+}
+function arrow(ctx, x0, y0, x1, y1, col, lw) {
+  ctx.strokeStyle = ctx.fillStyle = col; ctx.lineWidth = lw || 2.5;
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+  const a = Math.atan2(y1 - y0, x1 - x0), h = 4 + 2 * (lw || 2.5);
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - h * Math.cos(a - 0.45), y1 - h * Math.sin(a - 0.45)); ctx.lineTo(x1 - h * Math.cos(a + 0.45), y1 - h * Math.sin(a + 0.45)); ctx.closePath(); ctx.fill();
+}
 function mulberry32(a) {
   return function () {
     a |= 0; a = a + 0x6D2B79F5 | 0;
@@ -257,14 +373,42 @@ function mulberry32(a) {
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
 }
-function randn(rng) {
-  const u = Math.max(1e-12, rng()), v = rng();
-  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-}
+function randn(rng) { const u = Math.max(1e-12, rng()), v = rng(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
 
-/* ---------- 合成組織：一塊 64×64，由 22 條纖維疊成 ---------- */
-const N = 64, NP = N * N, LV = 8, PER = 40;          // 每組 40 塊
-const SPREAD_A = 6;                                   // A 組方向標準差（度）
+/* ═══════════════════════════ GLCM 與特徵 ═══════════════════════════ */
+// 這格 (x,y) 的亮度 i、隔壁 (x+dx,y+dy) 的亮度 j → 表的第 i 列第 j 欄 +1，最後除以總對數
+function glcmOf(q, n, lv, dx, dy) {
+  const P = new Float64Array(lv * lv); let cnt = 0;
+  for (let y = 0; y < n; y++) {
+    const yy = y + dy; if (yy < 0 || yy >= n) continue;
+    for (let x = 0; x < n; x++) {
+      const xx = x + dx; if (xx < 0 || xx >= n) continue;
+      P[q[y * n + x] * lv + q[yy * n + xx]]++; cnt++;
+    }
+  }
+  if (cnt) for (let k = 0; k < P.length; k++) P[k] /= cnt;
+  return P;
+}
+function feats(P, lv) {
+  let con = 0, hom = 0, asm = 0, ent = 0, mi = 0, mj = 0;
+  for (let i = 0; i < lv; i++) for (let j = 0; j < lv; j++) {
+    const p = P[i * lv + j];
+    con += (i - j) ** 2 * p; hom += p / (1 + (i - j) ** 2); asm += p * p;
+    if (p > 0) ent -= p * Math.log2(p);
+    mi += i * p; mj += j * p;
+  }
+  let si = 0, sj = 0, cov = 0;
+  for (let i = 0; i < lv; i++) for (let j = 0; j < lv; j++) {
+    const p = P[i * lv + j]; si += (i - mi) ** 2 * p; sj += (j - mj) ** 2 * p; cov += (i - mi) * (j - mj) * p;
+  }
+  return { contrast: con, homog: hom, energy: Math.sqrt(asm), corr: cov / Math.sqrt(si * sj + 1e-12), entropy: ent };
+}
+const FEATS = ['contrast', 'homog', 'energy', 'corr', 'entropy', 'aniso'];
+const ANG = [0, 45, 90, 135], ANG_SYM = { 0: '→', 45: '↗', 90: '↑', 135: '↖' };
+const offsetOf = (d, a) => ({ 0: [d, 0], 45: [d, -d], 90: [0, -d], 135: [-d, -d] }[a]);   // 影像 y 往下
+
+/* ═══════════════════════════ 合成組織：64×64，22 條纖維 ═══════════════════════════ */
+const N = 64, NP = N * N, LV = 8, PER = 40, SPREAD_A = 6;
 function makePatch(rng, spreadDeg, theta0, noise) {
   const g = new Float32Array(NP).fill(0.08);
   for (let f = 0; f < 22; f++) {
@@ -284,102 +428,15 @@ function makePatch(rng, spreadDeg, theta0, noise) {
   return g;
 }
 const quant = g => { const q = new Uint8Array(NP); for (let i = 0; i < NP; i++) q[i] = Math.min(LV - 1, Math.floor(g[i] * LV)); return q; };
-
-/* ---------- GLCM 與特徵 ---------- */
-const ANG = [0, 45, 90, 135];
-function offsetOf(d, a) {           // 影像 y 往下，角度逆時針
-  return { 0: [d, 0], 45: [d, -d], 90: [0, -d], 135: [-d, -d] }[a];
+// 一塊組織的全部數字：四個方向各算一次，再依「往哪走」取用
+function describe(q, d, angle) {
+  const per = {}; for (const a of ANG) { const [ox, oy] = offsetOf(d, a); per[a] = feats(glcmOf(q, N, LV, ox, oy), LV); }
+  const use = angle === 'avg' ? ANG : [angle], f = {};
+  for (const k of FEATS.slice(0, 5)) f[k] = use.reduce((m, a) => m + per[a][k], 0) / use.length;
+  const cs = ANG.map(a => per[a].contrast), mx = Math.max(...cs), mn = Math.min(...cs);
+  f.aniso = (mx - mn) / (mx + mn + 1e-9);
+  return { per, f };
 }
-function glcm(q, d, a) {
-  const [ox, oy] = offsetOf(d, a), P = new Float64Array(LV * LV);
-  let n = 0;
-  for (let y = 0; y < N; y++) {
-    const yy = y + oy; if (yy < 0 || yy >= N) continue;
-    for (let x = 0; x < N; x++) {
-      const xx = x + ox; if (xx < 0 || xx >= N) continue;
-      const i = q[y * N + x], j = q[yy * N + xx];
-      P[i * LV + j]++; P[j * LV + i]++; n += 2;       // 對稱
-    }
-  }
-  for (let k = 0; k < P.length; k++) P[k] /= n;
-  return P;
-}
-function feats(P) {
-  let con = 0, hom = 0, asm = 0, ent = 0, mi = 0, mj = 0;
-  for (let i = 0; i < LV; i++) for (let j = 0; j < LV; j++) {
-    const p = P[i * LV + j];
-    con += (i - j) ** 2 * p; hom += p / (1 + (i - j) ** 2); asm += p * p;
-    if (p > 0) ent -= p * Math.log2(p);
-    mi += i * p; mj += j * p;
-  }
-  let si = 0, sj = 0, cov = 0;
-  for (let i = 0; i < LV; i++) for (let j = 0; j < LV; j++) {
-    const p = P[i * LV + j]; si += (i - mi) ** 2 * p; sj += (j - mj) ** 2 * p; cov += (i - mi) * (j - mj) * p;
-  }
-  return { contrast: con, homog: hom, energy: Math.sqrt(asm), corr: cov / Math.sqrt(si * sj + 1e-12), entropy: ent };
-}
-const FEATS = ['contrast', 'homog', 'energy', 'corr', 'entropy', 'aniso'];
-
-/* ---------- 狀態 ---------- */
-let seed = 20261024, samples = [], sel = 0, angle = 0, model = null;
-function getAngleSet() { return angle === 'avg' ? ANG : [angle]; }
-
-function rebuild() {
-  const rng = mulberry32(seed);
-  const spreadB = parseFloat($('diff').value), noise = parseFloat($('noise').value), rot = $('rot').checked;
-  samples = [];
-  for (let k = 0; k < 2 * PER; k++) {
-    const cls = k % 2;                                         // 0 = A、1 = B，交錯排
-    const th0 = rot ? rng() * Math.PI : 0;
-    const img = makePatch(rng, cls ? spreadB : SPREAD_A, th0, noise);
-    samples.push({ cls, img, q: quant(img), train: (k >> 1) % 2 === 0 });
-  }
-  recompute();
-}
-function recompute() {
-  const d = parseInt($('dist').value, 10), set = getAngleSet();
-  for (const s of samples) {
-    const per = ANG.map(a => ({ a, f: feats(glcm(s.q, d, a)) }));
-    const use = per.filter(p => set.includes(p.a));
-    const f = {};
-    for (const k of FEATS.slice(0, 5)) f[k] = use.reduce((m, p) => m + p.f[k], 0) / use.length;
-    const cs = per.map(p => p.f.contrast), mx = Math.max(...cs), mn = Math.min(...cs);
-    f.aniso = (mx - mn) / (mx + mn + 1e-9);
-    s.f = f; s.P = glcm(s.q, d, set[0]);
-  }
-  train();
-}
-
-/* ---------- 線性 SVM：標準化後對 hinge loss 做批次次梯度下降 ---------- */
-function train() {
-  const fx = $('fx').value, fy = $('fy').value;
-  const xs = samples.map(s => [s.f[fx], s.f[fy]]);
-  const mu = [0, 1].map(k => xs.reduce((m, v) => m + v[k], 0) / xs.length);
-  const sd = [0, 1].map(k => Math.sqrt(xs.reduce((m, v) => m + (v[k] - mu[k]) ** 2, 0) / xs.length) || 1);
-  const Z = xs.map(v => [(v[0] - mu[0]) / sd[0], (v[1] - mu[1]) / sd[1]]);
-  const tr = samples.map((s, i) => i).filter(i => samples[i].train);
-  let w = [0, 0], b = 0;
-  const lam = 0.01, lr = 0.1;
-  for (let ep = 0; ep < 500; ep++) {
-    let gw = [lam * w[0], lam * w[1]], gb = 0;
-    for (const i of tr) {
-      const y = samples[i].cls ? 1 : -1;
-      if (y * (w[0] * Z[i][0] + w[1] * Z[i][1] + b) < 1) { gw[0] -= y * Z[i][0] / tr.length; gw[1] -= y * Z[i][1] / tr.length; gb -= y / tr.length; }
-    }
-    w = [w[0] - lr * gw[0], w[1] - lr * gw[1]]; b -= lr * gb;
-  }
-  const pred = (x, y) => (w[0] * (x - mu[0]) / sd[0] + w[1] * (y - mu[1]) / sd[1] + b) > 0 ? 1 : 0;
-  let okTr = 0, nTr = 0, okTe = 0, nTe = 0;
-  samples.forEach((s, i) => {
-    s.pred = pred(xs[i][0], xs[i][1]);
-    if (s.train) { nTr++; okTr += s.pred === s.cls; } else { nTe++; okTe += s.pred === s.cls; }
-  });
-  model = { pred, accTr: okTr / nTr, accTe: okTe / nTe };
-}
-
-/* ---------- 顏色 ---------- */
-const colA = () => C.accent, colB = () => C.ref;
-const font = s => `${s}px "Noto Serif TC", "Source Han Serif TC", serif`;
 const off = document.createElement('canvas'); off.width = N; off.height = N;
 const octx = off.getContext('2d'), oimg = octx.createImageData(N, N);
 function blitPatch(ctx, img, x, y, size) {
@@ -389,167 +446,413 @@ function blitPatch(ctx, img, x, y, size) {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(off, x, y, size, size);
 }
-
-/* ---------- 樣本牆 ---------- */
-function drawGallery() {
-  const cv = $('cGallery'), ctx = cv.getContext('2d');
-  ctx.fillStyle = C.panel; ctx.fillRect(0, 0, cv.width, cv.height);
-  ctx.fillStyle = C.ink; ctx.font = font(13); ctx.fillText(t('cv.gallery'), 12, 18);
-  ctx.font = font(12);
-  const x0 = 20 + Math.max(ctx.measureText(t('cv.A')).width, ctx.measureText(t('cv.B')).width);
-  const sz = Math.min(38, Math.floor((cv.width - x0 - 10) / 8) - 4);   // 標籤寬度依語言不同，縮圖跟著縮
-  for (const cls of [0, 1]) {
-    const y = 30 + cls * (sz + 12);
-    ctx.fillStyle = cls ? colB() : colA(); ctx.font = font(12);
-    ctx.fillText(t(cls ? 'cv.B' : 'cv.A'), 12, y + sz / 2 + 4);
-    samples.filter(s => s.cls === cls).slice(0, 8).forEach((s, k) => {
-      blitPatch(ctx, s.img, x0 + k * (sz + 4), y, sz);
-      if (samples.indexOf(s) === sel) { ctx.strokeStyle = cls ? colB() : colA(); ctx.lineWidth = 2; ctx.strokeRect(x0 + k * (sz + 4) - 1, y - 1, sz + 2, sz + 2); }
-    });
-  }
-}
-
-/* ---------- 特徵散點 ---------- */
-let scatterMap = null;
-function drawScatter() {
-  const cv = $('cScatter'), ctx = cv.getContext('2d');
-  const w = cv.width, h = cv.height, mL = 50, mR = 14, mT = 40, mB = 44;
-  const pw = w - mL - mR, ph = h - mT - mB;
-  ctx.fillStyle = C.panel; ctx.fillRect(0, 0, w, h);
-  const fx = $('fx').value, fy = $('fy').value;
-  const xs = samples.map(s => s.f[fx]), ys = samples.map(s => s.f[fy]);
-  const pad = (lo, hi) => { const r = (hi - lo) || 1; return [lo - 0.08 * r, hi + 0.08 * r]; };
-  const [xl, xh] = pad(Math.min(...xs), Math.max(...xs)), [yl, yh] = pad(Math.min(...ys), Math.max(...ys));
-  const X = v => mL + pw * (v - xl) / (xh - xl), Y = v => mT + ph - ph * (v - yl) / (yh - yl);
-  // 分界：依預測類別把背景淡淡上色
-  const cell = 6;
-  for (let py = 0; py < ph; py += cell) for (let px = 0; px < pw; px += cell) {
-    const vx = xl + (xh - xl) * (px + cell / 2) / pw, vy = yh - (yh - yl) * (py + cell / 2) / ph;
-    ctx.fillStyle = model.pred(vx, vy) ? colB() : colA();
-    ctx.globalAlpha = 0.09; ctx.fillRect(mL + px, mT + py, cell, cell);
+function drawHeat(ctx, P, lv, x0, y0, size) {
+  const sz = size / lv; let mx = 0; for (const p of P) mx = Math.max(mx, p);
+  ctx.fillStyle = C.bg; ctx.fillRect(x0, y0, size, size);
+  for (let i = 0; i < lv; i++) for (let j = 0; j < lv; j++) {
+    const v = Math.sqrt(P[i * lv + j] / (mx || 1));                // √ 讓小值也看得到
+    ctx.fillStyle = C.accent; ctx.globalAlpha = v; ctx.fillRect(x0 + j * sz + 0.5, y0 + i * sz + 0.5, sz - 1, sz - 1);
   }
   ctx.globalAlpha = 1;
-  ctx.strokeStyle = C.grid; ctx.strokeRect(mL, mT, pw, ph);
-  ctx.fillStyle = C.muted; ctx.font = font(10);
+  ctx.strokeStyle = C.muted; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + size, y0 + size); ctx.stroke(); ctx.setLineDash([]);
+}
+
+/* ═══════════════════════════ 狀態 ═══════════════════════════ */
+const S = { step: 1, chal: 0, done: [false, false, false] };
+
+/* ═══════════════════════════ ① 數一數 ═══════════════════════════ */
+const T1 = { n: 6, lv: 4, img: new Uint8Array(36), pat: 'h', dir: 0, k: 0, playing: true, acc: 0, geo: null };
+const DIR1 = [{ dx: 1, dy: 0, s: '→' }, { dx: 0, dy: 1, s: '↓' }, { dx: 1, dy: 1, s: '↘' }, { dx: 1, dy: -1, s: '↗' }];
+function t1Pattern(p) {
+  T1.pat = p; const rng = mulberry32(7);
+  for (let y = 0; y < 6; y++) for (let x = 0; x < 6; x++)
+    T1.img[y * 6 + x] = p === 'h' ? (y % 2 ? 3 : 0) : p === 'v' ? (x % 2 ? 3 : 0) : p === 'd' ? (x + y) % 4 : Math.floor(rng() * 4);
+  t1Restart();
+}
+function t1Pairs() {
+  const { dx, dy } = DIR1[T1.dir], out = [];
+  for (let y = 0; y < 6; y++) for (let x = 0; x < 6; x++) {
+    const xx = x + dx, yy = y + dy;
+    if (xx >= 0 && xx < 6 && yy >= 0 && yy < 6) out.push([x, y, xx, yy]);
+  }
+  return out;
+}
+function t1Restart() { T1.k = 0; T1.acc = 0; T1.playing = true; }
+function draw1() {
+  const r = prep($('c1'), W => W < 620 ? 648 : 384); if (!r) return;
+  const { ctx, W } = r, narrow = W < 620;
+  const s = narrow ? Math.min(W - 24, 252) : Math.min(300, (W - 140) / 2), cell = s / 6;
+  const ix = narrow ? (W - s) / 2 : W / 2 - s - 40, iy = 44;
+  const ms = narrow ? Math.min(W - 80, 216) : Math.min(240, W / 2 - 110), mc = ms / 4, hs = mc * 0.42;
+  const mx = narrow ? (W - ms) / 2 + hs / 2 + 8 : W / 2 + 40 + hs + 30, my = narrow ? iy + s + 92 : iy + s - ms;
+  T1.geo = { ix, iy, cell };
+  const pairs = t1Pairs(), cur = T1.k > 0 ? pairs[T1.k - 1] : null;
+  const grey = v => { const g = 34 + v * 64; return `rgb(${g},${g},${g})`; };
+  // 小影像
+  ctx.font = font(13, true); ctx.fillStyle = C.ink; ctx.fillText(t('c1.img'), ix, iy - 14);
+  for (let y = 0; y < 6; y++) for (let x = 0; x < 6; x++) {
+    const v = T1.img[y * 6 + x];
+    ctx.fillStyle = grey(v); ctx.fillRect(ix + x * cell + 1, iy + y * cell + 1, cell - 2, cell - 2);
+    ctx.fillStyle = v < 2 ? '#f2f2f2' : '#141414'; ctx.font = font(Math.round(cell * 0.38)); ctx.textAlign = 'center';
+    ctx.fillText(v, ix + (x + 0.5) * cell, iy + (y + 0.5) * cell + cell * 0.13);
+  }
+  ctx.textAlign = 'left';
+  if (cur) {
+    const [x, y, xx, yy] = cur;
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = C.accent; ctx.strokeRect(ix + x * cell + 1, iy + y * cell + 1, cell - 2, cell - 2);
+    ctx.strokeStyle = C.ref; ctx.strokeRect(ix + xx * cell + 1, iy + yy * cell + 1, cell - 2, cell - 2);
+    const ax = ix + (x + 0.5) * cell, ay = iy + (y + 0.5) * cell, bx = ix + (xx + 0.5) * cell, by = iy + (yy + 0.5) * cell;
+    const L = Math.hypot(bx - ax, by - ay), qx = (by - ay) / L * cell * 0.32, qy = -(bx - ax) / L * cell * 0.32;   // 箭頭往旁邊挪，不壓到數字
+    arrow(ctx, ax + (bx - ax) * 0.3 + qx, ay + (by - ay) * 0.3 + qy, ax + (bx - ax) * 0.7 + qx, ay + (by - ay) * 0.7 + qy, '#ffd34d', 3);
+  }
+  ctx.font = font(12); ctx.fillStyle = C.muted; ctx.fillText(t('c1.count', T1.k, pairs.length), ix, iy + s + 20);
+  // 計數表
+  const cnt = new Array(16).fill(0);
+  for (let k = 0; k < T1.k; k++) { const [x, y, xx, yy] = pairs[k]; cnt[T1.img[y * 6 + x] * 4 + T1.img[yy * 6 + xx]]++; }
+  const cmax = Math.max(1, ...cnt);
+  ctx.textAlign = 'center';
+  ctx.font = font(13, true); ctx.fillStyle = C.ref; ctx.fillText(t('c1.that') + ' →', mx + ms / 2, my - hs - 16);
+  ctx.save(); ctx.translate(mx - hs - 16, my + ms / 2); ctx.rotate(-Math.PI / 2); ctx.fillStyle = C.accent; ctx.fillText('← ' + t('c1.this'), 0, 0); ctx.restore();
+  for (let v = 0; v < 4; v++) {
+    for (const [hx, hy, col] of [[mx + (v + 0.5) * mc - hs / 2, my - hs - 6, C.ref], [mx - hs - 6, my + (v + 0.5) * mc - hs / 2, C.accent]]) {
+      ctx.fillStyle = grey(v); ctx.fillRect(hx, hy, hs, hs); ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.strokeRect(hx, hy, hs, hs);
+      ctx.fillStyle = v < 2 ? '#f2f2f2' : '#141414'; ctx.font = font(Math.round(hs * 0.6)); ctx.fillText(v, hx + hs / 2, hy + hs * 0.72);
+    }
+  }
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+    const c = cnt[i * 4 + j], x = mx + j * mc, y = my + i * mc;
+    ctx.fillStyle = C.bg; ctx.fillRect(x + 1, y + 1, mc - 2, mc - 2);
+    if (c) { ctx.fillStyle = C.accent; ctx.globalAlpha = 0.18 + 0.6 * c / cmax; ctx.fillRect(x + 1, y + 1, mc - 2, mc - 2); ctx.globalAlpha = 1; }
+    ctx.fillStyle = c ? C.ink : C.muted; ctx.font = font(c ? 20 : 14, !!c); ctx.fillText(c, x + mc / 2, y + mc / 2 + 7);
+  }
+  ctx.strokeStyle = C.muted; ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(mx + ms, my + ms); ctx.stroke(); ctx.setLineDash([]);
+  if (cur) {
+    const i = T1.img[cur[1] * 6 + cur[0]], j = T1.img[cur[3] * 6 + cur[2]];
+    ctx.strokeStyle = '#ffd34d'; ctx.lineWidth = 3.5; ctx.strokeRect(mx + j * mc + 1, my + i * mc + 1, mc - 2, mc - 2);
+  }
+  ctx.font = font(12); ctx.fillStyle = C.muted; ctx.fillText(t('c1.diag'), mx + ms / 2, my + ms + 20);
+  // 下方那一句
+  let line = t('l1.start');
+  if (T1.k >= pairs.length) {
+    const diag = (cnt[0] + cnt[5] + cnt[10] + cnt[15]) / pairs.length;
+    line = diag === 1 ? t('l1.same') : diag === 0 ? t('l1.diff') : t('l1.mix', pct(diag));
+  } else if (cur) line = t('l1.pair', T1.img[cur[1] * 6 + cur[0]], T1.img[cur[3] * 6 + cur[2]]);
+  $('live1').innerHTML = line;
+  $('t1play').textContent = T1.playing && T1.k < pairs.length ? t('t1.play') : t('t1.paused');
+}
+$('c1').addEventListener('click', e => {
+  const g = T1.geo, r = $('c1').getBoundingClientRect(); if (!g) return;
+  const x = Math.floor((e.clientX - r.left - g.ix) / g.cell), y = Math.floor((e.clientY - r.top - g.iy) / g.cell);
+  if (x < 0 || x >= 6 || y < 0 || y >= 6) return;
+  T1.img[y * 6 + x] = (T1.img[y * 6 + x] + 1) % 4; draw1();
+});
+$('t1play').onclick = () => { const n = t1Pairs().length; if (T1.k >= n) t1Restart(); else T1.playing = !T1.playing; draw1(); };
+$('t1step').onclick = () => { T1.playing = false; T1.k = Math.min(T1.k + 1, t1Pairs().length); draw1(); };
+$('t1all').onclick = () => { T1.playing = false; T1.k = t1Pairs().length; draw1(); };
+$('t1reset').onclick = () => { T1.playing = false; T1.k = 0; draw1(); };
+
+/* ═══════════════════════════ ② 讀這張表 ═══════════════════════════ */
+const T2 = { src: 'A', rot: 0, dir: 0, img: null, q: null, D: null };
+let userImg = null;                                          // 使用者放進來的圖（64×64 灰階）
+function t2Build() {
+  if (T2.src === 'up' && userImg) T2.img = userImg;
+  else T2.img = makePatch(mulberry32(T2.src === 'B' ? 4242 : 1717), T2.src === 'B' ? 35 : SPREAD_A, T2.rot * Math.PI / 180, 0.12);
+  T2.q = quant(T2.img);
+  T2.D = describe(T2.q, parseInt($('dist').value, 10), T2.dir);
+}
+function draw2() {
+  const r = prep($('c2'), W => W < 620 ? 40 + (W - 36) / 2 + 60 + 170 : 44 + Math.min(240, (W - 80) / 3) + 34); if (!r) return;
+  const { ctx, W } = r, narrow = W < 620;
+  const s = narrow ? (W - 36) / 2 : Math.min(240, (W - 80) / 3), gap = narrow ? 12 : (W - 3 * s) / 4;
+  const y0 = 34, x1 = narrow ? 12 : gap, x2 = x1 + s + gap;
+  const bx = narrow ? 12 : x2 + s + gap, by = narrow ? y0 + s + 60 : y0, bw = narrow ? W - 24 : s, bh = narrow ? 130 : s;
+  const d = parseInt($('dist').value, 10), [ox, oy] = offsetOf(d, T2.dir);
+  ctx.font = font(13, true); ctx.fillStyle = C.ink;
+  ctx.fillText(t('c2.patch'), x1, y0 - 12); ctx.fillText(t('c2.glcm'), x2, y0 - 12); ctx.fillText(t('c2.bars'), bx, by - 12);
+  blitPatch(ctx, T2.img, x1, y0, s);
+  const sc = s / N * 5, cx = x1 + s / 2, cy = y0 + s / 2;
+  ctx.shadowColor = 'rgba(0,0,0,0.85)'; ctx.shadowBlur = 4;
+  arrow(ctx, cx - ox * sc, cy - oy * sc, cx + ox * sc, cy + oy * sc, '#ffd34d', 3.5); ctx.shadowBlur = 0;
+  const [gx, gy] = offsetOf(d, T2.dir);
+  drawHeat(ctx, glcmOf(T2.q, N, LV, gx, gy), LV, x2, y0, s);
+  ctx.font = font(12); ctx.fillStyle = C.muted; ctx.fillText(t('c2.axes'), x2, y0 + s + 18);
+  // 四根柱子
+  const cs = ANG.map(a => T2.D.per[a].contrast), cm = Math.max(...cs) * 1.18, bwid = bw / 4;
+  ctx.strokeStyle = C.grid; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(bx, by + bh - 26); ctx.lineTo(bx + bw, by + bh - 26); ctx.stroke();
+  ANG.forEach((a, k) => {
+    const on = a === T2.dir, h = (bh - 50) * cs[k] / cm, x = bx + k * bwid + bwid * 0.22, w = bwid * 0.56, yb = by + bh - 26;
+    ctx.fillStyle = on ? C.accent : C.muted; ctx.globalAlpha = on ? 1 : 0.45; ctx.fillRect(x, yb - h, w, h); ctx.globalAlpha = 1;
+    ctx.textAlign = 'center'; ctx.font = font(on ? 13 : 12, on); ctx.fillStyle = on ? C.accent : C.muted;
+    ctx.fillText(cs[k].toFixed(2), x + w / 2, yb - h - 6);
+    ctx.font = font(18, on); ctx.fillText(ANG_SYM[a], x + w / 2, yb + 21);
+  });
+  ctx.textAlign = 'left'; ctx.font = font(12); ctx.fillStyle = C.muted;
+  ctx.fillText(t('c2.aniso', T2.D.f.aniso.toFixed(2)), bx, by + bh + 18);
+  // 下方那一句
+  const me = T2.D.per[T2.dir].contrast, mx = Math.max(...cs), mn = Math.min(...cs);
+  $('live2').innerHTML = T2.D.f.aniso < 0.2 ? t('l2.iso') : me === mn ? t('l2.along') : me === mx ? t('l2.across') : t('l2.mid');
+  $('t2rotOut').textContent = T2.rot + '°';
+}
+$('t2rot').addEventListener('input', e => { T2.rot = parseInt(e.target.value, 10); if (T2.src === 'up') T2.src = 'A'; t2Build(); buildUI(); draw2(); });
+
+/* ═══════════════════════════ ③ 樣本、特徵、SVM ═══════════════════════════ */
+let seed = 20261024, samples = [], sel = 0, angle = 0, model = null, user = null;
+function rebuild() {
+  const rng = mulberry32(seed);
+  const spreadB = parseFloat($('diff').value), noise = parseFloat($('noise').value), rot = $('rot').checked;
+  samples = [];
+  for (let k = 0; k < 2 * PER; k++) {
+    const cls = k % 2;                                         // 0 = A、1 = B，交錯排
+    const img = makePatch(rng, cls ? spreadB : SPREAD_A, rot ? rng() * Math.PI : 0, noise);
+    samples.push({ cls, img, q: quant(img), train: (k >> 1) % 2 === 0, fold: (k >> 1) % 5 });
+  }
+  recompute();
+}
+function recompute() {
+  const d = parseInt($('dist').value, 10);
+  for (const s of samples) Object.assign(s, describe(s.q, d, angle));
+  if (user) Object.assign(user, describe(user.q, d, angle));
+  train();
+}
+// 線性 SVM：用練習那一半算平均與標準差做標準化，再對 hinge loss 做批次次梯度下降
+function fit(idx, keys) {
+  const D = keys.length, n = idx.length;
+  const mu = keys.map(k => idx.reduce((m, i) => m + samples[i].f[k], 0) / n);
+  const sd = keys.map((k, c) => Math.sqrt(idx.reduce((m, i) => m + (samples[i].f[k] - mu[c]) ** 2, 0) / n) || 1);
+  const Z = idx.map(i => keys.map((k, c) => (samples[i].f[k] - mu[c]) / sd[c])), y = idx.map(i => samples[i].cls ? 1 : -1);
+  let w = new Array(D).fill(0), b = 0; const lam = 0.01, lr = 0.1;
+  for (let ep = 0; ep < 500; ep++) {
+    const gw = w.map(v => lam * v); let gb = 0;
+    for (let r = 0; r < n; r++) {
+      let m = b; for (let c = 0; c < D; c++) m += w[c] * Z[r][c];
+      if (y[r] * m < 1) { for (let c = 0; c < D; c++) gw[c] -= y[r] * Z[r][c] / n; gb -= y[r] / n; }
+    }
+    w = w.map((v, c) => v - lr * gw[c]); b -= lr * gb;
+  }
+  return f => { let m = b; for (let c = 0; c < D; c++) m += w[c] * (f[keys[c]] - mu[c]) / sd[c]; return m > 0 ? 1 : 0; };
+}
+function train() {
+  const keys = $('all6').checked ? FEATS : [$('fx').value, $('fy').value];
+  const all = samples.map((s, i) => i), tr = all.filter(i => samples[i].train), te = all.filter(i => !samples[i].train);
+  const pred = fit(tr, keys);
+  samples.forEach(s => { s.pred = pred(s.f); });
+  const acc = idx => idx.filter(i => samples[i].pred === samples[i].cls).length / idx.length;
+  let cv = 0;
+  for (let k = 0; k < 5; k++) {
+    const p = fit(all.filter(i => samples[i].fold !== k), keys), held = all.filter(i => samples[i].fold === k);
+    cv += held.filter(i => p(samples[i].f) === samples[i].cls).length / held.length / 5;
+  }
+  if (user) user.pred = pred(user.f);
+  model = { pred, keys, accTr: acc(tr), accTe: acc(te), cv, two: keys.length === 2 };
+}
+const colOf = cls => cls ? C.ref : C.accent;
+
+let scatterMap = [];
+function drawS() {
+  const r = prep($('cS'), W => Math.min(440, Math.max(300, W * 0.82))); if (!r) return;
+  const { ctx, W, H } = r, mL = 52, mR = 12, mT = 48, mB = 42, pw = W - mL - mR, ph = H - mT - mB;
+  const fx = $('fx').value, fy = $('fy').value;
+  const pts = user ? [...samples, user] : samples;
+  const xs = pts.map(s => s.f[fx]), ys = pts.map(s => s.f[fy]);
+  const padr = (lo, hi) => { const q = (hi - lo) || 1; return [lo - 0.08 * q, hi + 0.08 * q]; };
+  const [xl, xh] = padr(Math.min(...xs), Math.max(...xs)), [yl, yh] = padr(Math.min(...ys), Math.max(...ys));
+  const X = v => mL + pw * (v - xl) / (xh - xl), Y = v => mT + ph - ph * (v - yl) / (yh - yl);
+  if (model.two && fx !== fy) {                              // 依電腦的判斷把兩邊淡淡上色
+    const cell = 6, probe = {};
+    for (let py = 0; py < ph; py += cell) for (let px = 0; px < pw; px += cell) {
+      probe[fx] = xl + (xh - xl) * (px + cell / 2) / pw; probe[fy] = yh - (yh - yl) * (py + cell / 2) / ph;
+      ctx.fillStyle = colOf(model.pred(probe)); ctx.globalAlpha = 0.1;
+      ctx.fillRect(mL + px, mT + py, Math.min(cell, pw - px), Math.min(cell, ph - py));
+    }
+    ctx.globalAlpha = 1;
+  }
+  ctx.strokeStyle = C.grid; ctx.lineWidth = 1; ctx.strokeRect(mL, mT, pw, ph);
+  ctx.fillStyle = C.muted; ctx.font = font(11);
   for (let k = 0; k <= 4; k++) {
     const vx = xl + (xh - xl) * k / 4, vy = yl + (yh - yl) * k / 4;
-    ctx.textAlign = 'center'; ctx.fillText(vx.toPrecision(3), X(vx), mT + ph + 14);
-    ctx.textAlign = 'right'; ctx.fillText(vy.toPrecision(3), mL - 4, Y(vy) + 3);
+    ctx.textAlign = 'center'; ctx.fillText(vx.toPrecision(2), X(vx), mT + ph + 15);
+    ctx.textAlign = 'right'; ctx.fillText(vy.toPrecision(2), mL - 5, Y(vy) + 4);
   }
-  ctx.textAlign = 'center'; ctx.font = font(11); ctx.fillStyle = C.ink;
-  ctx.fillText(t('f.' + fx), mL + pw / 2, h - 10);
-  ctx.save(); ctx.translate(12, mT + ph / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(t('f.' + fy), 0, 0); ctx.restore();
-  ctx.textAlign = 'left'; ctx.font = font(13); ctx.fillText(t('cv.scatter'), 12, 18);
-  ctx.font = font(10); ctx.fillStyle = C.muted; ctx.fillText(t('cv.click') + '　' + t('cv.train') + '　' + t('cv.test'), 12, 33);
+  ctx.textAlign = 'center'; ctx.font = font(13, true); ctx.fillStyle = C.ink;
+  ctx.fillText(t('f.' + fx) + ' →', mL + pw / 2, H - 8);
+  ctx.save(); ctx.translate(14, mT + ph / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(t('f.' + fy) + ' →', 0, 0); ctx.restore();
+  ctx.textAlign = 'left'; ctx.fillText(t(model.two ? 'cs.title' : 'cs.title6'), 6, 16);
+  ctx.font = font(12); ctx.fillStyle = C.muted; ctx.fillText(t('cs.legend') + (user ? '　' + t('cs.you') : ''), 6, 35);
   scatterMap = [];
   samples.forEach((s, i) => {
-    const x = X(s.f[fx]), y = Y(s.f[fy]);
-    scatterMap.push([x, y, i]);
-    ctx.strokeStyle = ctx.fillStyle = s.cls ? colB() : colA(); ctx.lineWidth = 1.6;
-    ctx.beginPath(); ctx.arc(x, y, 4.2, 0, 2 * Math.PI);
-    s.train ? ctx.fill() : ctx.stroke();
-    if (i === sel) { ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 8, 0, 2 * Math.PI); ctx.stroke(); }
+    const x = X(s.f[fx]), y = Y(s.f[fy]); scatterMap.push([x, y, i]);
+    ctx.strokeStyle = ctx.fillStyle = colOf(s.cls); ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.arc(x, y, 4.6, 0, 2 * Math.PI); s.train ? ctx.fill() : ctx.stroke();
+    if (i === sel) { ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(x, y, 9, 0, 2 * Math.PI); ctx.stroke(); }
   });
+  if (user) {
+    const x = X(user.f[fx]), y = Y(user.f[fy]); scatterMap.push([x, y, -1]);
+    ctx.fillStyle = C.ink; ctx.font = font(22, true); ctx.textAlign = 'center'; ctx.fillText('★', x, y + 8);
+    if (sel === -1) { ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(x, y, 14, 0, 2 * Math.PI); ctx.stroke(); }
+  }
 }
-$('cScatter').addEventListener('click', e => {
-  const cv = $('cScatter'), r = cv.getBoundingClientRect();
-  const x = (e.clientX - r.left) * cv.width / r.width, y = (e.clientY - r.top) * cv.height / r.height;
-  let best = -1, bd = 1e9;
+$('cS').addEventListener('click', e => {
+  const r = $('cS').getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  let best = null, bd = 1e9;
   for (const [px, py, i] of scatterMap) { const d = (px - x) ** 2 + (py - y) ** 2; if (d < bd) { bd = d; best = i; } }
-  if (best >= 0 && bd < 400) { sel = best; render(); }
+  if (best !== null && bd < 600) { sel = best; drawS(); drawD(); }
 });
-
-/* ---------- 選中的那塊＋它的 GLCM ---------- */
-function drawPatch() {
-  const cv = $('cPatch'), ctx = cv.getContext('2d'), s = samples[sel];
-  ctx.fillStyle = C.panel; ctx.fillRect(0, 0, cv.width, cv.height);
-  blitPatch(ctx, s.img, 0, 26, 256);
-  ctx.fillStyle = s.cls ? colB() : colA(); ctx.font = font(12);
-  ctx.fillText(t(s.cls ? 'cv.B' : 'cv.A') + ' · ' + t('cv.patch', sel + 1), 10, 17);
-  // 位移箭頭（影像本身放大 4 倍，箭頭再放大 3 倍才看得到）
-  const d = parseInt($('dist').value, 10), set = getAngleSet();
-  ctx.strokeStyle = '#ffd34d'; ctx.fillStyle = '#ffd34d'; ctx.lineWidth = 3; ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 3;
-  for (const a of set) {
-    const [ox, oy] = offsetOf(d, a), sc = 12, cx = 128, cy = 26 + 128;
-    const ex = cx + ox * sc, ey = cy + oy * sc;
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex, ey); ctx.stroke();
-    const ang = Math.atan2(ey - cy, ex - cx);
-    ctx.beginPath(); ctx.moveTo(ex, ey);
-    ctx.lineTo(ex - 7 * Math.cos(ang - 0.4), ey - 7 * Math.sin(ang - 0.4));
-    ctx.lineTo(ex - 7 * Math.cos(ang + 0.4), ey - 7 * Math.sin(ang + 0.4)); ctx.fill();
+function drawD() {
+  const r = prep($('cD'), W => { const th = Math.min(40, (W - 20) / 6 - 4), ps = Math.min(150, (W - 12) / 2); return 28 + 2 * (th + 22) + 34 + ps + 28; }); if (!r) return;
+  const { ctx, W } = r, th = Math.min(40, (W - 20) / 6 - 4), ps = Math.min(150, (W - 12) / 2);
+  ctx.font = font(13, true); ctx.fillStyle = C.ink; ctx.fillText(t('cd.groups'), 2, 16);
+  let y = 28;
+  for (const cls of [0, 1]) {
+    ctx.font = font(12); ctx.fillStyle = colOf(cls); ctx.fillText(t(cls ? 'cd.B' : 'cd.A'), 2, y + 12);
+    samples.filter(s => s.cls === cls).slice(0, 6).forEach((s, k) => blitPatch(ctx, s.img, 2 + k * (th + 4), y + 18, th));
+    y += th + 22;
   }
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = C.muted; ctx.font = font(10); ctx.textAlign = 'right'; ctx.fillText(t('cv.arrow'), 248, 17); ctx.textAlign = 'left';
-}
-function drawGlcm() {
-  const cv = $('cGlcm'), ctx = cv.getContext('2d'), P = samples[sel].P;
-  ctx.fillStyle = C.panel; ctx.fillRect(0, 0, cv.width, cv.height);
-  ctx.fillStyle = C.ink; ctx.font = font(12); ctx.fillText(t('cv.glcm'), 10, 17);
-  const x0 = 34, y0 = 34, sz = 26;
-  let mx = 0; for (const p of P) mx = Math.max(mx, p);
-  for (let i = 0; i < LV; i++) for (let j = 0; j < LV; j++) {
-    const v = Math.sqrt(P[i * LV + j] / mx);                // √ 讓小值也看得到
-    ctx.fillStyle = `hsl(${210 - 180 * v}, 70%, ${92 - 50 * v}%)`;
-    ctx.fillRect(x0 + j * sz, y0 + i * sz, sz - 1, sz - 1);
-  }
-  ctx.strokeStyle = C.muted; ctx.setLineDash([3, 3]);
-  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + LV * sz, y0 + LV * sz); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = C.muted; ctx.font = font(10);
-  ctx.textAlign = 'center'; ctx.fillText(t('cv.j') + ' →', x0 + LV * sz / 2, y0 + LV * sz + 16);
-  ctx.save(); ctx.translate(14, y0 + LV * sz / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(t('cv.i') + ' →', 0, 0); ctx.restore();
-  ctx.textAlign = 'left';
+  const s = sel === -1 && user ? user : samples[Math.max(0, sel)], isUser = s === user;
+  y += 24;
+  ctx.font = font(13, true); ctx.fillStyle = isUser ? C.ink : colOf(s.cls);
+  ctx.fillText(isUser ? t('cd.user', s.pred ? 'B' : 'A') : t('cd.sel', s.cls ? 'B' : 'A', s.pred ? 'B' : 'A', s.pred === s.cls), 2, y);
+  y += 10;
+  blitPatch(ctx, s.img, 2, y, ps);
+  const d = parseInt($('dist').value, 10), [ox, oy] = offsetOf(d, angle === 'avg' ? 0 : angle);
+  drawHeat(ctx, glcmOf(s.q, N, LV, ox, oy), LV, W - ps - 2, y, ps);
+  if (isUser) { ctx.font = font(11); ctx.fillStyle = C.muted; ctx.fillText(t('cd.note'), 2, y + ps + 18); }
 }
 
-/* ---------- 選單 ---------- */
-function fillSelects() {
+/* ═══════════════════════════ 放自己的圖 ═══════════════════════════ */
+function pickFile() { $('file').value = ''; $('file').click(); }
+$('file').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const im = new Image();
+  im.onload = () => {
+    const c = document.createElement('canvas'); c.width = N; c.height = N;
+    const cx = c.getContext('2d'), m = Math.min(im.width, im.height);
+    cx.drawImage(im, (im.width - m) / 2, (im.height - m) / 2, m, m, 0, 0, N, N);     // 取中央正方形縮成 64×64
+    const px = cx.getImageData(0, 0, N, N).data, g = new Float32Array(NP);
+    let lo = 1e9, hi = -1e9;
+    for (let i = 0; i < NP; i++) { g[i] = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2]; lo = Math.min(lo, g[i]); hi = Math.max(hi, g[i]); }
+    for (let i = 0; i < NP; i++) g[i] = (g[i] - lo) / ((hi - lo) || 1);                 // 亮度拉滿 0–1
+    URL.revokeObjectURL(im.src);
+    userImg = g; user = { img: g, q: quant(g), cls: -1 };
+    T2.src = 'up'; sel = -1;
+    t2Build(); recompute(); buildUI(); render();
+  };
+  im.src = URL.createObjectURL(f);
+});
+$('upload').onclick = pickFile;
+
+/* ═══════════════════════════ 挑戰 ═══════════════════════════ */
+function setDefaults() {
+  $('diff').value = 35; $('noise').value = 0.12; $('rot').checked = false; $('dist').value = 2; $('all6').checked = false;
+  angle = 0; $('fx').value = 'contrast'; $('fy').value = 'homog'; seed = 20261024;
+}
+const CH = [
+  { set: () => { $('rot').checked = true; }, ok: () => model.accTe >= 0.9 },
+  { set: () => { $('noise').value = 0.40; }, ok: () => model.accTe >= 0.9 },
+  { set: () => { $('diff').value = 10; }, ok: () => model.accTe >= 0.8 },
+];
+function startChal(i) { S.chal = i; setDefaults(); CH[i].set(); rebuild(); }
+
+/* ═══════════════════════════ 分步與介面 ═══════════════════════════ */
+function buildUI() {
   for (const [id, def] of [['fx', 'contrast'], ['fy', 'homog']]) {
     const el = $(id), cur = el.value || def;
     el.innerHTML = FEATS.map(k => `<option value="${k}">${t('f.' + k)}</option>`).join('');
     el.value = cur;
   }
-  $('angles').innerHTML = [...ANG, 'avg'].map(a => `<button class="chip${a === angle ? ' on' : ''}" data-a="${a}">${a === 'avg' ? t('ang.avg') : a + '°'}</button>`).join('');
-  $('angles').querySelectorAll('button').forEach(b => b.onclick = () => {
-    angle = b.dataset.a === 'avg' ? 'avg' : parseInt(b.dataset.a, 10);
-    fillSelects(); recompute(); render();
+  chips($('steps'), [1, 2, 3, 4, 5].map(n => [n, t('step.' + n)]), S.step, v => setStep(parseInt(v, 10)));
+  chips($('t1pat'), ['h', 'v', 'd', 'n'].map(p => [p, t('pat.' + p)]), T1.pat, v => { t1Pattern(v); buildUI(); draw1(); });
+  chips($('t1dir'), DIR1.map((d, i) => [i, d.s + '︎']), T1.dir, v => { T1.dir = parseInt(v, 10); t1Restart(); buildUI(); draw1(); });
+  chips($('t2src'), [['A', t('src.A')], ['B', t('src.B')], ['up', t('src.up')]], T2.src, v => {
+    if (v === 'up') { pickFile(); return; }
+    T2.src = v; t2Build(); buildUI(); draw2();
   });
+  chips($('t2dir'), ANG.map(a => [a, ANG_SYM[a] + '︎']), T2.dir, v => { T2.dir = parseInt(v, 10); t2Build(); buildUI(); draw2(); });
+  chips($('quick'), [['contrast', t('q.contrast')], ['aniso', t('q.aniso')]], $('fx').value, v => { $('fx').value = v; train(); buildUI(); render(); });
+  chips($('angles'), [...ANG.map(a => [a, ANG_SYM[a] + '︎']), ['avg', t('ang.avg')]], angle, v => { angle = v === 'avg' ? 'avg' : parseInt(v, 10); recompute(); buildUI(); render(); });
+  chips($('chalBtns'), CH.map((c, i) => [i, t('chal.' + (i + 1))]), S.chal, v => { startChal(parseInt(v, 10)); buildUI(); render(); });
+  $('chalBtns').querySelectorAll('button').forEach((b, i) => b.classList.toggle('done', S.done[i]));
 }
-
-/* ---------- 總繪製 ---------- */
+function setStep(n, keep) {
+  S.step = n;
+  if (!keep) {
+    if (n === 1) t1Restart();
+    if (n === 3) { setDefaults(); rebuild(); }
+    if (n === 5) startChal(S.chal);
+  }
+  document.querySelectorAll('[data-steps]').forEach(el => { el.hidden = !el.dataset.steps.split(' ').includes(String(n)); });
+  buildUI(); render();
+}
 function render() {
-  $('diffOut').textContent = '±' + $('diff').value + '°（A ±' + SPREAD_A + '°）';
-  $('noiseOut').textContent = parseFloat($('noise').value).toFixed(2);
-  $('distOut').textContent = $('dist').value + ' px';
-  drawGallery(); drawScatter(); drawPatch(); drawGlcm();
-  const s = samples[sel], fx = $('fx').value, fy = $('fy').value;
-  const pct = v => (v * 100).toFixed(0) + '%';
-  let verdict = model.accTe >= 0.85 ? t('st.good') : t('st.meh');
-  if (model.accTr - model.accTe > 0.15) verdict = t('st.gap');
-  $('stats').innerHTML =
-    t('st.sel', s.cls ? 'B' : 'A', s.pred ? 'B' : 'A') + '<br>' +
-    t('st.feat', t('f.' + fx), s.f[fx].toFixed(3), t('f.' + fy), s.f[fy].toFixed(3)) + '<br>' +
-    t('st.acc', pct(model.accTr), pct(model.accTe)) + '<br>' + verdict;
+  $('cap').innerHTML = t('cap.' + S.step);
+  if (S.step === 1) draw1();
+  else if (S.step === 2) { t2Build(); draw2(); }
+  else {
+    $('diffOut').textContent = '±' + $('diff').value + '°';
+    $('noiseOut').textContent = parseFloat($('noise').value).toFixed(2);
+    $('distOut').textContent = $('dist').value + ' px';
+    drawS(); drawD();
+    $('vTe').textContent = pct(model.accTe); $('vCv').textContent = pct(model.cv);
+    $('tileTe').classList.toggle('bad', model.accTe < 0.85); $('tileCv').classList.toggle('bad', model.cv < 0.85);
+    $('nTe').textContent = t('n.train', pct(model.accTr)) + '　' + (model.accTr >= 0.85 && model.accTr - model.accTe > 0.15 ? t('n.gap') : model.accTe >= 0.85 ? t('n.good') : t('n.meh'));
+    $('nCv').textContent = t('n.cv');
+    if (S.step === 5) {
+      const ok = CH[S.chal].ok();
+      if (ok && !S.done[S.chal]) { S.done[S.chal] = true; $('chalBtns').querySelectorAll('button')[S.chal].classList.add('done'); }
+      $('chalGoal').textContent = t('goal.' + (S.chal + 1));
+      $('chalStatus').textContent = ok ? t('chal.ok') : t('chal.no', pct(model.accTe));
+      $('chalStatus').classList.toggle('ok', ok);
+    }
+  }
 }
 
-/* ---------- 事件 ---------- */
+/* ═══════════════════════════ 事件 ═══════════════════════════ */
 for (const id of ['diff', 'noise']) $(id).addEventListener('input', () => { rebuild(); render(); });
 $('rot').addEventListener('change', () => { rebuild(); render(); });
 $('dist').addEventListener('input', () => { recompute(); render(); });
-$('fx').addEventListener('change', () => { train(); render(); });
+$('fx').addEventListener('change', () => { train(); buildUI(); render(); });
 $('fy').addEventListener('change', () => { train(); render(); });
+$('all6').addEventListener('change', () => { train(); render(); });
 $('reseed').onclick = () => { seed = (seed * 1103515245 + 12345) >>> 0; rebuild(); render(); };
+window.addEventListener('resize', () => { if (booted) render(); });
 
+let last = 0;
+function tick(ts) {
+  const dt = Math.min(0.1, (ts - last) / 1000 || 0); last = ts;
+  if (S.step === 1 && T1.playing) {
+    const n = t1Pairs().length;
+    T1.acc += dt;
+    if (T1.acc > 0.28 && T1.k < n) { T1.acc = 0; T1.k++; draw1(); }
+    if (T1.k >= n) { T1.playing = false; draw1(); }
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ═══════════════════════════ 開機 ═══════════════════════════ */
 readColors();
-fillSelects();
+buildUI();                                                   // 先把下拉選單填好，才能 rebuild
+// 網址參數（分享或截圖用）：step、rot、fx、fy、ang、noise、diff、d、all6、k、pat、dir、src
+if (QS.get('rot') === '1') $('rot').checked = true;
+if (FEATS.includes(QS.get('fx'))) $('fx').value = QS.get('fx');
+if (FEATS.includes(QS.get('fy'))) $('fy').value = QS.get('fy');
+if (QS.get('ang')) angle = QS.get('ang') === 'avg' ? 'avg' : (ANG.includes(parseInt(QS.get('ang'), 10)) ? parseInt(QS.get('ang'), 10) : 0);
+for (const [q, id] of [['noise', 'noise'], ['diff', 'diff'], ['d', 'dist']]) if (QS.get(q) !== null) $(id).value = QS.get(q);
+if (QS.get('all6') === '1') $('all6').checked = true;
+t1Pattern(['h', 'v', 'd', 'n'].includes(QS.get('pat')) ? QS.get('pat') : 'h');
+if (QS.get('dir') !== null) T1.dir = clamp(parseInt(QS.get('dir'), 10) || 0, 0, 3);
+if (QS.get('k') !== null) { T1.k = clamp(parseInt(QS.get('k'), 10) || 0, 0, t1Pairs().length); T1.playing = false; }
+if (QS.get('src') === 'B') T2.src = 'B';
+if (QS.get('trot') !== null) { T2.rot = clamp(parseInt(QS.get('trot'), 10) || 0, 0, 180); $('t2rot').value = T2.rot; }
 rebuild();
 booted = true;
 setTheme(document.documentElement.dataset.theme || 'light');
 applyLang();
-</script>
-<script>
-// 思源宋體（Noto Serif TC）是網路字型：載完後重畫一次 canvas，讓圖上的字也換成宋體
-document.fonts && document.fonts.ready.then(() => {
-  if (typeof redrawAll === 'function') redrawAll(); else if (typeof render === 'function') render();
-});
+{ const n = clamp(parseInt(QS.get('step'), 10) || 1, 1, 5); setStep(n, n !== 5); }
+requestAnimationFrame(tick);
+// 思源宋體是網路字型：載完後重畫一次，讓圖上的字也換成宋體
+document.fonts && document.fonts.ready.then(() => { if (booted) render(); });
 </script>
 </body>
 </html>

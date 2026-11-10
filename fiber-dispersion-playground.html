@@ -13,52 +13,67 @@
   :root, :root[data-theme="dark"] {
     color-scheme: dark;
     --bg: #14161c; --panel: #1d2028; --ink: #e6e6ec; --muted: #9aa0ae;
-    --accent: #6ec6ff; --ref: #ffb86c; --grid: #2e3340;
+    --accent: #6ec6ff; --ref: #ffb86c; --grid: #2e3340; --good: #5fd08a; --glass: #2a3240;
   }
   :root[data-theme="light"] {
     color-scheme: light;
     --bg: #f2f3f6; --panel: #ffffff; --ink: #1c1f27; --muted: #5b6272;
-    --accent: #1e6fc0; --ref: #d4741a; --grid: #dfe2e9;
+    --accent: #1e6fc0; --ref: #d4741a; --grid: #dfe2e9; --good: #1f9a55; --glass: #e6edf5;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; padding: 24px;
+    margin: 0; padding: 20px 16px 40px;
     background: var(--bg); color: var(--ink);
     font-family: "Noto Serif TC", "Source Han Serif TC", "Songti TC", serif;
-    display: flex; flex-direction: column; align-items: center; gap: 16px;
   }
-  .head { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .page { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+  .head { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
   h1 { font-size: 1.25rem; margin: 0; font-weight: 600; }
+  button { font-family: inherit; }
   button.chip {
     background: none; color: var(--muted); border: 1px solid var(--grid);
-    border-radius: 8px; padding: 5px 9px; font-size: 0.78rem; cursor: pointer;
-    font-family: inherit; line-height: 1.2; transition: border-color .12s, color .12s;
+    border-radius: 8px; padding: 6px 10px; font-size: 0.82rem; cursor: pointer;
+    line-height: 1.2; transition: border-color .12s, color .12s, background .12s;
   }
   button.chip:hover { border-color: var(--muted); color: var(--ink); }
-  .sub { color: var(--muted); font-size: 0.85rem; margin: 0; max-width: 760px; text-align: center; line-height: 1.6; }
-  .sub b { color: var(--ink); }
-  .wrap { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: flex-start; }
-  .plots { display: flex; flex-direction: column; gap: 16px; max-width: 100%; }
-  canvas { background: var(--panel); border-radius: 12px; max-width: 100%; height: auto; display: block; }
-  .controls {
-    background: var(--panel); border-radius: 12px; padding: 20px;
-    display: flex; flex-direction: column; gap: 18px; min-width: 280px;
-    flex: 1 1 280px; max-width: 380px;
-  }
-  :root[data-theme="light"] canvas, :root[data-theme="light"] .controls { box-shadow: 0 1px 3px rgba(20,24,40,0.06); }
-  .ctl label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px; gap: 8px; }
-  .ctl output { color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  button.chip.on { border-color: var(--accent); color: var(--accent); }
+  button.chip.done::after { content: " ✔"; color: var(--good); }
+  .steps { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .steps button.chip { font-size: 0.9rem; padding: 8px 12px; }
+  .steps button.chip.on { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  .cap { margin: 0; text-align: center; font-size: 1rem; line-height: 1.7; min-height: 1.7em; }
+  .cap b { color: var(--accent); }
+  .stage { background: var(--panel); border-radius: 12px; padding: 8px 8px 10px; }
+  :root[data-theme="light"] .stage, :root[data-theme="light"] .box { box-shadow: 0 1px 3px rgba(20,24,40,0.06); }
+  canvas { width: 100%; display: block; }
+  .transport { display: flex; align-items: center; gap: 10px; padding: 4px 8px 0; }
+  .transport button { min-width: 44px; white-space: nowrap; flex: none; }
   input[type=range] { width: 100%; accent-color: var(--accent); }
-  .row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .toggle { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--muted); }
-  .toggle input { accent-color: var(--ref); }
-  .stats { font-size: 0.85rem; color: var(--muted); line-height: 1.8; border-top: 1px solid var(--grid); padding-top: 12px; }
-  .stats b { color: var(--ink); font-variant-numeric: tabular-nums; }
-  .stats .warn { color: var(--ref); }
-  .hint { font-size: 0.78rem; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--grid); padding-top: 12px; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .box { background: var(--panel); border-radius: 12px; padding: 14px 16px; }
+  .tile .k { font-size: 0.85rem; color: var(--muted); }
+  .tile .v { font-size: 1.9rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.25; }
+  .tile .v small { font-size: 0.9rem; font-weight: 400; color: var(--muted); margin-left: 6px; }
+  .bar { height: 8px; border-radius: 4px; background: var(--grid); overflow: hidden; margin-top: 6px; }
+  .bar i { display: block; height: 100%; background: var(--good); border-radius: 4px; }
+  .tile.bad .v { color: var(--ref); } .tile.bad .bar i { background: var(--ref); }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 24px; }
+  .ctl label { display: flex; justify-content: space-between; font-size: 0.92rem; margin-bottom: 6px; gap: 8px; }
+  .ctl output { color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ctl .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .ctl.locked { opacity: 0.45; }
+  .chal .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chal p { margin: 10px 0 0; line-height: 1.7; }
+  .chal .status { color: var(--muted); font-size: 0.92rem; }
+  .chal .status.ok { color: var(--good); font-weight: 600; }
+  details { font-size: 0.86rem; color: var(--muted); line-height: 1.8; }
+  details summary { cursor: pointer; color: var(--ink); font-size: 0.9rem; }
+  details b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  [hidden] { display: none !important; }
   @media (max-width: 520px) {
-    body { padding: 12px; }
-    .controls { width: 100%; max-width: 100%; min-width: 0; }
+    body { padding: 12px 12px 32px; }
+    .cap { font-size: 0.95rem; text-align: left; }
+    .tile .v { font-size: 1.5rem; }
   }
 </style>
 </head>
@@ -72,45 +87,62 @@
   document.documentElement.dataset.theme = th;
 })();
 </script>
-<div class="head">
-  <h1 data-i18n="title"></h1>
-  <button class="chip" id="lang" data-i18n-title="btn.lang.title"></button>
-  <button class="chip" id="theme" data-i18n-title="btn.theme.title"></button>
-</div>
-<p class="sub" data-i18n="sub"></p>
-<div class="wrap">
-  <div class="plots">
-    <canvas id="cPulse" width="600" height="300"></canvas>
-    <canvas id="cCurve" width="600" height="260"></canvas>
+<div class="page">
+  <div class="head">
+    <h1 data-i18n="title"></h1>
+    <button class="chip" id="lang" data-i18n-title="btn.lang.title"></button>
+    <button class="chip" id="theme" data-i18n-title="btn.theme.title"></button>
   </div>
-  <div class="controls">
-    <div class="ctl">
+  <nav class="steps" id="steps"></nav>
+  <p class="cap" id="cap"></p>
+
+  <div class="stage">
+    <canvas id="cv"></canvas>
+    <div class="transport">
+      <button class="chip" id="play"></button>
+      <input type="range" id="pos" min="0" max="1000" value="0" data-i18n-title="pos.title">
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="box tile" id="tileW"><div class="k" data-i18n="tile.width"></div><div class="v" id="vW"></div></div>
+    <div class="box tile" id="tileS"><div class="k" data-i18n="tile.sig"></div><div class="v" id="vS"></div><div class="bar"><i id="barS"></i></div></div>
+  </div>
+
+  <div class="box chal" data-steps="5">
+    <div class="row" id="chalBtns"></div>
+    <p id="chalGoal"></p>
+    <p class="status" id="chalStatus"></p>
+  </div>
+
+  <div class="box controls">
+    <div class="ctl" data-ctl="len" data-steps="1 2 3 4 5">
+      <label><span data-i18n="lbl.len"></span> <output id="lenOut"></output></label>
+      <input type="range" id="len" min="-2" max="1" step="0.005" value="0">
+    </div>
+    <div class="ctl" data-ctl="tau" data-steps="2 4 5">
       <label><span data-i18n="lbl.tau"></span> <output id="tauOut"></output></label>
       <input type="range" id="tau" min="30" max="500" step="5" value="100">
     </div>
-    <div class="ctl">
+    <div class="ctl" data-ctl="pre" data-steps="3 4 5">
+      <label><span data-i18n="lbl.pre"></span> <output id="preOut"></output></label>
+      <input type="range" id="pre" min="0" max="12" step="0.001" value="0">
+      <div class="row">
+        <button class="chip" id="match" data-i18n="btn.match"></button>
+        <button class="chip" id="zero" data-i18n="btn.zero"></button>
+      </div>
+    </div>
+    <div class="ctl" data-ctl="lam" data-steps="4 5">
       <label><span data-i18n="lbl.lam"></span> <output id="lamOut"></output></label>
       <input type="range" id="lam" min="700" max="1100" step="10" value="800">
     </div>
-    <div class="ctl">
-      <label><span data-i18n="lbl.len"></span> <output id="lenOut"></output></label>
-      <input type="range" id="len" min="0" max="4" step="0.01" value="3">
-    </div>
-    <div class="ctl">
-      <label><span data-i18n="lbl.pre"></span> <output id="preOut"></output></label>
-      <input type="range" id="pre" min="-150000" max="0" step="100" value="0">
-    </div>
-    <div class="row">
-      <button class="chip" id="match" data-i18n="btn.match"></button>
-      <button class="chip" id="zero" data-i18n="btn.zero"></button>
-    </div>
-    <div class="toggle">
-      <input type="checkbox" id="carrier" checked>
-      <label for="carrier" data-i18n="lbl.carrier"></label>
-    </div>
-    <div class="stats" id="stats"></div>
-    <div class="hint" data-i18n="hint"></div>
   </div>
+
+  <details>
+    <summary data-i18n="more.sum"></summary>
+    <div id="nums"></div>
+    <div data-i18n="more.txt"></div>
+  </details>
 </div>
 <script>
 const $ = id => document.getElementById(id);
@@ -123,35 +155,35 @@ zh: {
   'btn.lang.title': 'Switch to English',
   'btn.theme.title': '切換深色／淺色',
   'theme.light': '☀ 淺色', 'theme.dark': '🌙 深色',
-  'sub': `飛秒脈衝不是單一顏色，而是一小段光譜。玻璃裡<b>紅光跑得比藍光快</b>（正常群速色散），
-    走過一段光纖後，紅光跑到前面、藍光落後，脈衝就被拉長。雙光子螢光和 SHG 的訊號跟峰值功率有關：
-    平均功率不變時，<b>脈衝拉長幾倍，訊號就掉成幾分之一</b>。微型探頭要靠光纖送光，這是它最先碰到的難題之一。`,
-  'lbl.tau': '雷射原始脈寬（FWHM）',
-  'lbl.lam': '中心波長',
-  'lbl.len': '光纖長度',
-  'lbl.pre': '預補償（負色散 GDD）',
-  'btn.match': '剛好補償這段光纖',
-  'btn.zero': '拿掉預補償',
-  'lbl.carrier': '畫出載波（示意：週期放大、只看紅前藍後的趨勢）',
-  'hint': `玩法：先把光纖拉到 1 m，看脈衝變寬、訊號掉多少；再按「剛好補償」，等於在進光纖前先讓藍光跑前面，
-    走完光纖剛好追平。脈寬越短，掉得越兇（拉長的長度跟原始脈寬平方成反比）。
-    <br>簡化：只算熔融石英的材料色散（Sellmeier），忽略光纖的波導色散、三階色散，
-    以及高峰值功率下的自相位調變（SPM）；後者在實心光纖裡常是真正的限制，所以實際探頭也會改用特殊光纖。`,
-  'cv.pulse': '光強度 vs 時間',
-  'cv.in': '進光纖前',
-  'cv.out': '出光纖後',
-  'cv.time': t => `時間（fs，視窗 ±${t}）`,
-  'cv.curve': '出口脈寬 與 雙光子訊號 vs 光纖長度',
-  'cv.width': '出口脈寬（fs，對數）',
-  'cv.sig': '雙光子訊號（相對）',
-  'cv.nocomp': '虛線：沒有預補償',
-  'cv.red': '紅（低頻）', 'cv.blue': '藍（高頻）',
-  'st.b2': v => `熔融石英 β₂：<b>${v}</b> fs²/mm`,
-  'st.gdd': (f, n) => `光纖 GDD：<b>${f}</b> fs²　淨 GDD：<b>${n}</b> fs²`,
-  'st.ld': v => `色散長度 L<sub>D</sub>（脈寬變 √2 倍的長度）：<b>${v}</b>`,
-  'st.out': (v, k) => `出口脈寬：<b>${v}</b>（${k} 倍）`,
-  'st.sig': v => `雙光子／SHG 訊號：剩 <b>${v}</b>（同平均功率）`,
-  'st.warn': '<span class="warn">⚠ 訊號掉到一成以下：要補償，或換光纖</span>',
+  'step.1': '① 會散開', 'step.2': '② 越短越慘', 'step.3': '③ 先反著排', 'step.4': '④ 自由玩', 'step.5': '⑤ 挑戰',
+  'cap.1': '脈衝裡有很多顏色。玻璃裡<b>紅光跑得快、藍光慢</b>，走越遠隊伍拉越長，訊號就越弱。拉拉看光纖長度。',
+  'cap.2': '脈衝越短，裡面的顏色越多，散得越兇。把脈寬往左拉到 30 fs 看看。',
+  'cap.3': '進光纖前先讓<b>藍光排前面</b>，走完光纖剛好被紅光追平。按「剛好補償」。',
+  'cap.4': '全部開放：脈寬、波長、長度、預補償都能調。',
+  'cap.5': '三個小任務，達成時會亮起 ✔。灰掉的滑桿是這一題不能動的。',
+  'play': '⏸ 暫停', 'paused': '▶ 播放', 'pos.title': '拖曳：脈衝走到哪裡',
+  'tile.width': '出口脈寬', 'tile.sig': '雙光子／SHG 訊號還剩（平均功率不變）',
+  'tile.times': k => `原本的 ${k} 倍`,
+  'lbl.tau': '雷射原始脈寬', 'lbl.lam': '中心波長', 'lbl.len': '光纖長度', 'lbl.pre': '預補償',
+  'pre.none': '沒有', 'pre.val': v => `抵銷 ${v} 光纖`,
+  'btn.match': '剛好補償', 'btn.zero': '拿掉',
+  'cv.laser': '雷射', 'cv.comp': '預補償', 'cv.fiber': v => `光纖 ${v}`, 'cv.sample': '樣品',
+  'cv.red': '紅光（快）', 'cv.blue': '藍光（慢）', 'cv.note': '脈衝的長短、高矮為示意',
+  'cv.chart': '脈寬沿路怎麼變', 'cv.orig': v => `原始 ${v}`, 'cv.exit': v => `出口 ${v}`, 'cv.nocomp': '沒有預補償',
+  'chal.1': '① 最長能用多長', 'chal.2': '② 最好的脈寬', 'chal.3': '③ 救回來',
+  'goal.1': '不補償、脈寬 100 fs：訊號至少要留 50%。光纖最長能用多長？把長度拉到剛好。',
+  'goal.2': '不補償、光纖 1 m：選一個脈寬，讓<b>出口</b>脈寬最短。',
+  'goal.3': '脈寬 30 fs、光纖 2 m：把訊號救回 95% 以上。',
+  'ok.1': v => `✔ 過關：大約 ${v}。再長，訊號就不到一半。`,
+  'ok.2': v => `✔ 過關：約 ${v}。太短散得兇，太長本來就寬，中間有個最佳值，不是越短越好。`,
+  'ok.3': '✔ 過關：預補償把光纖的色散整個抵銷，30 fs 也送得過去。',
+  'no.sig': v => `目前訊號 ${v}`, 'no.out': (v, b) => `目前出口 ${v}，最短可以到 ${b}`,
+  'more.sum': '數字與簡化',
+  'num.b2': v => `熔融石英 β₂：<b>${v}</b> fs²/mm`,
+  'num.gdd': (f, p, n) => `光纖 GDD：<b>${f}</b> fs²　預補償：<b>${p}</b> fs²　淨值：<b>${n}</b> fs²`,
+  'num.ld': v => `色散長度 L<sub>D</sub>（脈寬變 √2 倍的長度）：<b>${v}</b>`,
+  'more.txt': `只算熔融石英的材料色散（Sellmeier，Malitson 1965）與高斯脈衝。沒算光纖的波導色散、三階色散，
+    也沒算高峰值功率下的自相位調變（SPM）；後者在實心光纖裡常是真正的限制。上圖脈衝的長短、高矮是示意，下圖的脈寬才是照比例畫的。`,
 },
 en: {
   'title': 'Fiber Pulse-Broadening Playground',
@@ -159,35 +191,35 @@ en: {
   'btn.lang.title': '切換為中文',
   'btn.theme.title': 'Toggle dark / light',
   'theme.light': '☀ Light', 'theme.dark': '🌙 Dark',
-  'sub': `A femtosecond pulse is not one colour but a small slice of spectrum. In glass <b>red travels faster than blue</b> (normal group-velocity dispersion),
-    so after a length of fiber the red runs ahead, the blue lags, and the pulse is stretched. Two-photon fluorescence and SHG depend on peak power:
-    at the same average power, <b>a pulse N times longer gives N times less signal</b>. A miniature probe has to deliver light through fiber, so this is one of the first problems it meets.`,
-  'lbl.tau': 'Laser pulse width (FWHM)',
-  'lbl.lam': 'Centre wavelength',
-  'lbl.len': 'Fiber length',
-  'lbl.pre': 'Pre-compensation (negative GDD)',
-  'btn.match': 'Exactly cancel this fiber',
-  'btn.zero': 'Remove pre-compensation',
-  'lbl.carrier': 'Draw the carrier (schematic: period enlarged, shows red-first / blue-last only)',
-  'hint': `How to play: stretch the fiber to 1 m and watch the pulse widen and the signal drop; then press "Exactly cancel", which sends the blue ahead before the fiber
-    so the red catches up exactly at the far end. Shorter pulses suffer more (the stretching length scales with the pulse width squared).
-    <br>Simplified: only the material dispersion of fused silica (Sellmeier) is computed; fiber waveguide dispersion, third-order dispersion
-    and self-phase modulation (SPM) at high peak power are ignored. SPM is often the real limit in solid-core fiber, which is why real probes also turn to special fibers.`,
-  'cv.pulse': 'Intensity vs time',
-  'cv.in': 'Before fiber',
-  'cv.out': 'After fiber',
-  'cv.time': t => `time (fs, window ±${t})`,
-  'cv.curve': 'Output pulse width and two-photon signal vs fiber length',
-  'cv.width': 'output width (fs, log)',
-  'cv.sig': 'two-photon signal (relative)',
-  'cv.nocomp': 'dashed: no pre-compensation',
-  'cv.red': 'red (low freq.)', 'cv.blue': 'blue (high freq.)',
-  'st.b2': v => `Fused-silica β₂: <b>${v}</b> fs²/mm`,
-  'st.gdd': (f, n) => `Fiber GDD: <b>${f}</b> fs²   net GDD: <b>${n}</b> fs²`,
-  'st.ld': v => `Dispersion length L<sub>D</sub> (width grows √2×): <b>${v}</b>`,
-  'st.out': (v, k) => `Output width: <b>${v}</b> (${k}×)`,
-  'st.sig': v => `Two-photon / SHG signal: <b>${v}</b> left (same average power)`,
-  'st.warn': '<span class="warn">⚠ Signal below 10%: compensate, or change fiber</span>',
+  'step.1': '① It spreads', 'step.2': '② Shorter is worse', 'step.3': '③ Line up backwards', 'step.4': '④ Free play', 'step.5': '⑤ Challenges',
+  'cap.1': 'A pulse holds many colours. In glass <b>red runs fast, blue runs slow</b>, so the further it goes the longer the line gets and the weaker the signal. Drag the fiber length.',
+  'cap.2': 'A shorter pulse holds more colours, so it spreads harder. Drag the pulse width down to 30 fs.',
+  'cap.3': 'Put the <b>blue in front</b> before the fiber, and the red catches up exactly at the far end. Press "Exactly cancel".',
+  'cap.4': 'Everything is open: pulse width, wavelength, length and pre-compensation.',
+  'cap.5': 'Three small tasks; a ✔ lights up when you get there. Greyed-out sliders are locked for that task.',
+  'play': '⏸ Pause', 'paused': '▶ Play', 'pos.title': 'Drag: where the pulse is',
+  'tile.width': 'Pulse width at the exit', 'tile.sig': 'Two-photon / SHG signal left (same average power)',
+  'tile.times': k => `${k}× the original`,
+  'lbl.tau': 'Laser pulse width', 'lbl.lam': 'Centre wavelength', 'lbl.len': 'Fiber length', 'lbl.pre': 'Pre-compensation',
+  'pre.none': 'none', 'pre.val': v => `cancels ${v} of fiber`,
+  'btn.match': 'Exactly cancel', 'btn.zero': 'Remove',
+  'cv.laser': 'Laser', 'cv.comp': 'Pre-comp', 'cv.fiber': v => `Fiber ${v}`, 'cv.sample': 'Sample',
+  'cv.red': 'red (fast)', 'cv.blue': 'blue (slow)', 'cv.note': 'pulse length and height are schematic',
+  'cv.chart': 'Pulse width along the way', 'cv.orig': v => `original ${v}`, 'cv.exit': v => `exit ${v}`, 'cv.nocomp': 'no pre-comp',
+  'chal.1': '① How long can it be', 'chal.2': '② The best pulse width', 'chal.3': '③ Rescue it',
+  'goal.1': 'No pre-compensation, 100 fs pulse: keep at least 50% of the signal. What is the longest fiber you can use? Set the length right at the limit.',
+  'goal.2': 'No pre-compensation, 1 m of fiber: pick the pulse width that gives the shortest pulse <b>at the exit</b>.',
+  'goal.3': '30 fs pulse, 2 m of fiber: bring the signal back above 95%.',
+  'ok.1': v => `✔ Done: about ${v}. Any longer and less than half the signal is left.`,
+  'ok.2': v => `✔ Done: about ${v}. Too short spreads hard, too long starts wide; the best is in between, not the shortest.`,
+  'ok.3': '✔ Done: pre-compensation cancels the whole fiber, so even 30 fs gets through.',
+  'no.sig': v => `Signal now ${v}`, 'no.out': (v, b) => `Exit width now ${v}; the shortest possible is ${b}`,
+  'more.sum': 'Numbers and simplifications',
+  'num.b2': v => `Fused-silica β₂: <b>${v}</b> fs²/mm`,
+  'num.gdd': (f, p, n) => `Fiber GDD: <b>${f}</b> fs²   pre-comp: <b>${p}</b> fs²   net: <b>${n}</b> fs²`,
+  'num.ld': v => `Dispersion length L<sub>D</sub> (width grows √2×): <b>${v}</b>`,
+  'more.txt': `Only the material dispersion of fused silica (Sellmeier, Malitson 1965) and Gaussian pulses. Fiber waveguide dispersion, third-order dispersion
+    and self-phase modulation (SPM) at high peak power are left out; SPM is often the real limit in solid-core fiber. The pulse drawn in the upper lane is schematic; the width curve below is to scale.`,
 },
 };
 let LANG = 'zh';
@@ -197,8 +229,9 @@ const t = (k, ...a) => { const v = (I18N[LANG][k] ?? I18N.zh[k]); return typeof 
 const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const C = {};
 function readColors() {
-  const map = { ink: '--ink', muted: '--muted', accent: '--accent', ref: '--ref', grid: '--grid', panel: '--panel' };
+  const map = { ink: '--ink', muted: '--muted', accent: '--accent', ref: '--ref', grid: '--grid', panel: '--panel', good: '--good', glass: '--glass' };
   for (const k in map) C[k] = css(map[k]);
+  C.dark = document.documentElement.dataset.theme === 'dark';
 }
 let booted = false;
 function redrawAll() { if (booted) render(); }
@@ -219,22 +252,23 @@ function applyLang() {
   document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
   $('lang').textContent = LANG === 'en' ? '中文' : 'EN';
   $('theme').textContent = document.documentElement.dataset.theme === 'dark' ? t('theme.light') : t('theme.dark');
-  redrawAll();
+  if (booted) { buildSteps(); buildChal(); render(); }
 }
 function setLang(l) {
   LANG = l === 'en' ? 'en' : 'zh';
   try { localStorage.setItem('owl-lang', LANG); } catch (e) {}
   applyLang();
 }
+const QS = new URLSearchParams(location.search);
 (() => {
   let l = 'zh'; try { l = localStorage.getItem('owl-lang') || l; } catch (e) {}
-  const q = new URLSearchParams(location.search).get('lang');
+  const q = QS.get('lang');
   if (q === 'en' || q === 'zh') l = q;
   LANG = l;
 })();
 $('lang').onclick = () => setLang(LANG === 'en' ? 'zh' : 'en');
 
-/* ---------- 物理 ---------- */
+/* ═══════════════════════════ 物理 ═══════════════════════════ */
 // 熔融石英 Sellmeier（Malitson 1965），λ 用 µm
 function nSilica(l) {
   const l2 = l * l;
@@ -247,202 +281,260 @@ function beta2(lamNm) {
   const d2 = (nSilica(l + h) - 2 * nSilica(l) + nSilica(l - h)) / (h * h);   // 1/µm²
   return (l * 1e-6) ** 3 / (2 * Math.PI * c * c) * d2 * 1e12 * 1e27;
 }
-// 高斯脈衝：強度 FWHM τ0 ↔ 場的 T0 = τ0 / (2√ln2)；經過 GDD φ 後 T = T0·√(1 + (φ/T0²)²)
+// 高斯脈衝：強度 FWHM τ0 ↔ 場的 T0 = τ0 / (2√ln2)；經過 GDD φ 後變寬 √(1 + (φ/T0²)²) 倍
 const T0of = tau => tau / (2 * Math.sqrt(Math.LN2));
 const stretch = (tau, gdd) => { const T0 = T0of(tau); return Math.sqrt(1 + (gdd / (T0 * T0)) ** 2); };
-const lenMm = () => Math.pow(10, parseFloat($('len').value));
 
 function fmtFs(v) { return v >= 10000 ? (v / 1000).toFixed(1) + ' ps' : v >= 1000 ? (v / 1000).toFixed(2) + ' ps' : v.toFixed(0) + ' fs'; }
-function fmtLen(mm) { return mm >= 1000 ? (mm / 1000).toFixed(mm >= 10000 ? 0 : 2) + ' m' : mm >= 10 ? mm.toFixed(0) + ' mm' : mm.toFixed(1) + ' mm'; }
+function fmtLen(mm) { return mm >= 1000 ? (mm / 1000).toFixed(2) + ' m' : mm >= 10 ? mm.toFixed(0) + ' mm' : mm.toFixed(1) + ' mm'; }
 const fmtInt = v => Math.round(v).toLocaleString('en-US');
+const fmtPct = s => (s * 100).toFixed(s < 0.1 ? 1 : 0) + '%';
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-/* ---------- 顏色：瞬時頻率 → 紅…藍 ---------- */
-function freqColor(x) {          // x ∈ [-1, 1]：-1 紅、+1 藍
-  x = Math.max(-1, Math.min(1, x));
-  const hue = 120 + 120 * x;     // 0°紅 → 120°綠 → 240°藍
-  return `hsl(${hue.toFixed(0)}, 75%, 50%)`;
+/* ═══════════════════════════ 狀態 ═══════════════════════════ */
+// L 單位 mm；preM＝預補償能抵銷幾公尺的光纖（實際 GDD = −β₂·preM）
+const S = { tau: 100, lam: 800, L: 1000, preM: 0, step: 1, p: 0, playing: true, hold: 0, chal: 0, done: [false, false, false] };
+const hasComp = () => S.step >= 3;
+
+function metrics() {
+  const b2 = beta2(S.lam), pre = hasComp() ? -b2 * S.preM * 1000 : 0;
+  const gF = b2 * S.L, net = gF + pre, k = stretch(S.tau, net);
+  const T0 = T0of(S.tau);
+  const bestTau = Math.sqrt(4 * Math.LN2 * Math.abs(gF));          // 不補償時讓出口最短的原始脈寬
+  return { b2, pre, gF, net, k, out: S.tau * k, sig: 1 / k, LD: T0 * T0 / Math.abs(b2), bestOut: Math.SQRT2 * bestTau };
 }
 
-/* ---------- 脈衝圖 ---------- */
-function drawPulse(tau, net) {
-  const cv = $('cPulse'), ctx = cv.getContext('2d');
-  const w = cv.width, h = cv.height, mL = 14, mR = 14, mT = 30, mB = 34;
-  const pw = w - mL - mR, ph = h - mT - mB;
-  ctx.fillStyle = C.panel; ctx.fillRect(0, 0, w, h);
-  const T0 = T0of(tau), k = stretch(tau, net), tauOut = tau * k;
-  const half = 1.6 * Math.max(tau, tauOut);              // 時間視窗 ±half fs
-  const X = tt => mL + pw * (tt + half) / (2 * half);
-  const Y = I => mT + ph - ph * I;
-  const font = (s) => `${s}px "Noto Serif TC", "Source Han Serif TC", serif`;
-
-  // 軸
-  ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(mL, Y(0)); ctx.lineTo(w - mR, Y(0)); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(X(0), mT); ctx.lineTo(X(0), Y(0)); ctx.stroke();
-  ctx.fillStyle = C.ink; ctx.font = font(13); ctx.fillText(t('cv.pulse'), mL, 18);
-  ctx.fillStyle = C.muted; ctx.font = font(11);
-  ctx.textAlign = 'center'; ctx.fillText(t('cv.time', fmtFs(half)), w / 2, h - 10); ctx.textAlign = 'left';
-
-  // 輸出：包絡（能量守恆 → 峰值 1/k）＋依瞬時頻率上色的填色
-  const D = T0 ** 4 + net * net;
-  const env = tt => Math.exp(-tt * tt * T0 * T0 / D) / k;        // 強度
-  const dw = tt => tt * net / D * T0;                               // 瞬時頻率偏移 × T0
-  const step = 2;
-  for (let px = 0; px < pw; px += step) {
-    const tt = -half + 2 * half * (px + step / 2) / pw;
-    const I = env(tt);
-    if (I < 0.002) continue;
-    ctx.fillStyle = freqColor(dw(tt) / 1.2);
-    ctx.globalAlpha = 0.55;
-    ctx.fillRect(mL + px, Y(I), step, Y(0) - Y(I));
-  }
-  ctx.globalAlpha = 1;
-
-  // 載波（示意）：視覺頻率固定，依瞬時頻率加減，看紅前藍後
-  if ($('carrier').checked) {
-    const cyc = 14, Om = 2 * Math.PI * cyc / (2 * Math.max(tau, tauOut));
-    ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.5; ctx.lineWidth = 1;
-    ctx.beginPath();
-    let ph0 = 0, prev = -half;
-    for (let px = 0; px <= pw; px++) {
-      const tt = -half + 2 * half * px / pw;
-      ph0 += Om * (1 + 0.45 * Math.max(-1.5, Math.min(1.5, dw(tt)))) * (tt - prev); prev = tt;
-      // 畫在包絡內側上下擺動，不另開一條零線
-      const yc = Y(env(tt) / 2) + (Y(0) - Y(env(tt))) / 2 * Math.cos(ph0) * 0.9;
-      px ? ctx.lineTo(mL + px, yc) : ctx.moveTo(mL + px, yc);
-    }
-    ctx.stroke(); ctx.globalAlpha = 1;
-  }
-
-  // 輸出包絡線
-  ctx.strokeStyle = C.accent; ctx.lineWidth = 2;
-  ctx.beginPath();
-  for (let px = 0; px <= pw; px++) { const tt = -half + 2 * half * px / pw; const y = Y(env(tt)); px ? ctx.lineTo(mL + px, y) : ctx.moveTo(mL + px, y); }
-  ctx.stroke();
-
-  // 輸入（轉換極限）虛線
-  ctx.strokeStyle = C.muted; ctx.setLineDash([4, 3]); ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  for (let px = 0; px <= pw; px++) {
-    const tt = -half + 2 * half * px / pw; const y = Y(Math.exp(-tt * tt / (T0 * T0)));
-    px ? ctx.lineTo(mL + px, y) : ctx.moveTo(mL + px, y);
-  }
-  ctx.stroke(); ctx.setLineDash([]);
-
-  // 圖例
-  ctx.font = font(11);
-  let lx = w - mR - 210, ly = 16;
-  ctx.strokeStyle = C.muted; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(lx, ly - 4); ctx.lineTo(lx + 18, ly - 4); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = C.muted; ctx.fillText(t('cv.in'), lx + 22, ly);
-  lx += 100;
-  ctx.strokeStyle = C.accent; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(lx, ly - 4); ctx.lineTo(lx + 18, ly - 4); ctx.stroke();
-  ctx.fillText(t('cv.out'), lx + 22, ly);
-  // 顏色說明
-  if (Math.abs(net) > 0.3 * T0 * T0) {
-    ctx.fillStyle = freqColor(-1); ctx.fillText('■ ' + t('cv.red'), mL, h - 10);
-    ctx.textAlign = 'right'; ctx.fillStyle = freqColor(1); ctx.fillText(t('cv.blue') + ' ■', w - mR, h - 10); ctx.textAlign = 'left';
-  }
-}
-
-/* ---------- 長度曲線 ---------- */
-function drawCurve(tau, b2, pre, L) {
-  const cv = $('cCurve'), ctx = cv.getContext('2d');
-  const w = cv.width, h = cv.height, mL = 52, mR = 52, mT = 40, mB = 34;
-  const pw = w - mL - mR, ph = h - mT - mB;
-  ctx.fillStyle = C.panel; ctx.fillRect(0, 0, w, h);
-  const font = (s) => `${s}px "Noto Serif TC", "Source Han Serif TC", serif`;
-  const X = lg => mL + pw * lg / 4;                              // log10(mm) 0..4
-  const wLo = Math.log10(Math.max(10, tau * 0.8)), wHi = Math.max(wLo + 1, Math.log10(tau * stretch(tau, b2 * 1e4) * 1.3));
-  const Yw = v => mT + ph - ph * (Math.log10(v) - wLo) / (wHi - wLo);
-  const Ys = s => mT + ph - ph * s;
-
-  ctx.strokeStyle = C.grid; ctx.lineWidth = 1; ctx.font = font(10); ctx.fillStyle = C.muted;
-  for (let lg = 0; lg <= 4; lg++) {
-    const x = X(lg);
-    ctx.beginPath(); ctx.moveTo(x, mT); ctx.lineTo(x, mT + ph); ctx.stroke();
-    ctx.textAlign = 'center'; ctx.fillText(fmtLen(10 ** lg), x, h - 18);
-  }
-  for (let d = Math.ceil(wLo); d <= Math.floor(wHi); d++) {
-    const y = Yw(10 ** d);
-    ctx.beginPath(); ctx.moveTo(mL, y); ctx.lineTo(w - mR, y); ctx.stroke();
-    ctx.textAlign = 'right'; ctx.fillStyle = C.accent; ctx.fillText(fmtFs(10 ** d), mL - 4, y + 3);
-  }
-  ctx.fillStyle = C.ref; ctx.textAlign = 'left';
-  for (const s of [0, 0.5, 1]) ctx.fillText((s * 100).toFixed(0) + '%', w - mR + 4, Ys(s) + 3);
-  ctx.fillStyle = C.ink; ctx.font = font(13); ctx.fillText(t('cv.curve'), mL, 18);
-  ctx.font = font(10); ctx.fillStyle = C.muted; ctx.fillText(t('cv.nocomp'), mL, 32);   // 放標題下一行，英文標題較長
-
-  const line = (f, Y, color, dash) => {
-    ctx.strokeStyle = color; ctx.lineWidth = dash ? 1.3 : 2; ctx.setLineDash(dash ? [4, 3] : []);
-    ctx.beginPath();
-    for (let px = 0; px <= pw; px++) { const lg = 4 * px / pw, y = Y(f(10 ** lg)); px ? ctx.lineTo(mL + px, y) : ctx.moveTo(mL + px, y); }
-    ctx.stroke(); ctx.setLineDash([]);
-  };
-  const clipW = v => Math.min(10 ** wHi, v);
-  line(l => clipW(tau * stretch(tau, b2 * l)), Yw, C.accent, true);
-  line(l => 1 / stretch(tau, b2 * l), Ys, C.ref, true);
-  if (pre !== 0) {
-    line(l => clipW(tau * stretch(tau, b2 * l + pre)), Yw, C.accent, false);
-    line(l => 1 / stretch(tau, b2 * l + pre), Ys, C.ref, false);
-  }
-  // 目前長度
-  const xl = X(Math.log10(L));
-  ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.moveTo(xl, mT); ctx.lineTo(xl, mT + ph); ctx.stroke(); ctx.globalAlpha = 1;
-  const k = stretch(tau, b2 * L + pre);
-  ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(xl, Yw(clipW(tau * k)), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = C.ref; ctx.beginPath(); ctx.arc(xl, Ys(1 / k), 4, 0, 2 * Math.PI); ctx.fill();
-  // 軸名
-  ctx.save(); ctx.font = font(10);
-  ctx.translate(12, mT + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillStyle = C.accent; ctx.fillText(t('cv.width'), 0, 0);
-  ctx.restore(); ctx.save(); ctx.font = font(10);
-  ctx.translate(w - 8, mT + ph / 2); ctx.rotate(Math.PI / 2); ctx.textAlign = 'center'; ctx.fillStyle = C.ref; ctx.fillText(t('cv.sig'), 0, 0);
-  ctx.restore();
-}
-
-/* ---------- 總繪製 ---------- */
-function render() {
-  const tau = parseFloat($('tau').value), lam = parseFloat($('lam').value);
-  const L = lenMm(), pre = parseFloat($('pre').value);
-  const b2 = beta2(lam), gF = b2 * L, net = gF + pre;
-  const k = stretch(tau, net);
-  const T0 = T0of(tau), LD = T0 * T0 / Math.abs(b2);
-  $('tauOut').textContent = tau + ' fs';
-  $('lamOut').textContent = lam + ' nm';
-  $('lenOut').textContent = fmtLen(L);
-  $('preOut').textContent = fmtInt(pre) + ' fs²';
-  drawPulse(tau, net);
-  drawCurve(tau, b2, pre, L);
-  const sig = 1 / k;
-  $('stats').innerHTML =
-    t('st.b2', b2.toFixed(1)) + '<br>' +
-    t('st.gdd', fmtInt(gF), fmtInt(net)) + '<br>' +
-    t('st.ld', fmtLen(LD)) + '<br>' +
-    t('st.out', fmtFs(tau * k), k.toFixed(k < 10 ? 2 : 0)) + '<br>' +
-    t('st.sig', (sig * 100).toFixed(sig < 0.1 ? 1 : 0) + '%') +
-    (sig < 0.1 ? '<br>' + t('st.warn') : '');
-}
-
-/* ---------- 事件 ---------- */
-for (const id of ['tau', 'lam', 'len', 'pre']) $(id).addEventListener('input', render);
-$('carrier').addEventListener('change', render);
-$('match').onclick = () => {
-  const need = -beta2(parseFloat($('lam').value)) * lenMm();
-  const el = $('pre');
-  if (need < parseFloat(el.min)) el.min = Math.floor(need / 1000) * 1000;   // 長光纖時把滑桿範圍放寬
-  el.value = need; render();
+/* ═══════════════════════════ 分步 ═══════════════════════════ */
+const PRESET = {
+  1: () => { S.tau = 100; S.lam = 800; S.L = 1000; S.preM = 0; },
+  2: () => { S.tau = 100; S.lam = 800; S.L = 300; S.preM = 0; },
+  3: () => { S.tau = 100; S.lam = 800; S.L = 1000; S.preM = 0; },
 };
-$('zero').onclick = () => { $('pre').value = 0; render(); };
+function buildSteps() {
+  $('steps').innerHTML = [1, 2, 3, 4, 5].map(n => `<button class="chip${n === S.step ? ' on' : ''}" data-n="${n}">${t('step.' + n)}</button>`).join('');
+  $('steps').querySelectorAll('button').forEach(b => b.onclick = () => setStep(parseInt(b.dataset.n, 10)));
+}
+function setStep(n, keep) {
+  S.step = n;
+  if (!keep && PRESET[n]) PRESET[n]();
+  if (n === 5 && !keep) startChal(S.chal);
+  if (!hasComp()) S.preM = 0;
+  S.p = 0; S.hold = 0;
+  buildSteps();
+  document.querySelectorAll('[data-steps]').forEach(el => { el.hidden = !el.dataset.steps.split(' ').includes(String(n)); });
+  syncInputs(); render();
+}
 
+/* ═══════════════════════════ 挑戰 ═══════════════════════════ */
+const CH = [
+  { set: () => { S.tau = 100; S.lam = 800; S.L = 1000; S.preM = 0; }, lock: ['tau', 'lam', 'pre'],
+    ok: m => m.sig >= 0.5 && m.sig <= 0.53, yes: () => t('ok.1', fmtLen(S.L)), no: m => t('no.sig', fmtPct(m.sig)) },
+  { set: () => { S.tau = 100; S.lam = 800; S.L = 1000; S.preM = 0; }, lock: ['len', 'lam', 'pre'],
+    ok: m => m.out <= 1.03 * m.bestOut, yes: () => t('ok.2', S.tau + ' fs'), no: m => t('no.out', fmtFs(m.out), fmtFs(m.bestOut)) },
+  { set: () => { S.tau = 30; S.lam = 800; S.L = 2000; S.preM = 0; }, lock: ['tau', 'lam', 'len'],
+    ok: m => m.sig >= 0.95, yes: () => t('ok.3'), no: m => t('no.sig', fmtPct(m.sig)) },
+];
+function buildChal() {
+  $('chalBtns').innerHTML = CH.map((c, i) => `<button class="chip${i === S.chal ? ' on' : ''}${S.done[i] ? ' done' : ''}" data-i="${i}">${t('chal.' + (i + 1))}</button>`).join('');
+  $('chalBtns').querySelectorAll('button').forEach(b => b.onclick = () => { startChal(parseInt(b.dataset.i, 10)); syncInputs(); render(); });
+}
+function startChal(i) { S.chal = i; CH[i].set(); S.p = 0; }
+
+/* ═══════════════════════════ 畫面 ═══════════════════════════ */
+const font = (s, b) => `${b ? '600 ' : ''}${s}px "Noto Serif TC", "Source Han Serif TC", serif`;
+function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+function draw() {
+  const cv = $('cv'), W = cv.clientWidth; if (!W) return;
+  const narrow = W < 600, H = narrow ? 400 : 440, dpr = Math.min(2, window.devicePixelRatio || 1);
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + 'px'; }
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  const m = metrics(), comp = hasComp();
+
+  // ── 幾何：雷射 →（預補償）→ 光纖 → 樣品，上下兩條共用同一條橫軸
+  const pad = narrow ? 8 : 16, bw = narrow ? 40 : 64, gap = narrow ? 10 : 24, sw = narrow ? 44 : 72;
+  const yT = narrow ? 92 : 104, fh = narrow ? 44 : 56;
+  const lx0 = pad, lx1 = pad + bw;
+  const cx0 = lx1 + gap, cx1 = cx0 + bw;
+  const f0 = (comp ? cx1 : lx1) + gap, f1 = W - pad - sw - gap, xS = W - pad - sw / 2;
+  const netAt = (x, pre) => (comp && x > cx0 ? pre * clamp((x - cx0) / (cx1 - cx0), 0, 1) : 0) + (x > f0 ? m.gF * clamp((x - f0) / (f1 - f0), 0, 1) : 0);
+  const xp = lx1 + (xS - lx1) * S.p;                       // 脈衝現在的位置
+
+  // ── 圖例
+  ctx.textBaseline = 'alphabetic'; ctx.font = font(12);
+  let gx = pad + 2;
+  for (const [col, key] of [['hsl(0,80%,52%)', 'cv.red'], ['hsl(235,80%,58%)', 'cv.blue']]) {
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(gx + 5, 18, 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = C.muted; ctx.textAlign = 'left'; ctx.fillText(t(key), gx + 14, 22);
+    gx += 24 + ctx.measureText(t(key)).width;
+  }
+  if (!narrow) { ctx.textAlign = 'right'; ctx.font = font(11); ctx.fillText(t('cv.note'), W - pad, 22); }
+
+  // ── 元件
+  const box = (x0, x1, on) => {
+    rr(ctx, x0, yT - fh / 2, x1 - x0, fh, 8); ctx.fillStyle = C.glass; ctx.globalAlpha = on ? 1 : 0.5; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.strokeStyle = C.muted; ctx.lineWidth = 1; ctx.setLineDash(on ? [] : [4, 3]); ctx.stroke(); ctx.setLineDash([]);
+  };
+  const under = (txt, x, col) => { ctx.font = font(12); ctx.fillStyle = col || C.muted; ctx.textAlign = 'center'; ctx.fillText(txt, x, yT + fh / 2 + 18); };
+  box(lx0, lx1, true); under(t('cv.laser'), (lx0 + lx1) / 2);
+  if (comp) {
+    box(cx0, cx1, S.preM > 0); under(t('cv.comp'), (cx0 + cx1) / 2);
+    ctx.strokeStyle = C.muted; ctx.lineWidth = 1.2;                    // 兩片稜鏡示意
+    const mx = (cx0 + cx1) / 2, q = bw * 0.2;
+    for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(mx + s * q - q * 0.7, yT + s * q * 0.6); ctx.lineTo(mx + s * q + q * 0.7, yT + s * q * 0.6); ctx.lineTo(mx + s * q, yT - s * q * 0.6); ctx.closePath(); ctx.stroke(); }
+  }
+  // 光纖：外層包覆＋中間纖芯
+  rr(ctx, f0, yT - fh / 2, f1 - f0, fh, fh / 2); ctx.fillStyle = C.glass; ctx.fill(); ctx.strokeStyle = C.muted; ctx.globalAlpha = 0.6; ctx.stroke(); ctx.globalAlpha = 1;
+  rr(ctx, f0 + 4, yT - fh * 0.2, f1 - f0 - 8, fh * 0.4, fh * 0.2); ctx.fillStyle = C.panel; ctx.globalAlpha = 0.75; ctx.fill(); ctx.globalAlpha = 1;
+  under(t('cv.fiber', fmtLen(S.L)), (f0 + f1) / 2, C.ink);
+  // 樣品：到站時亮起，亮度＝訊號
+  const arrive = clamp((S.p - 0.88) / 0.12, 0, 1), glow = m.sig * (0.3 + 0.7 * arrive);
+  const R = sw * 0.36;
+  const gr = ctx.createRadialGradient(xS, yT, 0, xS, yT, R * 1.5);
+  gr.addColorStop(0, `rgba(70,210,120,${0.95 * glow})`); gr.addColorStop(1, 'rgba(70,210,120,0)');
+  ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(xS, yT, R * 1.5, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = C.muted; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(xS, yT, R, 0, 2 * Math.PI); ctx.stroke();
+  under(t('cv.sample'), xS);
+
+  // ── 脈衝：一團色塊，前面（右）是先到的光。長度 ∝ 倍率^0.6（示意）
+  {
+    const net = netAt(xp, m.pre), k = stretch(S.tau, net), cs = 1 - 1 / k;
+    const fw = Math.min((narrow ? 9 : 16) * Math.pow(k, 0.6), 0.32 * (f1 - f0));
+    const hh = Math.max(4, (fh * 0.48) / Math.pow(k, 0.35));
+    const sgn = net >= 0 ? 1 : -1;
+    for (let dx = -1.4 * fw; dx <= 1.4 * fw; dx += 1.5) {
+      const u = dx / fw, g = Math.exp(-4 * Math.LN2 * u * u);
+      if (g < 0.03) continue;
+      const f = clamp(-u * sgn * 1.25, -1, 1);                  // 前緣（u>0）在正色散下是紅
+      const hue = 118 + 118 * f;
+      ctx.fillStyle = `hsl(${hue.toFixed(0)}, ${(88 * cs).toFixed(0)}%, ${(C.dark ? 92 - 34 * cs : 22 + 30 * cs).toFixed(0)}%)`;
+      ctx.fillRect(xp + dx, yT - hh * g, 1.6, 2 * hh * g);
+    }
+  }
+
+  // ── 下圖：脈寬沿路怎麼變（橫軸跟上面對齊，縱軸照比例）
+  const yB0 = yT + fh / 2 + (narrow ? 58 : 62), yB1 = H - 30;
+  const N = 160, xs = [], ws = [], w0s = [];
+  let wMax = S.tau;
+  for (let i = 0; i <= N; i++) {
+    const x = lx1 + (xS - lx1) * i / N;
+    xs.push(x); ws.push(S.tau * stretch(S.tau, netAt(x, m.pre))); w0s.push(S.tau * stretch(S.tau, netAt(x, 0)));
+    wMax = Math.max(wMax, ws[i], m.pre ? w0s[i] : 0);
+  }
+  const yMax = wMax * 1.2, Y = v => yB1 - (yB1 - yB0) * v / yMax;
+  ctx.font = font(13, true); ctx.fillStyle = C.ink; ctx.textAlign = 'left'; ctx.fillText(t('cv.chart'), pad + 2, yB0 - 14);
+  ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, yB1); ctx.lineTo(W - pad, yB1); ctx.stroke();
+  for (const x of [f0, f1]) { ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(x, yT + fh / 2 + 24); ctx.lineTo(x, yB1); ctx.stroke(); ctx.setLineDash([]); }
+  ctx.font = font(11); ctx.fillStyle = C.muted; ctx.textAlign = 'center';
+  ctx.fillText('0', f0, yB1 + 16); ctx.fillText(fmtLen(S.L), f1, yB1 + 16);
+  // 原始脈寬參考線
+  ctx.strokeStyle = C.muted; ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(pad, Y(S.tau)); ctx.lineTo(W - pad, Y(S.tau)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.textAlign = 'left'; ctx.fillText(t('cv.orig', fmtFs(S.tau)), pad + 2, Y(S.tau) - 5);
+  // 沒有預補償的對照（虛線）
+  if (m.pre) {
+    ctx.strokeStyle = C.muted; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]); ctx.beginPath();
+    xs.forEach((x, i) => i ? ctx.lineTo(x, Y(w0s[i])) : ctx.moveTo(x, Y(w0s[i]))); ctx.stroke(); ctx.setLineDash([]);
+    if (Math.abs(Y(w0s[N]) - Y(m.out)) > 22) { ctx.textAlign = 'right'; ctx.fillStyle = C.muted; ctx.fillText(t('cv.nocomp'), W - pad - 2, Y(w0s[N]) - 7); }
+  }
+  // 目前設定（實線＋淡色填滿）
+  ctx.beginPath(); ctx.moveTo(xs[0], yB1); xs.forEach((x, i) => ctx.lineTo(x, Y(ws[i]))); ctx.lineTo(xs[N], yB1); ctx.closePath();
+  ctx.fillStyle = C.accent; ctx.globalAlpha = 0.12; ctx.fill(); ctx.globalAlpha = 1;
+  ctx.strokeStyle = C.accent; ctx.lineWidth = 2.2; ctx.beginPath();
+  xs.forEach((x, i) => i ? ctx.lineTo(x, Y(ws[i])) : ctx.moveTo(x, Y(ws[i]))); ctx.stroke();
+  // 出口讀數
+  ctx.font = font(13, true); ctx.fillStyle = C.accent; ctx.textAlign = 'right';
+  ctx.fillText(t('cv.exit', fmtFs(m.out)), W - pad - 2, Math.max(yB0 + 4, Y(m.out) - 10));
+  // 跟著脈衝走的標記
+  const wNow = S.tau * stretch(S.tau, netAt(xp, m.pre));
+  ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.25; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xp, yT + fh / 2 + 24); ctx.lineTo(xp, yB1); ctx.stroke(); ctx.globalAlpha = 1;
+  ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(xp, Y(wNow), 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = C.panel; ctx.lineWidth = 2; ctx.stroke();
+  if (S.p < 0.86) {
+    ctx.font = font(12); ctx.fillStyle = C.ink; ctx.textAlign = 'center';
+    const tx = clamp(xp, pad + 34, W - pad - 34);
+    ctx.fillText(fmtFs(wNow), tx, Math.max(yB0 + 4, Y(wNow) - 12));
+  }
+}
+
+function render() {
+  const m = metrics();
+  $('tauOut').textContent = S.tau + ' fs';
+  $('lamOut').textContent = S.lam + ' nm';
+  $('lenOut').textContent = fmtLen(S.L);
+  $('preOut').textContent = S.preM > 0 ? t('pre.val', fmtLen(S.preM * 1000)) : t('pre.none');
+  $('cap').innerHTML = t('cap.' + S.step);
+  $('play').textContent = S.playing ? t('play') : t('paused');
+  $('vW').innerHTML = fmtFs(m.out) + `<small>${t('tile.times', m.k.toFixed(m.k < 10 ? 1 : 0))}</small>`;
+  $('vS').textContent = fmtPct(m.sig);
+  $('barS').style.width = Math.max(1, m.sig * 100) + '%';
+  $('tileS').classList.toggle('bad', m.sig < 0.5);
+  $('nums').innerHTML = t('num.b2', m.b2.toFixed(1)) + '<br>' + t('num.gdd', fmtInt(m.gF), fmtInt(m.pre), fmtInt(m.net)) + '<br>' + t('num.ld', fmtLen(m.LD));
+  // 挑戰
+  const lock = S.step === 5 ? CH[S.chal].lock : [];
+  document.querySelectorAll('[data-ctl]').forEach(el => {
+    const on = lock.includes(el.dataset.ctl);
+    el.classList.toggle('locked', on);
+    el.querySelectorAll('input,button').forEach(i => { i.disabled = on; });
+  });
+  if (S.step === 5) {
+    const c = CH[S.chal], ok = c.ok(m);
+    if (ok && !S.done[S.chal]) { S.done[S.chal] = true; }
+    buildChal();
+    $('chalGoal').innerHTML = t('goal.' + (S.chal + 1));
+    $('chalStatus').textContent = ok ? c.yes(m) : c.no(m);
+    $('chalStatus').classList.toggle('ok', ok);
+  }
+  draw();
+}
+
+/* ═══════════════════════════ 控制 ═══════════════════════════ */
+function syncInputs() {
+  $('tau').value = S.tau; $('lam').value = S.lam; $('len').value = Math.log10(S.L / 1000); $('pre').value = S.preM;
+}
+$('tau').addEventListener('input', e => { S.tau = parseFloat(e.target.value); render(); });
+$('lam').addEventListener('input', e => { S.lam = parseFloat(e.target.value); render(); });
+$('len').addEventListener('input', e => { S.L = 1000 * Math.pow(10, parseFloat(e.target.value)); render(); });
+$('pre').addEventListener('input', e => { S.preM = parseFloat(e.target.value); render(); });
+$('match').onclick = () => { S.preM = S.L / 1000; syncInputs(); S.p = 0; S.playing = true; render(); };   // preM 存精確值，不受滑桿刻度限制
+$('zero').onclick = () => { S.preM = 0; syncInputs(); render(); };
+$('play').onclick = () => { S.playing = !S.playing; if (S.playing && S.p >= 1) S.p = 0; render(); };
+$('pos').addEventListener('input', e => { S.playing = false; S.p = parseFloat(e.target.value) / 1000; render(); });
+window.addEventListener('resize', draw);
+
+let last = 0;
+function tick(ts) {
+  const dt = Math.min(0.05, (ts - last) / 1000 || 0); last = ts;
+  if (S.playing) {
+    if (S.p >= 1) { S.hold += dt; if (S.hold > 1) { S.p = 0; S.hold = 0; } }
+    else S.p = Math.min(1, S.p + dt / 5);
+    $('pos').value = Math.round(S.p * 1000);
+    draw();
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ═══════════════════════════ 開機 ═══════════════════════════ */
+readColors();
+booted = true;
 setTheme(document.documentElement.dataset.theme || 'light');
 applyLang();
-booted = true;
+buildChal();
+setStep(clamp(parseInt(QS.get('step'), 10) || 1, 1, 5));
+// 網址參數（分享或截圖用）：step、chal、tau（fs）、len（mm）、lam（nm）、pre（抵銷幾公尺）、match=1、p
+if (S.step === 5 && QS.get('chal')) startChal(clamp(parseInt(QS.get('chal'), 10) - 1 || 0, 0, 2));
+if (QS.get('tau')) S.tau = clamp(parseFloat(QS.get('tau')) || 100, 30, 500);
+if (QS.get('len')) S.L = clamp(parseFloat(QS.get('len')) || 1000, 10, 10000);
+if (QS.get('lam')) S.lam = clamp(parseFloat(QS.get('lam')) || 800, 700, 1100);
+if (QS.get('pre') && hasComp()) S.preM = clamp(parseFloat(QS.get('pre')) || 0, 0, 12);
+if (QS.get('match') === '1' && hasComp()) S.preM = S.L / 1000;
+syncInputs();
+if (QS.get('p') !== null) { S.playing = false; S.p = clamp(parseFloat(QS.get('p')) || 0, 0, 1); $('pos').value = S.p * 1000; }   // ?p=0.6：停在某個位置（截圖用）
+else if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { S.playing = false; S.p = 1; }
 render();
-</script>
-<script>
-// 思源宋體（Noto Serif TC）是網路字型：載完後重畫一次 canvas，讓圖上的字也換成宋體
-document.fonts && document.fonts.ready.then(() => {
-  if (typeof redrawAll === 'function') redrawAll(); else if (typeof render === 'function') render();
-});
+requestAnimationFrame(tick);
+// 思源宋體是網路字型：載完後重畫一次，讓圖上的字也換成宋體
+document.fonts && document.fonts.ready.then(() => redrawAll());
 </script>
 </body>
 </html>
